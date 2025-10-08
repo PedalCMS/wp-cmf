@@ -1,0 +1,36 @@
+# Ignore Composer dependencies
+/vendor/
+
+# Ignore node modules (if using npm/yarn)
+/node_modules/
+
+# Ignore build artifacts
+/dist/
+/build/
+
+# Ignore logs and temp files
+*.log
+*.tmp
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE/project files
+.vscode/
+
+# Ignore WordPress specific files (if not needed in repo)
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+wp-content/upgrade/
+
+# Ignore environment files
+.env
+.env.*
+
+# Ignore composer test artifacts
+/.phpunit.result.cache
+
+# Ignore coverage reports
+/coverage/
