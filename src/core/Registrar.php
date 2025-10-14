@@ -11,6 +11,8 @@
 
 namespace Pedalcms\WpCmf\Core;
 
+use Pedalcms\WpCmf\CPT\CustomPostType;
+
 /**
  * Registrar class - Handles WordPress hook binding
  *
@@ -22,7 +24,7 @@ class Registrar {
 	/**
 	 * Registered custom post types
 	 *
-	 * @var array<string, array<string, mixed>>
+	 * @var array<string, CustomPostType>
 	 */
 	private array $custom_post_types = [];
 
@@ -97,7 +99,19 @@ class Registrar {
 	 * @return self
 	 */
 	public function add_custom_post_type( string $post_type, array $args ): self {
-		$this->custom_post_types[ $post_type ] = $args;
+		$cpt = CustomPostType::from_array( $post_type, $args );
+		$this->custom_post_types[ $post_type ] = $cpt;
+		return $this;
+	}
+
+	/**
+	 * Add a CustomPostType instance directly
+	 *
+	 * @param CustomPostType $cpt CustomPostType instance.
+	 * @return self
+	 */
+	public function add_cpt_instance( CustomPostType $cpt ): self {
+		$this->custom_post_types[ $cpt->get_post_type() ] = $cpt;
 		return $this;
 	}
 
@@ -134,8 +148,8 @@ class Registrar {
 	 * @return void
 	 */
 	public function register_custom_post_types(): void {
-		foreach ( $this->custom_post_types as $post_type => $args ) {
-			register_post_type( $post_type, $args );
+		foreach ( $this->custom_post_types as $cpt ) {
+			$cpt->register();
 		}
 	}
 
@@ -238,7 +252,7 @@ class Registrar {
 	/**
 	 * Get registered custom post types
 	 *
-	 * @return array<string, array<string, mixed>>
+	 * @return array<string, CustomPostType>
 	 */
 	public function get_custom_post_types(): array {
 		return $this->custom_post_types;
