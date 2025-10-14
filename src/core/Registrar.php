@@ -12,6 +12,7 @@
 namespace Pedalcms\WpCmf\Core;
 
 use Pedalcms\WpCmf\CPT\CustomPostType;
+use Pedalcms\WpCmf\Settings\SettingsPage;
 
 /**
  * Registrar class - Handles WordPress hook binding
@@ -31,7 +32,7 @@ class Registrar {
 	/**
 	 * Registered settings pages
 	 *
-	 * @var array<string, array<string, mixed>>
+	 * @var array<string, SettingsPage>
 	 */
 	private array $settings_pages = [];
 
@@ -123,7 +124,19 @@ class Registrar {
 	 * @return self
 	 */
 	public function add_settings_page( string $page_id, array $args ): self {
-		$this->settings_pages[ $page_id ] = $args;
+		$settings_page = SettingsPage::from_array( $page_id, $args );
+		$this->settings_pages[ $page_id ] = $settings_page;
+		return $this;
+	}
+
+	/**
+	 * Add a SettingsPage instance directly
+	 *
+	 * @param SettingsPage $page SettingsPage instance.
+	 * @return self
+	 */
+	public function add_settings_page_instance( SettingsPage $page ): self {
+		$this->settings_pages[ $page->get_page_id() ] = $page;
 		return $this;
 	}
 
@@ -159,51 +172,8 @@ class Registrar {
 	 * @return void
 	 */
 	public function register_admin_pages(): void {
-		foreach ( $this->settings_pages as $page_id => $page_args ) {
-			$this->register_single_admin_page( $page_id, $page_args );
-		}
-	}
-
-	/**
-	 * Register a single admin page
-	 *
-	 * @param string               $page_id   Page identifier.
-	 * @param array<string, mixed> $page_args Page arguments.
-	 * @return void
-	 */
-	private function register_single_admin_page( string $page_id, array $page_args ): void {
-		$defaults = [
-			'page_title' => '',
-			'menu_title' => '',
-			'capability' => 'manage_options',
-			'menu_slug'  => $page_id,
-			'callback'   => [ $this, 'render_settings_page' ],
-			'icon_url'   => '',
-			'position'   => null,
-		];
-
-		$args = array_merge( $defaults, $page_args );
-
-		// Determine registration method based on whether it's a top-level or sub-menu page
-		if ( isset( $args['parent_slug'] ) ) {
-			add_submenu_page(
-				$args['parent_slug'],
-				$args['page_title'],
-				$args['menu_title'],
-				$args['capability'],
-				$args['menu_slug'],
-				$args['callback']
-			);
-		} else {
-			add_menu_page(
-				$args['page_title'],
-				$args['menu_title'],
-				$args['capability'],
-				$args['menu_slug'],
-				$args['callback'],
-				$args['icon_url'],
-				$args['position']
-			);
+		foreach ( $this->settings_pages as $page ) {
+			$page->register();
 		}
 	}
 
@@ -261,7 +231,7 @@ class Registrar {
 	/**
 	 * Get registered settings pages
 	 *
-	 * @return array<string, array<string, mixed>>
+	 * @return array<string, SettingsPage>
 	 */
 	public function get_settings_pages(): array {
 		return $this->settings_pages;
