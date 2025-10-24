@@ -2,7 +2,40 @@
 
 This directory contains organized examples demonstrating various WP-CMF features and usage patterns. Each example is in its own folder with dedicated code and documentation.
 
+## 🌟 Recommended Starting Points
+
+### 1. **`plugin-array-config/`** - Complete Array-Based Configuration
+**Best for:** New projects, learning WP-CMF, production use
+
+Start here if you want to see a complete, real-world example with:
+- Multiple CPTs with comprehensive fields
+- Multiple settings pages
+- All 11 field types in action
+- Single configuration array
+- Best practices throughout
+
+### 2. **`cpt-with-metabox-fields/`** - Complete CPT with Metaboxes
+**Best for:** Understanding CPT field integration
+
+Complete example showing:
+- Custom post type with 25+ fields
+- Multiple metaboxes with different contexts
+- Field saving and validation
+- Frontend display patterns
+
+### 3. **`settings-with-fields/`** - Complete Settings Page
+**Best for:** WordPress Settings API integration
+
+Production-ready settings page with:
+- 20+ fields across organized sections
+- WordPress Settings API integration
+- Export/import functionality
+
 ## Available Examples
+
+### Custom Post Type Examples
+
+### Custom Post Type Examples
 
 ### 📁 `cpt-direct-usage/`
 **Direct CustomPostType Usage**  
@@ -22,26 +55,6 @@ $book_cpt->generate_labels( 'Book', 'Books' )
          ->register();
 ```
 
-### 📁 `cpt-manager-usage/`
-**Manager and Registrar Integration**  
-Shows how to use the WP-CMF Manager and Registrar architecture for registering multiple CPTs with array-based configuration.
-
-**Features:**
-- WP-CMF Manager singleton pattern
-- Array-based configuration
-- Multiple CPT registration
-- Framework integration
-
-```php
-$manager = Manager::init();
-$manager->get_registrar()->add_custom_post_type( 'portfolio', [
-    'singular' => 'Portfolio Item',
-    'plural'   => 'Portfolio Items',
-    'public'   => true,
-    'supports' => [ 'title', 'editor', 'thumbnail' ],
-] );
-```
-
 ### 📁 `cpt-advanced-config/`
 **Advanced Configuration**  
 Demonstrates professional-grade custom post type registration with fully customized labels, advanced WordPress arguments, and detailed configuration.
@@ -53,23 +66,6 @@ Demonstrates professional-grade custom post type registration with fully customi
 - Custom rewrite rules
 - REST API integration
 
-```php
-$registrar->add_custom_post_type( 'event', [
-    'labels' => [
-        'name'          => 'Events',
-        'singular_name' => 'Event',
-        'add_new_item'  => 'Add New Event',
-        // ... more labels
-    ],
-    'menu_icon'     => 'dashicons-calendar-alt',
-    'menu_position' => 20,
-    'rewrite'       => [
-        'slug'       => 'events',
-        'with_front' => false,
-    ],
-] );
-```
-
 ### 📁 `cpt-custom-capabilities/`
 **Custom Capabilities & Permissions**  
 Shows how to create custom post types with custom capability mapping for advanced permission control and role-based access management.
@@ -80,37 +76,7 @@ Shows how to create custom post types with custom capability mapping for advance
 - Role-based access control
 - Security through capability checking
 
-```php
-$cpt = CustomPostType::from_array( 'project', [
-    'capability_type' => 'project',
-    'map_meta_cap'    => true,
-    'capabilities'    => [
-        'edit_post'   => 'edit_project',
-        'read_post'   => 'read_project',
-        'delete_post' => 'delete_project',
-        // ... more capabilities
-    ],
-] );
-```
-
-## Running the Examples
-
-Each example folder contains:
-- `example.php` - The working code
-- `README.md` - Detailed documentation and explanation
-
-To use any example:
-
-1. **Include in your plugin:**
-   ```php
-   require_once __DIR__ . '/path/to/example/example.php';
-   ```
-
-2. **Or copy the relevant code** into your plugin's main file
-
-3. **Ensure WP-CMF is loaded** via Composer autoloader
-
-## Settings Page Examples
+### Settings Page Examples
 
 ### 📁 `settings-page-basic/`
 **Basic Settings Page**  
@@ -123,10 +89,6 @@ Shows how to create submenu pages under core WordPress menus.
 ### 📁 `settings-page-custom-render/`
 **Advanced Rendering**  
 Advanced rendering with tabs, widgets, and custom classes.
-
-### 📁 `settings-page-manager-usage/`
-**Manager Patterns**  
-Manager patterns and dynamic page creation.
 
 ## Field Examples
 
@@ -147,6 +109,22 @@ FieldFactory patterns and dynamic field creation:
 - Error handling
 
 ## Complete Integration Examples
+
+### 📁 `plugin-array-config/`
+**Complete Array-Based Configuration** ⭐ RECOMMENDED  
+Production-ready plugin using array-based registration:
+- Book and Movie custom post types with 10+ fields each
+- Library and Movie Catalog settings pages
+- All 11 field types demonstrated
+- Single configuration array for entire plugin
+- 400+ lines of documented configuration examples
+- Best practices for field naming, validation, defaults
+
+**Perfect for:**
+- New projects starting with WP-CMF
+- Configuration-driven development
+- Rapid prototyping
+- Learning WP-CMF's capabilities
 
 ### 📁 `settings-with-fields/`
 **Complete Settings Page with Fields**  
@@ -186,37 +164,65 @@ Complete Book CPT with comprehensive metadata:
 
 ## Quick Start
 
-The simplest way to get started:
+**New to WP-CMF?** Start with `plugin-array-config/` for a complete overview.
+
+**Need a specific feature?** Check the examples above organized by category.
+
+**Simplest possible usage:**
 
 ```php
 <?php
 // Load WP-CMF
 require_once __DIR__ . '/vendor/autoload.php';
 
-use Pedalcms\WpCmf\CPT\CustomPostType;
+use Pedalcms\WpCmf\Core\Manager;
 
-// Create and register a CPT
+// Array-based configuration (Recommended)
 add_action( 'init', function() {
-    $cpt = new CustomPostType( 'book' );
-    $cpt->generate_labels( 'Book', 'Books' )
-         ->set_defaults()
-         ->register();
-} );
+    Manager::init()->register_from_array([
+        'cpts' => [
+            [
+                'id' => 'book',
+                'args' => [
+                    'label' => 'Books',
+                    'public' => true,
+                ],
+            ],
+        ],
+    ]);
+});
 ```
+
+## Running the Examples
+
+Each example folder contains:
+- `example.php` - Working code you can use directly
+- `README.md` - Detailed documentation and explanation
+
+**To use any example:**
+
+1. **Copy to your plugin** or include directly
+2. **Ensure Composer autoloader is loaded**
+3. **Activate and test** in WordPress
+
+## Example Count by Category
+
+- **Complete Integration**: 3 examples (`plugin-array-config`, `cpt-with-metabox-fields`, `settings-with-fields`)
+- **CPT Patterns**: 3 examples (direct, advanced, capabilities)
+- **Settings Pages**: 3 examples (basic, submenu, custom render)
+- **Field System**: 2 examples (custom assets, factory usage)
+
+**Total: 11 examples** covering all major WP-CMF features
 
 ## Implementation Status
 
 ### ✅ Milestone 2 - Custom Post Types & Settings Pages
 **Complete** - All features implemented with comprehensive examples and tests
-- 4 CPT examples demonstrating various configuration approaches
-- 4 Settings page examples showing different use cases
 
 ### ✅ Milestone 3 - Field System
-**Complete** - Full field API with extensibility
-- 11 core field types (Text, Textarea, Select, Checkbox, Radio, Number, Email, URL, Date, Password, Color)
-- FieldFactory for dynamic field creation
-- Custom field type registration
-- Asset enqueuing system
-- 2 comprehensive field examples
+**Complete** - Full field API with 11 core field types and extensibility
 
-**Test Coverage:** 130/130 tests passing (414 assertions)
+### ✅ Milestone 4 Feature 1 - Array-Based Registration
+**Complete** - Single-array configuration with automatic field creation
+
+**Test Coverage:** 143/143 tests passing (455 assertions)
