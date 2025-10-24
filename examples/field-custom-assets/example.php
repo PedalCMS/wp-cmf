@@ -8,6 +8,9 @@
  * @package Pedalcms\WpCmf
  */
 
+// Require Composer autoloader
+require_once __DIR__ . '/../../vendor/autoload.php';
+
 use Pedalcms\WpCmf\Field\AbstractField;
 use Pedalcms\WpCmf\Field\Fields\ColorField;
 use Pedalcms\WpCmf\Core\Manager;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Example: Submenu Settings Page
  *
@@ -8,7 +9,7 @@
  * @package Pedalcms\WpCmf
  */
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Pedalcms\WpCmf\Core\Manager;
 use Pedalcms\WpCmf\Settings\SettingsPage;
@@ -23,14 +24,16 @@ $settings_submenu
 	->set_menu_title( 'My Plugin' )
 	->set_parent( 'options-general.php' )  // Adds under Settings menu
 	->set_capability( 'manage_options' )
-	->set_callback( function() {
-		?>
-		<div class="wrap">
-			<h1>My Plugin Settings</h1>
-			<p>This page appears under Settings in the WordPress admin.</p>
-		</div>
-		<?php
-	} );
+	->set_callback(
+		function () {
+			?>
+	<div class="wrap">
+		<h1>My Plugin Settings</h1>
+		<p>This page appears under Settings in the WordPress admin.</p>
+	</div>
+			<?php
+		}
+	);
 
 $manager->get_registrar()->add_settings_page_instance( $settings_submenu );
 
@@ -41,20 +44,22 @@ $tools_submenu
 	->set_menu_title( 'My Tools' )
 	->set_parent( 'tools.php' )  // Adds under Tools menu
 	->set_capability( 'manage_options' )
-	->set_callback( function() {
-		?>
-		<div class="wrap">
-			<h1>My Plugin Tools</h1>
-			<p>This page appears under Tools in the WordPress admin.</p>
-			<h2>Available Tools</h2>
-			<ul>
-				<li>Tool 1: Data Import</li>
-				<li>Tool 2: Data Export</li>
-				<li>Tool 3: Cache Clear</li>
-			</ul>
-		</div>
-		<?php
-	} );
+	->set_callback(
+		function () {
+			?>
+	<div class="wrap">
+		<h1>My Plugin Tools</h1>
+		<p>This page appears under Tools in the WordPress admin.</p>
+		<h2>Available Tools</h2>
+		<ul>
+			<li>Tool 1: Data Import</li>
+			<li>Tool 2: Data Export</li>
+			<li>Tool 3: Cache Clear</li>
+		</ul>
+	</div>
+			<?php
+		}
+	);
 
 $manager->get_registrar()->add_settings_page_instance( $tools_submenu );
 
@@ -66,13 +71,15 @@ $cpt_submenu
 	->set_menu_title( 'Settings' )
 	->set_parent( 'edit.php?post_type=book' )  // Adds under Books CPT menu
 	->set_capability( 'edit_posts' )
-	->set_callback( function() {
-		?>
-		<div class="wrap">
-			<h1>Book Settings</h1>
-			<p>Configure settings specific to the Books post type.</p>
-		</div>
-		<?php
-	} );
+	->set_callback(
+		function () {
+			?>
+	<div class="wrap">
+		<h1>Book Settings</h1>
+		<p>Configure settings specific to the Books post type.</p>
+	</div>
+			<?php
+		}
+	);
 
 $manager->get_registrar()->add_settings_page_instance( $cpt_submenu );

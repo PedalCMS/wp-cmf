@@ -268,14 +268,55 @@ class SettingsPage {
 	/**
 	 * Default render callback
 	 *
+	 * Renders a settings page with WordPress Settings API integration.
+	 * If fields have been registered via the Settings API, they will be displayed.
+	 *
 	 * @return void
 	 */
 	public function render_default(): void {
 		$page_title = $this->config['page_title'] ?? 'Settings';
+		$menu_slug  = $this->get_menu_slug();
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html( $page_title ); ?></h1>
-			<p><?php echo esc_html__( 'Settings page content goes here.', 'wp-cmf' ); ?></p>
+
+			<?php
+			// Check if there are any settings sections registered for this page
+			global $wp_settings_sections;
+			$has_sections = ! empty( $wp_settings_sections[ $menu_slug ] );
+
+			if ( $has_sections ) {
+				// Display settings errors
+				if ( function_exists( 'settings_errors' ) ) {
+					settings_errors();
+				}
+				?>
+				<form method="post" action="options.php">
+					<?php
+					// Output security fields for the registered setting
+					if ( function_exists( 'settings_fields' ) ) {
+						settings_fields( $menu_slug );
+					}
+
+					// Output setting sections and their fields
+					if ( function_exists( 'do_settings_sections' ) ) {
+						do_settings_sections( $menu_slug );
+					}
+
+					// Output save button
+					if ( function_exists( 'submit_button' ) ) {
+						submit_button();
+					}
+					?>
+				</form>
+				<?php
+			} else {
+				// No fields registered - show placeholder
+				?>
+				<p><?php echo esc_html__( 'No settings configured for this page.', 'wp-cmf' ); ?></p>
+				<?php
+			}
+			?>
 		</div>
 		<?php
 	}

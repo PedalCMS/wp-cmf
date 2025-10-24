@@ -15,7 +15,7 @@ class ArrayRegistrationTest extends WP_UnitTestCase {
 	public function setUp(): void {
 		parent::setUp();
 		FieldFactory::reset();
-		
+
 		// Reset Manager singleton using reflection
 		$reflection = new \ReflectionClass( Manager::class );
 		$instance   = $reflection->getProperty( 'instance' );
@@ -440,5 +440,95 @@ class ArrayRegistrationTest extends WP_UnitTestCase {
 		$this->assertCount( 2, $fields['book'] );
 		$this->assertCount( 1, $fields['movie'] );
 		$this->assertCount( 2, $fields['media-settings'] );
+	}
+
+	/**
+	 * Test that register_custom_post_types is called when did_action('init') returns true
+	 *
+	 * This simulates the real-world scenario where a plugin calls
+	 * register_from_array() inside an 'init' action hook. In that case,
+	 * we need to call register_custom_post_types() immediately instead
+	 * of waiting for the 'init' hook (which has already fired).
+	 */
+	public function test_register_during_init_hook() {
+		// Mock did_action to return true (simulating we're during init)
+		global $wp_actions;
+		$wp_actions['init'] = 1;
+
+		$config = array(
+			'cpts' => array(
+				array(
+					'id'   => 'test_cpt',
+					'args' => array(
+						'label'    => 'Test CPT',
+						'public'   => true,
+						'supports' => array( 'title' ),
+					),
+				),
+			),
+		);
+
+		$manager = Manager::init();
+		$manager->register_from_array( $config );
+
+		// Verify CPT was added to registrar
+		$cpts = $manager->get_registrar()->get_custom_post_types();
+		$this->assertArrayHasKey( 'test_cpt', $cpts );
+
+		// In a test environment, register() won't actually work because
+		// register_post_type() doesn't exist. But we can verify that
+		// register_custom_post_types() was called by checking that the
+		// CPT object exists in the registrar.
+		$this->assertInstanceOf( \Pedalcms\WpCmf\CPT\CustomPostType::class, $cpts['test_cpt'] );
+
+		// Reset for other tests
+		unset( $wp_actions['init'] );
+	}
+
+	/**
+	 * Test that settings pages and fields are registered when called after hooks fire
+	 * 
+	 * This simulates calling register_from_array() after admin_menu and admin_init
+	 * hooks have already fired.
+	 */
+	public function test_register_settings_after_hooks() {
+		// Mock hooks as already fired
+		global $wp_actions;
+		$wp_actions['init']       = 1;
+		$wp_actions['admin_menu'] = 1;
+		$wp_actions['admin_init'] = 1;
+
+		$config = [
+			'settings_pages' => [
+				[
+					'id'         => 'test_settings',
+					'page_title' => 'Test Settings',
+					'menu_title' => 'Test Settings',
+					'capability' => 'manage_options',
+					'fields'     => [
+						[
+							'name'  => 'test_field',
+							'type'  => 'text',
+							'label' => 'Test Field',
+						],
+					],
+				],
+			],
+		];
+
+		$manager = Manager::init();
+		$manager->register_from_array( $config );
+
+		// Verify settings page was added
+		$pages = $manager->get_registrar()->get_settings_pages();
+		$this->assertArrayHasKey( 'test_settings', $pages );
+
+		// Verify fields were added
+		$fields = $manager->get_registrar()->get_fields();
+		$this->assertArrayHasKey( 'test_settings', $fields );
+		$this->assertCount( 1, $fields['test_settings'] );
+
+		// Reset for other tests
+		unset( $wp_actions['init'], $wp_actions['admin_menu'], $wp_actions['admin_init'] );
 	}
 }

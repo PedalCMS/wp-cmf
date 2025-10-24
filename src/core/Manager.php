@@ -124,6 +124,25 @@ class Manager {
 			}
 		}
 
+		// If we're already past certain hooks, we need to immediately register
+		// instead of waiting for the hooks to fire (which won't happen again)
+		if ( function_exists( 'did_action' ) ) {
+			// Register CPTs if 'init' has already fired
+			if ( did_action( 'init' ) ) {
+				$this->registrar->register_custom_post_types();
+			}
+
+			// Register admin pages if 'admin_menu' has already fired
+			if ( did_action( 'admin_menu' ) ) {
+				$this->registrar->register_admin_pages();
+			}
+
+			// Register settings fields if 'admin_init' has already fired
+			if ( did_action( 'admin_init' ) ) {
+				$this->registrar->register_settings_fields();
+			}
+		}
+
 		return $this;
 	}
 
