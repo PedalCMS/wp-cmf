@@ -210,9 +210,9 @@ Each example folder contains:
 - **Complete Integration**: 3 examples (`plugin-array-config`, `cpt-with-metabox-fields`, `settings-with-fields`)
 - **CPT Patterns**: 3 examples (direct, advanced, capabilities)
 - **Settings Pages**: 3 examples (basic, submenu, custom render)
-- **Field System**: 2 examples (custom assets, factory usage)
+- **Field System**: 1 example (factory usage)
 
-**Total: 11 examples** covering all major WP-CMF features
+**Total: 10 examples** covering all major WP-CMF features
 
 ## Implementation Status
 

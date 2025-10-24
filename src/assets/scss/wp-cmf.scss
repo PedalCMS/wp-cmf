@@ -1,0 +1,387 @@
+/**
+ * WP-CMF Core Fields Styling
+ *
+ * Default styles for all WP-CMF field types
+ *
+ * @package Pedalcms\WpCmf
+ * @since 1.0.0
+ */
+
+// ==========================================================================
+// Variables
+// ==========================================================================
+
+$wp-blue: #2271b1;
+$wp-red: #d63638;
+$wp-text-dark: #1d2327;
+$wp-text-medium: #2c3338;
+$wp-text-light: #646970;
+$wp-border: #8c8f94;
+$wp-border-light: #dcdcde;
+$wp-bg-disabled: #f6f7f7;
+
+$input-padding: 6px 8px;
+$input-border-radius: 4px;
+$input-max-width: 500px;
+$field-margin-bottom: 20px;
+
+$transition-fast: 0.15s ease-in-out;
+
+// ==========================================================================
+// Field Wrapper & Container
+// ==========================================================================
+
+.wp-cmf-field {
+	margin-bottom: $field-margin-bottom;
+	clear: both;
+}
+
+.wp-cmf-field-wrapper {
+	display: block;
+	margin-bottom: 15px;
+}
+
+.wp-cmf-field-label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 5px;
+	color: $wp-text-dark;
+
+	&.required::after {
+		content: " *";
+		color: $wp-red;
+	}
+}
+
+.wp-cmf-field-description {
+	display: block;
+	margin-top: 5px;
+	font-style: italic;
+	color: $wp-text-light;
+	font-size: 13px;
+}
+
+// ==========================================================================
+// Text Input Fields
+// ==========================================================================
+
+.wp-cmf-field {
+	input[type="text"],
+	input[type="email"],
+	input[type="url"],
+	input[type="password"],
+	input[type="number"],
+	input[type="date"],
+	textarea {
+		width: 100%;
+		max-width: $input-max-width;
+		padding: $input-padding;
+		border: 1px solid $wp-border;
+		border-radius: $input-border-radius;
+		background-color: #fff;
+		color: $wp-text-medium;
+		font-size: 14px;
+		line-height: 1.4;
+		box-shadow: 0 0 0 transparent;
+		transition: border-color $transition-fast, box-shadow $transition-fast;
+
+		&:focus {
+			border-color: $wp-blue;
+			box-shadow: 0 0 0 1px $wp-blue;
+			outline: 2px solid transparent;
+		}
+
+		&:disabled {
+			background-color: $wp-bg-disabled;
+			color: $wp-text-light;
+			cursor: not-allowed;
+		}
+	}
+}
+
+// ==========================================================================
+// Textarea
+// ==========================================================================
+
+.wp-cmf-field textarea {
+	min-height: 100px;
+	resize: vertical;
+}
+
+// ==========================================================================
+// Select Field
+// ==========================================================================
+
+.wp-cmf-field select {
+	width: 100%;
+	max-width: $input-max-width;
+	padding: $input-padding;
+	border: 1px solid $wp-border;
+	border-radius: $input-border-radius;
+	background-color: #fff;
+	color: $wp-text-medium;
+	font-size: 14px;
+	line-height: 1.4;
+	cursor: pointer;
+	transition: border-color $transition-fast;
+
+	&:focus {
+		border-color: $wp-blue;
+		outline: 2px solid transparent;
+		box-shadow: 0 0 0 1px $wp-blue;
+	}
+
+	&[multiple] {
+		min-height: 150px;
+	}
+}
+
+// ==========================================================================
+// Checkbox Fields
+// ==========================================================================
+
+.wp-cmf-field-checkbox-group {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+
+	&.inline {
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 15px;
+	}
+}
+
+.wp-cmf-field-checkbox-item {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+
+	label {
+		margin: 0;
+		font-weight: normal;
+		cursor: pointer;
+	}
+}
+
+.wp-cmf-field input[type="checkbox"] {
+	width: 16px;
+	height: 16px;
+	margin: 0;
+	cursor: pointer;
+	border: 1px solid $wp-border;
+	border-radius: 3px;
+	background-color: #fff;
+
+	&:checked {
+		background-color: $wp-blue;
+		border-color: $wp-blue;
+	}
+
+	&:focus {
+		outline: 2px solid $wp-blue;
+		outline-offset: 2px;
+	}
+}
+
+// ==========================================================================
+// Radio Fields
+// ==========================================================================
+
+.wp-cmf-field-radio-group {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+
+	&.inline {
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 15px;
+	}
+}
+
+.wp-cmf-field-radio-item {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+
+	label {
+		margin: 0;
+		font-weight: normal;
+		cursor: pointer;
+	}
+}
+
+.wp-cmf-field input[type="radio"] {
+	width: 16px;
+	height: 16px;
+	margin: 0;
+	cursor: pointer;
+	border: 1px solid $wp-border;
+	border-radius: 50%;
+	background-color: #fff;
+
+	&:checked {
+		background-color: $wp-blue;
+		border-color: $wp-blue;
+	}
+
+	&:focus {
+		outline: 2px solid $wp-blue;
+		outline-offset: 2px;
+	}
+}
+
+// ==========================================================================
+// Color Field
+// ==========================================================================
+
+.wp-cmf-field input[type="color"] {
+	width: 60px;
+	height: 40px;
+	padding: 2px;
+	border: 1px solid $wp-border;
+	border-radius: $input-border-radius;
+	cursor: pointer;
+
+	&:focus {
+		border-color: $wp-blue;
+		outline: 2px solid transparent;
+	}
+}
+
+// WordPress Color Picker Integration
+.wp-cmf-field .wp-picker-container {
+	display: inline-block;
+
+	.wp-color-result {
+		height: 32px;
+		border-radius: $input-border-radius;
+	}
+}
+
+// ==========================================================================
+// Number Field
+// ==========================================================================
+
+.wp-cmf-field input[type="number"] {
+	max-width: 150px;
+}
+
+// ==========================================================================
+// Date Field
+// ==========================================================================
+
+.wp-cmf-field input[type="date"] {
+	max-width: 200px;
+}
+
+// ==========================================================================
+// File/Image Upload Fields (for future)
+// ==========================================================================
+
+.wp-cmf-field-upload {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.wp-cmf-field-upload-preview {
+	max-width: 150px;
+	max-height: 150px;
+	border: 1px solid $wp-border-light;
+	border-radius: $input-border-radius;
+	padding: 5px;
+
+	img {
+		max-width: 100%;
+		height: auto;
+		display: block;
+	}
+}
+
+// ==========================================================================
+// Error States
+// ==========================================================================
+
+.wp-cmf-field.has-error {
+	input,
+	textarea,
+	select {
+		border-color: $wp-red;
+	}
+}
+
+.wp-cmf-field-error {
+	display: block;
+	margin-top: 5px;
+	color: $wp-red;
+	font-size: 13px;
+}
+
+// ==========================================================================
+// Meta Box Styling
+// ==========================================================================
+
+.wp-cmf-fields {
+	padding: 10px 12px;
+
+	.wp-cmf-field:last-child {
+		margin-bottom: 0;
+	}
+}
+
+// ==========================================================================
+// Settings Page Styling
+// ==========================================================================
+
+.wrap .wp-cmf-settings-form {
+	max-width: 800px;
+}
+
+.wp-cmf-settings-section {
+	margin-bottom: 30px;
+
+	h2 {
+		margin-top: 0;
+		padding-bottom: 10px;
+		border-bottom: 1px solid $wp-border-light;
+	}
+}
+
+// ==========================================================================
+// Responsive Design
+// ==========================================================================
+
+@media screen and (max-width: 782px) {
+	.wp-cmf-field {
+		input[type="text"],
+		input[type="email"],
+		input[type="url"],
+		input[type="password"],
+		input[type="number"],
+		input[type="date"],
+		textarea,
+		select {
+			max-width: 100%;
+		}
+	}
+
+	.wp-cmf-field-checkbox-group.inline,
+	.wp-cmf-field-radio-group.inline {
+		flex-direction: column;
+	}
+}
+
+// ==========================================================================
+// Utility Classes
+// ==========================================================================
+
+.wp-cmf-hidden {
+	display: none !important;
+}
+
+.wp-cmf-readonly {
+	pointer-events: none;
+	opacity: 0.6;
+}

@@ -102,8 +102,11 @@ class CheckboxField extends AbstractField {
 		$output         = '<fieldset>';
 		$checked_values = is_array( $value ) ? $value : array( $value );
 
-		$wrapper_class = $this->config['inline'] ? 'wp-cmf-checkbox-inline' : 'wp-cmf-checkbox-stacked';
-		$output       .= '<div class="' . $this->esc_attr( $wrapper_class ) . '">';
+		$wrapper_class = 'wp-cmf-field-checkbox-group';
+		if ( $this->config['inline'] ) {
+			$wrapper_class .= ' inline';
+		}
+		$output .= '<div class="' . $this->esc_attr( $wrapper_class ) . '">';
 
 		foreach ( $this->config['options'] as $opt_value => $opt_label ) {
 			$checkbox_id = $this->get_field_id() . '-' . $this->sanitize_key( $opt_value );
