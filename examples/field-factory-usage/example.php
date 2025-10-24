@@ -13,6 +13,9 @@
 
 namespace Pedalcms\WpCmf\Examples;
 
+// Require Composer autoloader
+require_once __DIR__ . '/../../vendor/autoload.php';
+
 use Pedalcms\WpCmf\Core\Manager;
 use Pedalcms\WpCmf\Field\FieldFactory;
 use Pedalcms\WpCmf\Field\Fields\TextField;
@@ -118,7 +121,7 @@ echo "<h2>Example 3: Registering Custom Field Types</h2>\n\n";
 
 // Create a custom slider field
 class SliderField extends AbstractField {
-	
+
 	/**
 	 * Render the slider field
 	 */
@@ -127,7 +130,7 @@ class SliderField extends AbstractField {
 		$min   = $this->get_config( 'min', 0 );
 		$max   = $this->get_config( 'max', 100 );
 		$step  = $this->get_config( 'step', 1 );
-		
+
 		$attrs = $this->get_attributes( [
 			'type'  => 'range',
 			'min'   => $min,
@@ -135,22 +138,22 @@ class SliderField extends AbstractField {
 			'step'  => $step,
 			'value' => $value,
 		] );
-		
+
 		$output  = $this->render_label();
 		$output .= "<input {$attrs} />";
 		$output .= "<output>{$value}</output>";
 		$output .= $this->render_description();
-		
+
 		return $this->render_wrapper( $output );
 	}
-	
+
 	/**
 	 * Sanitize the value
 	 */
 	public function sanitize( $value ) {
 		$min = $this->get_config( 'min', 0 );
 		$max = $this->get_config( 'max', 100 );
-		
+
 		$value = intval( $value );
 		return max( $min, min( $max, $value ) );
 	}
@@ -229,7 +232,7 @@ foreach ( $test_values as $test_value ) {
 	$validation = $email_field->validate( $test_value );
 	$status     = $validation['valid'] ? '✓' : '✗';
 	$errors     = ! empty( $validation['errors'] ) ? ' (' . implode( ', ', $validation['errors'] ) . ')' : '';
-	
+
 	echo "  {$status} \"{$test_value}\"{$errors}\n";
 }
 echo "\n";

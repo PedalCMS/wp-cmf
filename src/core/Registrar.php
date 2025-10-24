@@ -191,6 +191,9 @@ class Registrar {
 	/**
 	 * Register custom post types with WordPress
 	 *
+	 * This method is called on the 'init' hook, but can also be called
+	 * directly if CPTs are added during or after the 'init' hook.
+	 *
 	 * @return void
 	 */
 	public function register_custom_post_types(): void {
@@ -201,6 +204,9 @@ class Registrar {
 
 	/**
 	 * Register admin pages with WordPress
+	 *
+	 * This method is called on the 'admin_menu' hook, but can also be called
+	 * directly if pages are added during or after the 'admin_menu' hook.
 	 *
 	 * @return void
 	 */
@@ -214,6 +220,8 @@ class Registrar {
 	 * Register settings fields with WordPress
 	 *
 	 * Registers fields for settings pages using WordPress Settings API.
+	 * This method is called on the 'admin_init' hook, but can also be called
+	 * directly if fields are added during or after the 'admin_init' hook.
 	 *
 	 * @return void
 	 */
@@ -288,9 +296,28 @@ class Registrar {
 		// Get current value
 		$value = function_exists( 'get_option' ) ? get_option( $option_name, '' ) : '';
 
-		// Render field
+		// Get the rendered field HTML
+		$field_html = $field->render( $value );
+
+		// Replace the field's name attribute with the option name
+		// This ensures WordPress Settings API can save the value correctly
+		$original_name = $field->get_name();
+		$field_html    = str_replace(
+			'name="' . $original_name . '"',
+			'name="' . $option_name . '"',
+			$field_html
+		);
+
+		// Also handle array names for checkboxes/multi-select
+		$field_html = str_replace(
+			'name="' . $original_name . '[]"',
+			'name="' . $option_name . '[]"',
+			$field_html
+		);
+
+		// Render field with correct name
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Field's render method handles escaping
-		echo $field->render( $value );
+		echo $field_html;
 	}
 
 	/**

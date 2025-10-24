@@ -14,6 +14,9 @@
 
 namespace Pedalcms\WpCmf\Examples\CptWithMetaboxFields;
 
+// Require Composer autoloader
+require_once __DIR__ . '/../../vendor/autoload.php';
+
 use Pedalcms\WpCmf\Core\Manager;
 use Pedalcms\WpCmf\Field\FieldFactory;
 
@@ -28,32 +31,30 @@ add_action(
 	'init',
 	function () use ( $registrar ) {
 		$registrar->add_custom_post_type(
+			'book',
 			[
-				'id'   => 'book',
-				'args' => [
-					'labels'       => [
-						'name'               => 'Books',
-						'singular_name'      => 'Book',
-						'add_new'            => 'Add New',
-						'add_new_item'       => 'Add New Book',
-						'edit_item'          => 'Edit Book',
-						'new_item'           => 'New Book',
-						'view_item'          => 'View Book',
-						'search_items'       => 'Search Books',
-						'not_found'          => 'No books found',
-						'not_found_in_trash' => 'No books found in trash',
-					],
-					'public'       => true,
-					'has_archive'  => true,
-					'supports'     => [ 'title', 'editor', 'thumbnail', 'excerpt' ],
-					'menu_icon'    => 'dashicons-book',
-					'menu_position' => 20,
-					'rewrite'      => [
-						'slug'       => 'books',
-						'with_front' => false,
-					],
-					'show_in_rest' => true,
+				'labels'        => [
+					'name'               => 'Books',
+					'singular_name'      => 'Book',
+					'add_new'            => 'Add New',
+					'add_new_item'       => 'Add New Book',
+					'edit_item'          => 'Edit Book',
+					'new_item'           => 'New Book',
+					'view_item'          => 'View Book',
+					'search_items'       => 'Search Books',
+					'not_found'          => 'No books found',
+					'not_found_in_trash' => 'No books found in trash',
 				],
+				'public'        => true,
+				'has_archive'   => true,
+				'supports'      => [ 'title', 'editor', 'thumbnail', 'excerpt' ],
+				'menu_icon'     => 'dashicons-book',
+				'menu_position' => 20,
+				'rewrite'       => [
+					'slug'       => 'books',
+					'with_front' => false,
+				],
+				'show_in_rest'  => true,
 			]
 		);
 	}
@@ -124,43 +125,43 @@ function render_book_details_fields( $post ) {
 	// Create fields
 	$fields = FieldFactory::create_multiple(
 		[
-			'isbn'           => [
+			'isbn'          => [
 				'type'        => 'text',
 				'label'       => 'ISBN',
 				'description' => 'International Standard Book Number',
 				'placeholder' => '978-3-16-148410-0',
 				'pattern'     => '[\d\-]+',
 			],
-			'author'         => [
+			'author'        => [
 				'type'        => 'text',
 				'label'       => 'Author Name',
 				'description' => 'Primary author of the book',
 				'required'    => true,
 				'placeholder' => 'John Doe',
 			],
-			'co_authors'     => [
+			'co_authors'    => [
 				'type'        => 'textarea',
 				'label'       => 'Co-Authors',
 				'description' => 'Additional authors (one per line)',
 				'rows'        => 3,
 			],
-			'genre'          => [
+			'genre'         => [
 				'type'        => 'select',
 				'label'       => 'Genre',
 				'description' => 'Primary genre classification',
 				'options'     => [
-					'fiction'    => 'Fiction',
+					'fiction'     => 'Fiction',
 					'non-fiction' => 'Non-Fiction',
-					'mystery'    => 'Mystery',
-					'sci-fi'     => 'Science Fiction',
-					'fantasy'    => 'Fantasy',
-					'biography'  => 'Biography',
-					'history'    => 'History',
-					'children'   => 'Children',
+					'mystery'     => 'Mystery',
+					'sci-fi'      => 'Science Fiction',
+					'fantasy'     => 'Fantasy',
+					'biography'   => 'Biography',
+					'history'     => 'History',
+					'children'    => 'Children',
 					'young-adult' => 'Young Adult',
 				],
 			],
-			'pages'          => [
+			'pages'         => [
 				'type'        => 'number',
 				'label'       => 'Number of Pages',
 				'description' => 'Total page count',
@@ -168,7 +169,7 @@ function render_book_details_fields( $post ) {
 				'max'         => 10000,
 				'step'        => 1,
 			],
-			'language'       => [
+			'language'      => [
 				'type'        => 'select',
 				'label'       => 'Language',
 				'description' => 'Primary language of the book',
@@ -184,13 +185,13 @@ function render_book_details_fields( $post ) {
 				],
 				'default'     => 'en',
 			],
-			'series'         => [
+			'series'        => [
 				'type'        => 'text',
 				'label'       => 'Series Name',
 				'description' => 'If part of a series',
 				'placeholder' => 'e.g., Harry Potter',
 			],
-			'series_number'  => [
+			'series_number' => [
 				'type'        => 'number',
 				'label'       => 'Series Number',
 				'description' => 'Position in the series',
@@ -330,10 +331,10 @@ function render_publication_fields( $post ) {
 				'label'       => 'Available Formats',
 				'description' => 'Select all available formats',
 				'options'     => [
-					'hardcover'  => 'Hardcover',
-					'paperback'  => 'Paperback',
-					'ebook'      => 'E-Book',
-					'audiobook'  => 'Audiobook',
+					'hardcover' => 'Hardcover',
+					'paperback' => 'Paperback',
+					'ebook'     => 'E-Book',
+					'audiobook' => 'Audiobook',
 				],
 				'layout'      => 'stacked',
 			],
@@ -497,7 +498,10 @@ function save_book_metadata( $post_id ) {
 function get_book_details_fields_config() {
 	return [
 		'isbn'          => [ 'type' => 'text' ],
-		'author'        => [ 'type' => 'text', 'required' => true ],
+		'author'        => [
+			'type'     => 'text',
+			'required' => true,
+		],
 		'co_authors'    => [ 'type' => 'textarea' ],
 		'genre'         => [ 'type' => 'select' ],
 		'pages'         => [ 'type' => 'number' ],
@@ -567,19 +571,19 @@ function display_book_metadata( $post_id = null ) {
 		<?php if ( $author ) : ?>
 			<p><strong>Author:</strong> <?php echo esc_html( $author ); ?></p>
 		<?php endif; ?>
-		
+
 		<?php if ( $isbn ) : ?>
 			<p><strong>ISBN:</strong> <?php echo esc_html( $isbn ); ?></p>
 		<?php endif; ?>
-		
+
 		<?php if ( $price ) : ?>
 			<p><strong>Price:</strong> $<?php echo esc_html( number_format( $price, 2 ) ); ?></p>
 		<?php endif; ?>
-		
+
 		<?php if ( $genre ) : ?>
 			<p><strong>Genre:</strong> <?php echo esc_html( ucfirst( $genre ) ); ?></p>
 		<?php endif; ?>
-		
+
 		<?php if ( $pages ) : ?>
 			<p><strong>Pages:</strong> <?php echo esc_html( $pages ); ?></p>
 		<?php endif; ?>

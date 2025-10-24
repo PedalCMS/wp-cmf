@@ -8,7 +8,7 @@
  * @package Pedalcms\WpCmf
  */
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Pedalcms\WpCmf\Core\Manager;
 use Pedalcms\WpCmf\Settings\SettingsPage;
@@ -24,15 +24,15 @@ class MyPluginSettingsRenderer {
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-			
+
 			<?php settings_errors(); ?>
-			
+
 			<h2 class="nav-tab-wrapper">
 				<a href="?page=my-plugin-settings&tab=general" class="nav-tab nav-tab-active">General</a>
 				<a href="?page=my-plugin-settings&tab=advanced" class="nav-tab">Advanced</a>
 				<a href="?page=my-plugin-settings&tab=api" class="nav-tab">API</a>
 			</h2>
-			
+
 			<form method="post" action="options.php">
 				<?php
 				settings_fields( 'my_plugin_settings' );
@@ -51,7 +51,7 @@ class MyPluginSettingsRenderer {
 		?>
 		<div class="wrap">
 			<h1>Plugin Dashboard</h1>
-			
+
 			<div class="dashboard-widgets-wrap">
 				<div id="dashboard-widgets" class="metabox-holder">
 					<div class="postbox-container">
@@ -79,7 +79,7 @@ class MyPluginSettingsRenderer {
 		?>
 		<div class="wrap">
 			<h1>Help &amp; Documentation</h1>
-			
+
 			<div class="card">
 				<h2>Getting Started</h2>
 				<p>Welcome to our plugin! Here are some quick tips to get you started:</p>
@@ -90,7 +90,7 @@ class MyPluginSettingsRenderer {
 					<li>Start using the features</li>
 				</ol>
 			</div>
-			
+
 			<div class="card">
 				<h2>Common Issues</h2>
 				<ul>

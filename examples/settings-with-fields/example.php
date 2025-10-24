@@ -14,6 +14,9 @@
 
 namespace Pedalcms\WpCmf\Examples\SettingsWithFields;
 
+// Require Composer autoloader
+require_once __DIR__ . '/../../vendor/autoload.php';
+
 use Pedalcms\WpCmf\Core\Manager;
 use Pedalcms\WpCmf\Field\FieldFactory;
 
@@ -29,12 +32,11 @@ add_action(
 	function () use ( $registrar ) {
 		// Create a top-level settings page
 		$registrar->add_settings_page(
+			'my-plugin-settings',
 			[
-				'id'         => 'my-plugin-settings',
-				'title'      => 'My Plugin Settings',
+				'page_title' => 'My Plugin Settings',
 				'menu_title' => 'My Plugin',
 				'capability' => 'manage_options',
-				'slug'       => 'my-plugin-settings',
 				'callback'   => function () {
 					render_settings_page();
 				},
@@ -388,7 +390,7 @@ function render_settings_page() {
 	?>
 	<div class="wrap">
 		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-		
+
 		<p class="description">
 			Configure your plugin settings below. All changes are saved automatically.
 		</p>
@@ -439,7 +441,7 @@ function render_settings_page() {
 			}
 		}
 		?>
-		
+
 		var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(settings, null, 2));
 		var downloadAnchor = document.createElement('a');
 		downloadAnchor.setAttribute("href", dataStr);
