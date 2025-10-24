@@ -10,7 +10,8 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^1.1",
         "phpstan/phpstan": "^2.1",
         "szepeviktor/phpstan-wordpress": "^2.0",
-        "yoast/phpunit-polyfills": "^4.0"
+        "yoast/phpunit-polyfills": "^4.0",
+                "scssphp/scssphp": "^2.0"
     },
     "require": {
         "php": ">=8.0"
@@ -47,7 +48,12 @@
         "cs:check": "phpcs --standard=WordPress src/ tests/",
         "cs:fix": "phpcbf --standard=WordPress src/ tests/",
         "analyse": "phpstan analyse src/ --level=5",
+        "compile:scss": "php build/compile-scss.php",
+        "compile:scss:compressed": "php build/compile-scss.php --compressed",
+        "watch:scss": "php build/compile-scss.php --watch",
+        "build:assets": "@compile:scss",
         "ci": [
+			"@compile:scss:compressed",
             "@cs:check",
             "@analyse",
             "@test"
@@ -63,6 +69,10 @@
         "cs:check": "Check code style against WordPress coding standards",
         "cs:fix": "Auto-fix code style issues",
         "analyse": "Run static analysis with PHPStan",
+        "compile:scss": "Compile SCSS to CSS (expanded format)",
+        "compile:scss:compressed": "Compile SCSS to CSS (compressed/minified format)",
+        "watch:scss": "Watch SCSS files and auto-compile on changes",
+        "build:assets": "Build all front-end assets (currently just SCSS compilation)",
         "ci": "Run continuous integration tasks (code style, analysis, tests)"
     }
 }

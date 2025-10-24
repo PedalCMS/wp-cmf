@@ -367,13 +367,108 @@ class Registrar {
 	/**
 	 * Enqueue common assets used by all fields
 	 *
+	 * Enqueues core WP-CMF CSS and JS files on admin screens where CMF fields are present.
+	 *
 	 * @return void
 	 */
 	protected function enqueue_common_assets(): void {
-		// Hook for plugins/themes to add common WP-CMF assets
+		if ( ! function_exists( 'wp_enqueue_style' ) || ! function_exists( 'wp_enqueue_script' ) ) {
+			return;
+		}
+
+		// Only enqueue if we have fields registered
+		if ( empty( $this->fields ) ) {
+			return;
+		}
+
+		// Get the base path to WP-CMF assets
+		$assets_url = $this->get_assets_url();
+		$version    = $this->get_version();
+
+		// Enqueue WP-CMF CSS
+		wp_enqueue_style(
+			'wp-cmf',
+			$assets_url . 'css/wp-cmf.css',
+			[],
+			$version,
+			'all'
+		);
+
+		// Enqueue WP-CMF JS (depends on jQuery and wp-color-picker)
+		wp_enqueue_script(
+			'wp-cmf',
+			$assets_url . 'js/wp-cmf.js',
+			[ 'jquery', 'wp-color-picker' ],
+			$version,
+			true
+		);
+
+		// Enqueue color picker styles (required for ColorField)
+		wp_enqueue_style( 'wp-color-picker' );
+
+		// Hook for plugins/themes to add additional common WP-CMF assets
 		if ( function_exists( 'do_action' ) ) {
 			do_action( 'wp_cmf_enqueue_common_assets' );
 		}
+	}
+
+	/**
+	 * Get URL to WP-CMF assets directory
+	 *
+	 * @return string Assets URL with trailing slash.
+	 */
+	protected function get_assets_url(): string {
+		// Get the directory containing this file (src/Core/)
+		$dir = __DIR__;
+
+		// Navigate up to src directory, then to assets
+		$assets_dir = dirname( $dir ) . '/assets/';
+
+		// Convert filesystem path to URL
+		// Replace the WordPress installation path with the site URL
+		if ( defined( 'ABSPATH' ) && function_exists( 'site_url' ) ) {
+			// Normalize paths for comparison
+			$abspath     = str_replace( '\\', '/', ABSPATH );
+			$assets_path = str_replace( '\\', '/', $assets_dir );
+
+			// Replace ABSPATH with site_url
+			$assets_url = str_replace( $abspath, trailingslashit( site_url() ), $assets_path );
+
+			return $assets_url;
+		}
+
+		// Fallback: try to construct URL using wp-content
+		if ( defined( 'WP_CONTENT_DIR' ) && defined( 'WP_CONTENT_URL' ) ) {
+			$content_dir = str_replace( '\\', '/', WP_CONTENT_DIR );
+			$assets_path = str_replace( '\\', '/', $assets_dir );
+
+			$assets_url = str_replace( $content_dir, WP_CONTENT_URL, $assets_path );
+
+			return $assets_url;
+		}
+
+		return '';
+	}
+
+	/**
+	 * Get WP-CMF version for cache busting
+	 *
+	 * @return string Version string.
+	 */
+	protected function get_version(): string {
+		// Try to read version from composer.json
+		$composer_json_path = dirname( dirname( __DIR__ ) ) . '/composer.json';
+
+		if ( file_exists( $composer_json_path ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local file, not remote URL
+			$composer_json = json_decode( file_get_contents( $composer_json_path ), true );
+			if ( isset( $composer_json['version'] ) ) {
+				return $composer_json['version'];
+			}
+		}
+
+		// Fallback to a timestamp-based version for development
+		return gmdate( 'YmdHis', filemtime( __FILE__ ) );
 	}
 
 	/**
@@ -398,7 +493,7 @@ class Registrar {
 			add_meta_box(
 				$post_type . '_fields',
 				ucfirst( $post_type ) . ' Fields',
-				array( $this, 'render_meta_box' ),
+				[ $this, 'render_meta_box' ],
 				$post_type,
 				'normal',
 				'high'
@@ -437,6 +532,7 @@ class Registrar {
 				: '';
 
 			// Render the field
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Field's render method handles escaping
 			echo $field->render( $value );
 		}
 

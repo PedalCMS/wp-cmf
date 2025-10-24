@@ -6,7 +6,9 @@
 
 # Ignore build artifacts
 /dist/
-/build/
+
+# Build scripts are tracked, but not other build artifacts
+!/build/*.php
 
 # Ignore logs and temp files
 *.log

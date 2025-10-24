@@ -8,11 +8,12 @@ A powerful, flexible Composer library for building WordPress plugins with custom
 - **Settings Pages**: Top-level and submenu pages with automatic rendering
 - **Dynamic Fields**: 11 core field types with extensibility via custom field types
 - **Array Configuration**: Register CPTs, settings, and fields from a single array ✨ NEW
+- **Asset System**: Automatic CSS/JS loading for field styling and validation ✨ NEW
 - **Configuration-Driven**: Create fields from PHP arrays or JSON (Milestone 4)
 - **Validation & Sanitization**: Built-in security with customizable rules
 - **Asset Management**: Context-aware CSS/JS enqueuing for fields
 - **Type-Safe**: PSR-4 autoloading with full interface contracts
-- **Well-Tested**: 143 PHPUnit tests with 455 assertions
+- **Well-Tested**: 156 PHPUnit tests with 481 assertions
 
 ## Installation
 
@@ -132,14 +133,14 @@ class SliderField extends AbstractField {
         $value = $value ?? $this->get_config('default', 50);
         $min = $this->get_config('min', 0);
         $max = $this->get_config('max', 100);
-        
+
         $attrs = $this->get_attributes([
             'type'  => 'range',
             'min'   => $min,
             'max'   => $max,
             'value' => $value,
         ]);
-        
+
         return $this->render_wrapper(
             $this->render_label() .
             "<input {$attrs} />" .
@@ -179,12 +180,11 @@ WP-CMF includes 11 ready-to-use field types:
 
 ## Documentation
 
-- **[Field API Documentation](docs/field-api.md)** - Complete guide to creating and using fields
-- **[Examples Directory](examples/)** - Working examples for all features
-  - [Custom Post Types](examples/cpt-direct-usage/)
-  - [Settings Pages](examples/settings-page-basic/)
-  - [Field Factory](examples/field-factory-usage/)
-  - [Custom Assets](examples/field-custom-assets/)
+## Documentation
+
+- **[Field API](docs/field-api.md)** - Complete field system documentation
+- **[Usage Guide](docs/usage.md)** - Comprehensive usage examples
+- **[Examples](examples/)** - 10 working examples covering all features
 
 ## Requirements
 
@@ -201,10 +201,12 @@ WP-CMF includes 11 ready-to-use field types:
 - ✅ 11 Core field types
 - ✅ FieldFactory for dynamic field creation
 - ✅ Field asset enqueuing system
+- ✅ Core CSS and JavaScript files
+- ✅ Automatic asset loading with context awareness
 - ✅ Comprehensive documentation
 
 ### 🔄 In Progress
-- Milestone 4: Array/JSON-driven configuration
+- Milestone 4: Array/JSON-driven configuration (COMPLETE - testing phase)
 - Milestone 5: Security hardening
 - Milestone 6: Additional documentation
 - Milestone 7: CI/CD pipeline
@@ -217,7 +219,7 @@ Run the test suite:
 composer test
 ```
 
-Current coverage: **130 tests, 414 assertions** ✅
+Current coverage: **156 tests, 481 assertions** ✅
 
 ## Contributing
 
