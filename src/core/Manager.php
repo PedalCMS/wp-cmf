@@ -79,14 +79,105 @@ class Manager {
 	/**
 	 * Register configuration from array
 	 *
+	 * Accepts a configuration array and registers custom post types,
+	 * settings pages, and their associated fields.
+	 *
+	 * Expected structure:
+	 * <code>
+	 * array(
+	 *   'cpts' => array(
+	 *     array(
+	 *       'id' => 'book',
+	 *       'args' => array('label' => 'Books', 'supports' => array('title', 'editor')),
+	 *       'fields' => array( ... field definitions ... )
+	 *     )
+	 *   ),
+	 *   'settings_pages' => array(
+	 *     array(
+	 *       'id' => 'my-plugin-settings',
+	 *       'title' => 'My Plugin',
+	 *       'menu_title' => 'My Plugin',
+	 *       'capability' => 'manage_options',
+	 *       'slug' => 'my-plugin',
+	 *       'fields' => array( ... field definitions ... )
+	 *     )
+	 *   )
+	 * )
+	 * </code>
+	 *
 	 * @param array<string, mixed> $config Configuration array containing CPTs, settings pages, and fields.
 	 * @return self
+	 * @throws \InvalidArgumentException If configuration is invalid.
 	 */
 	public function register_from_array( array $config ): self {
-		// TODO: Implement array-based registration
-		// This will be implemented in Milestone 4
-		unset( $config ); // Prevent unused parameter warning
+		// Register custom post types
+		if ( ! empty( $config['cpts'] ) && is_array( $config['cpts'] ) ) {
+			foreach ( $config['cpts'] as $cpt_config ) {
+				$this->register_cpt_from_array( $cpt_config );
+			}
+		}
+
+		// Register settings pages
+		if ( ! empty( $config['settings_pages'] ) && is_array( $config['settings_pages'] ) ) {
+			foreach ( $config['settings_pages'] as $page_config ) {
+				$this->register_settings_page_from_array( $page_config );
+			}
+		}
+
 		return $this;
+	}
+
+	/**
+	 * Register a custom post type from array configuration
+	 *
+	 * @param array<string, mixed> $config CPT configuration.
+	 * @return void
+	 * @throws \InvalidArgumentException If required fields are missing.
+	 */
+	private function register_cpt_from_array( array $config ): void {
+		if ( empty( $config['id'] ) ) {
+			throw new \InvalidArgumentException( 'CPT configuration must include "id".' );
+		}
+
+		$post_type = $config['id'];
+		$args      = $config['args'] ?? array();
+		$fields    = $config['fields'] ?? array();
+
+		// Register the CPT
+		$this->registrar->add_custom_post_type( $post_type, $args );
+
+		// Register fields if provided
+		if ( ! empty( $fields ) && is_array( $fields ) ) {
+			$this->registrar->add_fields( $post_type, $fields );
+		}
+	}
+
+	/**
+	 * Register a settings page from array configuration
+	 *
+	 * @param array<string, mixed> $config Settings page configuration.
+	 * @return void
+	 * @throws \InvalidArgumentException If required fields are missing.
+	 */
+	private function register_settings_page_from_array( array $config ): void {
+		if ( empty( $config['id'] ) ) {
+			throw new \InvalidArgumentException( 'Settings page configuration must include "id".' );
+		}
+
+		$page_id = $config['id'];
+		$fields  = $config['fields'] ?? array();
+
+		// Remove 'fields' from config before passing to SettingsPage
+		$page_args = $config;
+		unset( $page_args['fields'] );
+
+		// Register the settings page
+		$this->registrar->add_settings_page( $page_id, $page_args );
+
+		// Register fields if provided
+		if ( ! empty( $fields ) && is_array( $fields ) ) {
+			$this->registrar->add_fields( $page_id, $fields );
+		}
 	}
 
 	/**

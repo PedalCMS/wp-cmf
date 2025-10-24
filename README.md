@@ -7,11 +7,12 @@ A powerful, flexible Composer library for building WordPress plugins with custom
 - **Custom Post Types**: Easy registration with fluent interface and array configuration
 - **Settings Pages**: Top-level and submenu pages with automatic rendering
 - **Dynamic Fields**: 11 core field types with extensibility via custom field types
-- **Configuration-Driven**: Create fields from PHP arrays or JSON (coming in Milestone 4)
+- **Array Configuration**: Register CPTs, settings, and fields from a single array ✨ NEW
+- **Configuration-Driven**: Create fields from PHP arrays or JSON (Milestone 4)
 - **Validation & Sanitization**: Built-in security with customizable rules
 - **Asset Management**: Context-aware CSS/JS enqueuing for fields
 - **Type-Safe**: PSR-4 autoloading with full interface contracts
-- **Well-Tested**: 130+ PHPUnit tests with 414 assertions
+- **Well-Tested**: 143 PHPUnit tests with 455 assertions
 
 ## Installation
 
@@ -20,6 +21,56 @@ composer require pedalcms/wp-cmf
 ```
 
 ## Quick Start
+
+### Array-Based Configuration (Recommended)
+
+```php
+use Pedalcms\WpCmf\Core\Manager;
+
+$config = [
+    'cpts' => [
+        [
+            'id'   => 'book',
+            'args' => [
+                'label'    => 'Books',
+                'supports' => ['title', 'editor', 'thumbnail'],
+                'public'   => true,
+            ],
+            'fields' => [
+                [
+                    'name'     => 'isbn',
+                    'type'     => 'text',
+                    'label'    => 'ISBN',
+                    'required' => true,
+                ],
+                [
+                    'name'  => 'price',
+                    'type'  => 'number',
+                    'label' => 'Price',
+                    'min'   => 0,
+                ],
+            ],
+        ],
+    ],
+    'settings_pages' => [
+        [
+            'id'         => 'my-settings',
+            'page_title' => 'My Plugin Settings',
+            'menu_title' => 'My Plugin',
+            'capability' => 'manage_options',
+            'fields'     => [
+                [
+                    'name'  => 'api_key',
+                    'type'  => 'text',
+                    'label' => 'API Key',
+                ],
+            ],
+        ],
+    ],
+];
+
+Manager::init()->register_from_array($config);
+```
 
 ### Custom Post Type
 
@@ -30,13 +81,10 @@ use Pedalcms\WpCmf\CPT\CustomPostType;
 $manager = Manager::init();
 $registrar = $manager->get_registrar();
 
-$registrar->add_custom_post_type([
-    'id'   => 'book',
-    'args' => [
-        'label'    => 'Books',
-        'supports' => ['title', 'editor', 'thumbnail'],
-        'public'   => true,
-    ],
+$registrar->add_custom_post_type('book', [
+    'label'    => 'Books',
+    'supports' => ['title', 'editor', 'thumbnail'],
+    'public'   => true,
 ]);
 ```
 
@@ -46,9 +94,8 @@ $registrar->add_custom_post_type([
 use Pedalcms\WpCmf\Field\FieldFactory;
 
 // Create settings page
-$registrar->add_settings_page([
-    'id'         => 'my-settings',
-    'title'      => 'My Plugin Settings',
+$registrar->add_settings_page('my-settings', [
+    'page_title' => 'My Plugin Settings',
     'menu_title' => 'My Plugin',
     'capability' => 'manage_options',
 ]);

@@ -13,6 +13,8 @@ namespace Pedalcms\WpCmf\Core;
 
 use Pedalcms\WpCmf\CPT\CustomPostType;
 use Pedalcms\WpCmf\Settings\SettingsPage;
+use Pedalcms\WpCmf\Field\FieldFactory;
+use Pedalcms\WpCmf\Field\FieldInterface;
 
 /**
  * Registrar class - Handles WordPress hook binding
@@ -146,15 +148,43 @@ class Registrar {
 	/**
 	 * Add field definitions
 	 *
+	 * Accepts field configuration arrays and creates field instances using FieldFactory.
+	 * Fields can be added as configuration arrays or as FieldInterface instances.
+	 *
 	 * @param string               $context Context (post_type slug or settings page ID).
-	 * @param array<string, mixed> $fields  Field definitions.
+	 * @param array<string, mixed> $fields  Field definitions (config arrays or FieldInterface instances).
 	 * @return self
 	 */
 	public function add_fields( string $context, array $fields ): self {
 		if ( ! isset( $this->fields[ $context ] ) ) {
 			$this->fields[ $context ] = array();
 		}
-		$this->fields[ $context ] = array_merge( $this->fields[ $context ], $fields );
+
+		// Process each field
+		foreach ( $fields as $key => $field ) {
+			// If it's already a FieldInterface instance, use it directly
+			if ( $field instanceof FieldInterface ) {
+				$field_name                                = $field->get_name();
+				$this->fields[ $context ][ $field_name ] = $field;
+			} elseif ( is_array( $field ) ) {
+				// If it's a config array, create field using FieldFactory
+				// Ensure the field has a name
+				if ( empty( $field['name'] ) ) {
+					$field['name'] = $key;
+				}
+
+				try {
+					$field_instance                                = FieldFactory::create( $field );
+					$field_name                                    = $field_instance->get_name();
+					$this->fields[ $context ][ $field_name ]     = $field_instance;
+				} catch ( \InvalidArgumentException $e ) {
+					// If field creation fails, store the error or skip
+					// For now, we'll skip invalid fields
+					continue;
+				}
+			}
+		}
+
 		return $this;
 	}
 
@@ -183,11 +213,84 @@ class Registrar {
 	/**
 	 * Register settings fields with WordPress
 	 *
+	 * Registers fields for settings pages using WordPress Settings API.
+	 *
 	 * @return void
 	 */
 	public function register_settings_fields(): void {
-		// TODO: Implement settings field registration
-		// This will be implemented when field classes are available in Milestone 3
+		if ( ! function_exists( 'register_setting' ) || ! function_exists( 'add_settings_section' ) || ! function_exists( 'add_settings_field' ) ) {
+			return;
+		}
+
+		foreach ( $this->settings_pages as $page_id => $page ) {
+			// Check if this settings page has fields
+			if ( empty( $this->fields[ $page_id ] ) ) {
+				continue;
+			}
+
+			// Add a default section for the fields
+			$section_id = $page_id . '_section';
+			add_settings_section(
+				$section_id,
+				'Settings',
+				'__return_empty_string',
+				$page->get_menu_slug()
+			);
+
+			// Register each field
+			foreach ( $this->fields[ $page_id ] as $field ) {
+				if ( ! $field instanceof FieldInterface ) {
+					continue;
+				}
+
+				$field_name = $field->get_name();
+				$option_name = $page_id . '_' . $field_name;
+
+				// Register setting
+				register_setting(
+					$page->get_menu_slug(),
+					$option_name,
+					array(
+						'sanitize_callback' => array( $field, 'sanitize' ),
+					)
+				);
+
+				// Add settings field
+				add_settings_field(
+					$field_name,
+					$field->get_label(),
+					array( $this, 'render_settings_field' ),
+					$page->get_menu_slug(),
+					$section_id,
+					array(
+						'field'       => $field,
+						'option_name' => $option_name,
+					)
+				);
+			}
+		}
+	}
+
+	/**
+	 * Render a settings field
+	 *
+	 * @param array<string, mixed> $args Field arguments.
+	 * @return void
+	 */
+	public function render_settings_field( array $args ): void {
+		if ( empty( $args['field'] ) || ! $args['field'] instanceof FieldInterface ) {
+			return;
+		}
+
+		$field       = $args['field'];
+		$option_name = $args['option_name'] ?? $field->get_name();
+
+		// Get current value
+		$value = function_exists( 'get_option' ) ? get_option( $option_name, '' ) : '';
+
+		// Render field
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Field's render method handles escaping
+		echo $field->render( $value );
 	}
 
 	/**
@@ -249,22 +352,147 @@ class Registrar {
 	/**
 	 * Register meta boxes for custom post types
 	 *
+	 * Creates meta boxes for fields associated with custom post types.
+	 *
 	 * @return void
 	 */
 	public function register_meta_boxes(): void {
-		// TODO: Implement meta box registration
-		// This will be implemented when field classes are available in Milestone 3
+		if ( ! function_exists( 'add_meta_box' ) ) {
+			return;
+		}
+
+		foreach ( $this->custom_post_types as $post_type => $cpt ) {
+			// Check if this CPT has fields
+			if ( empty( $this->fields[ $post_type ] ) ) {
+				continue;
+			}
+
+			// Add meta box for this CPT's fields
+			add_meta_box(
+				$post_type . '_fields',
+				ucfirst( $post_type ) . ' Fields',
+				array( $this, 'render_meta_box' ),
+				$post_type,
+				'normal',
+				'high'
+			);
+		}
+	}
+
+	/**
+	 * Render meta box content
+	 *
+	 * @param \WP_Post $post Current post object.
+	 * @return void
+	 */
+	public function render_meta_box( $post ): void {
+		$post_type = $post->post_type;
+
+		if ( empty( $this->fields[ $post_type ] ) ) {
+			return;
+		}
+
+		// Add nonce for security
+		if ( function_exists( 'wp_nonce_field' ) ) {
+			wp_nonce_field( 'save_' . $post_type . '_fields', $post_type . '_fields_nonce' );
+		}
+
+		echo '<div class="wp-cmf-fields">';
+
+		foreach ( $this->fields[ $post_type ] as $field ) {
+			if ( ! $field instanceof FieldInterface ) {
+				continue;
+			}
+
+			// Get field value from post meta
+			$value = function_exists( 'get_post_meta' )
+				? get_post_meta( $post->ID, $field->get_name(), true )
+				: '';
+
+			// Render the field
+			echo $field->render( $value );
+		}
+
+		echo '</div>';
 	}
 
 	/**
 	 * Save meta box data
 	 *
+	 * Saves field values from post edit screen to post meta.
+	 *
 	 * @param int $post_id Post ID.
 	 * @return void
 	 */
 	public function save_meta_box_data( int $post_id ): void {
-		// TODO: Implement meta box data saving
-		// This will be implemented when field classes are available in Milestone 3
+		// Check if this is an autosave
+		if ( function_exists( 'wp_is_post_autosave' ) && wp_is_post_autosave( $post_id ) ) {
+			return;
+		}
+
+		// Check if this is a revision
+		if ( function_exists( 'wp_is_post_revision' ) && wp_is_post_revision( $post_id ) ) {
+			return;
+		}
+
+		// Get post type
+		$post_type = function_exists( 'get_post_type' ) ? get_post_type( $post_id ) : '';
+		if ( ! $post_type || empty( $this->fields[ $post_type ] ) ) {
+			return;
+		}
+
+		// Verify nonce
+		$nonce_name = $post_type . '_fields_nonce';
+		if ( ! isset( $_POST[ $nonce_name ] ) ) {
+			return;
+		}
+
+		if ( function_exists( 'wp_verify_nonce' ) ) {
+			if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ $nonce_name ] ) ), 'save_' . $post_type . '_fields' ) ) {
+				return;
+			}
+		}
+
+		// Check user permissions
+		$post_type_object = function_exists( 'get_post_type_object' ) ? get_post_type_object( $post_type ) : null;
+		$edit_cap         = $post_type_object && isset( $post_type_object->cap->edit_post )
+			? $post_type_object->cap->edit_post
+			: 'edit_post';
+
+		if ( function_exists( 'current_user_can' ) && ! current_user_can( $edit_cap, $post_id ) ) {
+			return;
+		}
+
+		// Save each field
+		foreach ( $this->fields[ $post_type ] as $field ) {
+			if ( ! $field instanceof FieldInterface ) {
+				continue;
+			}
+
+			$field_name = $field->get_name();
+
+			// Check if field value was submitted
+			if ( ! isset( $_POST[ $field_name ] ) ) {
+				continue;
+			}
+
+			// Get raw value (WordPress will handle sanitization via field's sanitize method)
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$raw_value = wp_unslash( $_POST[ $field_name ] );
+
+			// Sanitize using field's sanitize method
+			$sanitized_value = $field->sanitize( $raw_value );
+
+			// Validate using field's validate method
+			$validation_result = $field->validate( $sanitized_value );
+
+			// Only save if validation passes
+			if ( ! empty( $validation_result['valid'] ) ) {
+				if ( function_exists( 'update_post_meta' ) ) {
+					update_post_meta( $post_id, $field_name, $sanitized_value );
+				}
+			}
+		}
 	}
 
 	/**

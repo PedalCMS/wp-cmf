@@ -14,6 +14,19 @@ use Pedalcms\WpCmf\Settings\SettingsPage;
 class IntegrationTest extends WP_UnitTestCase {
 
 	/**
+	 * Reset Manager singleton before each test
+	 */
+	public function setUp(): void {
+		parent::setUp();
+
+		// Reset Manager singleton using reflection
+		$reflection = new \ReflectionClass( Manager::class );
+		$instance   = $reflection->getProperty( 'instance' );
+		$instance->setAccessible( true );
+		$instance->setValue( null, null );
+	}
+
+	/**
 	 * Test Manager and Registrar integration
 	 */
 	public function test_manager_registrar_integration() {
