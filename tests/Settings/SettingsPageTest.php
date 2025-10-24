@@ -29,11 +29,11 @@ class SettingsPageTest extends WP_UnitTestCase {
 	 * Test constructor with configuration
 	 */
 	public function test_constructor_with_configuration() {
-		$config = [
+		$config = array(
 			'page_title' => 'Test Page',
 			'menu_title' => 'Test Menu',
 			'capability' => 'edit_posts',
-		];
+		);
 
 		$page = new SettingsPage( 'test-page', $config );
 
@@ -118,7 +118,7 @@ class SettingsPageTest extends WP_UnitTestCase {
 	 * Test custom callback function
 	 */
 	public function test_set_callback() {
-		$callback = function() {
+		$callback = function () {
 			echo 'Custom callback';
 		};
 
@@ -171,7 +171,7 @@ class SettingsPageTest extends WP_UnitTestCase {
 		$page = new SettingsPage( 'test-once' );
 		$page->set_defaults();
 
-		$first_result = $page->register();
+		$first_result  = $page->register();
 		$second_result = $page->register();
 
 		$this->assertTrue( $first_result );
@@ -183,12 +183,12 @@ class SettingsPageTest extends WP_UnitTestCase {
 	 * Test from_array factory method
 	 */
 	public function test_from_array_factory() {
-		$config = [
+		$config = array(
 			'page_title' => 'Factory Test',
 			'menu_title' => 'Factory Menu',
 			'capability' => 'edit_posts',
 			'menu_slug'  => 'factory-test',
-		];
+		);
 
 		$page = SettingsPage::from_array( 'factory-page', $config );
 
@@ -203,9 +203,9 @@ class SettingsPageTest extends WP_UnitTestCase {
 	 * Test from_array factory sets defaults
 	 */
 	public function test_from_array_sets_defaults() {
-		$config = [
+		$config = array(
 			'page_title' => 'Factory Test',
-		];
+		);
 
 		$page = SettingsPage::from_array( 'factory-page', $config );
 
@@ -240,10 +240,12 @@ class SettingsPageTest extends WP_UnitTestCase {
 		$page = new SettingsPage( 'test-page' );
 		$page->set_page_title( 'Initial Title' );
 
-		$page->configure( [
-			'menu_title' => 'New Menu',
-			'capability' => 'edit_posts',
-		] );
+		$page->configure(
+			array(
+				'menu_title' => 'New Menu',
+				'capability' => 'edit_posts',
+			)
+		);
 
 		// Original title should remain
 		$this->assertEquals( 'Initial Title', $page->get_config( 'page_title' ) );

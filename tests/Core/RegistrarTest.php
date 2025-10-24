@@ -63,7 +63,7 @@ class RegistrarTest extends WP_UnitTestCase {
 	 */
 	public function test_hooks_init_only_once() {
 		$registrar = new Registrar( false );
-		
+
 		$registrar->init_hooks();
 		$this->assertTrue( $registrar->are_hooks_initialized() );
 
@@ -78,11 +78,14 @@ class RegistrarTest extends WP_UnitTestCase {
 	public function test_add_custom_post_type() {
 		$registrar = new Registrar( false );
 
-		$result = $registrar->add_custom_post_type( 'book', [
-			'singular' => 'Book',
-			'plural'   => 'Books',
-			'public'   => true,
-		] );
+		$result = $registrar->add_custom_post_type(
+			'book',
+			array(
+				'singular' => 'Book',
+				'plural'   => 'Books',
+				'public'   => true,
+			)
+		);
 
 		$this->assertSame( $registrar, $result, 'add_custom_post_type should return self for fluent interface' );
 
@@ -98,9 +101,9 @@ class RegistrarTest extends WP_UnitTestCase {
 	public function test_add_multiple_custom_post_types() {
 		$registrar = new Registrar( false );
 
-		$registrar->add_custom_post_type( 'book', [ 'singular' => 'Book' ] )
-			->add_custom_post_type( 'product', [ 'singular' => 'Product' ] )
-			->add_custom_post_type( 'event', [ 'singular' => 'Event' ] );
+		$registrar->add_custom_post_type( 'book', array( 'singular' => 'Book' ) )
+			->add_custom_post_type( 'product', array( 'singular' => 'Product' ) )
+			->add_custom_post_type( 'event', array( 'singular' => 'Event' ) );
 
 		$cpts = $registrar->get_custom_post_types();
 		$this->assertCount( 3, $cpts );
@@ -134,10 +137,13 @@ class RegistrarTest extends WP_UnitTestCase {
 	public function test_register_custom_post_types() {
 		$registrar = new Registrar( false );
 
-		$registrar->add_custom_post_type( 'book', [
-			'singular' => 'Book',
-			'plural'   => 'Books',
-		] );
+		$registrar->add_custom_post_type(
+			'book',
+			array(
+				'singular' => 'Book',
+				'plural'   => 'Books',
+			)
+		);
 
 		// Call the registration method
 		$registrar->register_custom_post_types();
@@ -154,11 +160,14 @@ class RegistrarTest extends WP_UnitTestCase {
 	public function test_add_settings_page() {
 		$registrar = new Registrar( false );
 
-		$result = $registrar->add_settings_page( 'my-settings', [
-			'page_title' => 'My Settings',
-			'menu_title' => 'My Settings',
-			'capability' => 'manage_options',
-		] );
+		$result = $registrar->add_settings_page(
+			'my-settings',
+			array(
+				'page_title' => 'My Settings',
+				'menu_title' => 'My Settings',
+				'capability' => 'manage_options',
+			)
+		);
 
 		$this->assertSame( $registrar, $result, 'add_settings_page should return self for fluent interface' );
 
@@ -174,9 +183,9 @@ class RegistrarTest extends WP_UnitTestCase {
 	public function test_add_multiple_settings_pages() {
 		$registrar = new Registrar( false );
 
-		$registrar->add_settings_page( 'general', [ 'page_title' => 'General' ] )
-			->add_settings_page( 'advanced', [ 'page_title' => 'Advanced' ] )
-			->add_settings_page( 'api', [ 'page_title' => 'API' ] );
+		$registrar->add_settings_page( 'general', array( 'page_title' => 'General' ) )
+			->add_settings_page( 'advanced', array( 'page_title' => 'Advanced' ) )
+			->add_settings_page( 'api', array( 'page_title' => 'API' ) );
 
 		$pages = $registrar->get_settings_pages();
 		$this->assertCount( 3, $pages );
@@ -210,10 +219,13 @@ class RegistrarTest extends WP_UnitTestCase {
 	public function test_register_admin_pages() {
 		$registrar = new Registrar( false );
 
-		$registrar->add_settings_page( 'test-page', [
-			'page_title' => 'Test Page',
-			'menu_title' => 'Test',
-		] );
+		$registrar->add_settings_page(
+			'test-page',
+			array(
+				'page_title' => 'Test Page',
+				'menu_title' => 'Test',
+			)
+		);
 
 		// Call the registration method
 		$registrar->register_admin_pages();
@@ -229,10 +241,10 @@ class RegistrarTest extends WP_UnitTestCase {
 	public function test_add_fields() {
 		$registrar = new Registrar( false );
 
-		$fields = [
-			'title' => [ 'type' => 'text' ],
-			'description' => [ 'type' => 'textarea' ],
-		];
+		$fields = array(
+			'title'       => array( 'type' => 'text' ),
+			'description' => array( 'type' => 'textarea' ),
+		);
 
 		$result = $registrar->add_fields( 'book', $fields );
 
@@ -249,8 +261,8 @@ class RegistrarTest extends WP_UnitTestCase {
 	public function test_add_fields_multiple_contexts() {
 		$registrar = new Registrar( false );
 
-		$registrar->add_fields( 'book', [ 'isbn' => [ 'type' => 'text' ] ] )
-			->add_fields( 'product', [ 'price' => [ 'type' => 'number' ] ] );
+		$registrar->add_fields( 'book', array( 'isbn' => array( 'type' => 'text' ) ) )
+			->add_fields( 'product', array( 'price' => array( 'type' => 'number' ) ) );
 
 		$fields = $registrar->get_fields();
 		$this->assertCount( 2, $fields );
@@ -264,8 +276,8 @@ class RegistrarTest extends WP_UnitTestCase {
 	public function test_add_fields_merges_same_context() {
 		$registrar = new Registrar( false );
 
-		$registrar->add_fields( 'book', [ 'title' => [ 'type' => 'text' ] ] )
-			->add_fields( 'book', [ 'author' => [ 'type' => 'text' ] ] );
+		$registrar->add_fields( 'book', array( 'title' => array( 'type' => 'text' ) ) )
+			->add_fields( 'book', array( 'author' => array( 'type' => 'text' ) ) );
 
 		$fields = $registrar->get_fields();
 		$this->assertCount( 1, $fields );
@@ -281,9 +293,9 @@ class RegistrarTest extends WP_UnitTestCase {
 		$registrar = new Registrar( false );
 
 		$result = $registrar
-			->add_custom_post_type( 'book', [ 'singular' => 'Book' ] )
-			->add_settings_page( 'settings', [ 'page_title' => 'Settings' ] )
-			->add_fields( 'book', [ 'isbn' => [ 'type' => 'text' ] ] );
+			->add_custom_post_type( 'book', array( 'singular' => 'Book' ) )
+			->add_settings_page( 'settings', array( 'page_title' => 'Settings' ) )
+			->add_fields( 'book', array( 'isbn' => array( 'type' => 'text' ) ) );
 
 		$this->assertSame( $registrar, $result );
 

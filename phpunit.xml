@@ -8,6 +8,7 @@
         <testsuite name="wp-cmf">
             <directory>./tests/Core</directory>
             <directory>./tests/CPT</directory>
+            <directory>./tests/Field</directory>
             <directory>./tests/Settings</directory>
         </testsuite>
     </testsuites>

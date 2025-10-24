@@ -12,6 +12,7 @@
 namespace Pedalcms\WpCmf\Core;
 
 use Pedalcms\WpCmf\Core\Registrar;
+use Pedalcms\WpCmf\Field\FieldFactory;
 
 /**
  * Manager class - Central coordination point for WP-CMF
@@ -47,7 +48,7 @@ class Manager {
 	 *
 	 * @param array<string, mixed> $options Configuration options.
 	 */
-	private function __construct( array $options = [] ) {
+	private function __construct( array $options = array() ) {
 		$this->options   = $options;
 		$this->registrar = new Registrar( function_exists( 'add_action' ) );
 	}
@@ -58,7 +59,7 @@ class Manager {
 	 * @param array<string, mixed> $options Configuration options (only used on first call).
 	 * @return Manager The singleton instance.
 	 */
-	public static function init( array $options = [] ): Manager {
+	public static function init( array $options = array() ): Manager {
 		if ( null === self::$instance ) {
 			self::$instance = new self( $options );
 		}
@@ -104,14 +105,15 @@ class Manager {
 	/**
 	 * Register a custom field type
 	 *
+	 * This is an alias to FieldFactory::register_type() for convenience.
+	 *
 	 * @param string $type       Field type name.
 	 * @param string $class_name Field class name.
 	 * @return self
+	 * @throws \InvalidArgumentException If class doesn't exist or doesn't implement FieldInterface.
 	 */
 	public function register_field_type( string $type, string $class_name ): self {
-		// TODO: Implement field type registration
-		// This will be implemented in Milestone 3
-		unset( $type, $class_name ); // Prevent unused parameter warnings
+		FieldFactory::register_type( $type, $class_name );
 		return $this;
 	}
 

@@ -31,7 +31,7 @@ class SettingsPage {
 	 *
 	 * @var array<string, mixed>
 	 */
-	private array $config = [];
+	private array $config = array();
 
 	/**
 	 * Whether the page has been registered
@@ -53,7 +53,7 @@ class SettingsPage {
 	 * @param string               $page_id Page identifier/slug.
 	 * @param array<string, mixed> $config  Configuration array.
 	 */
-	public function __construct( string $page_id, array $config = [] ) {
+	public function __construct( string $page_id, array $config = array() ) {
 		$this->page_id = $page_id;
 		$this->configure( $config );
 	}
@@ -195,15 +195,15 @@ class SettingsPage {
 	 * @return self
 	 */
 	public function set_defaults(): self {
-		$defaults = [
-			'page_title' => ucwords( str_replace( [ '_', '-' ], ' ', $this->page_id ) ),
-			'menu_title' => ucwords( str_replace( [ '_', '-' ], ' ', $this->page_id ) ),
+		$defaults = array(
+			'page_title' => ucwords( str_replace( array( '_', '-' ), ' ', $this->page_id ) ),
+			'menu_title' => ucwords( str_replace( array( '_', '-' ), ' ', $this->page_id ) ),
 			'capability' => 'manage_options',
 			'menu_slug'  => $this->page_id,
-			'callback'   => [ $this, 'render_default' ],
+			'callback'   => array( $this, 'render_default' ),
 			'icon_url'   => '',
 			'position'   => null,
-		];
+		);
 
 		foreach ( $defaults as $key => $value ) {
 			if ( ! isset( $this->config[ $key ] ) ) {
@@ -230,7 +230,7 @@ class SettingsPage {
 		// Check if WordPress functions are available
 		if ( ! function_exists( 'add_menu_page' ) || ! function_exists( 'add_submenu_page' ) ) {
 			// In test environment without WordPress, mark as registered for testing
-			$this->registered = true;
+			$this->registered  = true;
 			$this->hook_suffix = 'test-hook-suffix';
 			return true;
 		}

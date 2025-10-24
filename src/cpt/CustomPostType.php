@@ -31,21 +31,21 @@ class CustomPostType {
 	 *
 	 * @var array<string, mixed>
 	 */
-	private array $args = [];
+	private array $args = array();
 
 	/**
 	 * Post type labels
 	 *
 	 * @var array<string, string>
 	 */
-	private array $labels = [];
+	private array $labels = array();
 
 	/**
 	 * Post type supports
 	 *
 	 * @var array<string>
 	 */
-	private array $supports = [];
+	private array $supports = array();
 
 	/**
 	 * Whether the post type has been registered
@@ -60,7 +60,7 @@ class CustomPostType {
 	 * @param string               $post_type Post type slug.
 	 * @param array<string, mixed> $config    Configuration array.
 	 */
-	public function __construct( string $post_type, array $config = [] ) {
+	public function __construct( string $post_type, array $config = array() ) {
 		$this->post_type = $post_type;
 		$this->configure( $config );
 	}
@@ -83,8 +83,8 @@ class CustomPostType {
 		}
 
 		// Set arguments (everything except labels and supports)
-		$args_config = array_diff_key( $config, array_flip( [ 'labels', 'supports' ] ) );
-		$this->args = array_merge( $this->args, $args_config );
+		$args_config = array_diff_key( $config, array_flip( array( 'labels', 'supports' ) ) );
+		$this->args  = array_merge( $this->args, $args_config );
 
 		return $this;
 	}
@@ -166,9 +166,12 @@ class CustomPostType {
 	 * @return self
 	 */
 	public function remove_support( string $feature ): self {
-		$this->supports = array_filter( $this->supports, function( $support ) use ( $feature ) {
-			return $support !== $feature;
-		} );
+		$this->supports = array_filter(
+			$this->supports,
+			function ( $support ) use ( $feature ) {
+				return $support !== $feature;
+			}
+		);
 		return $this;
 	}
 
@@ -180,35 +183,38 @@ class CustomPostType {
 	 * @return self
 	 */
 	public function generate_labels( string $singular, string $plural ): self {
-		$this->labels = array_merge( [
-			'name'                     => $plural,
-			'singular_name'            => $singular,
-			'menu_name'                => $plural,
-			'name_admin_bar'           => $singular,
-			'archives'                 => sprintf( '%s Archives', $singular ),
-			'attributes'               => sprintf( '%s Attributes', $singular ),
-			'parent_item_colon'        => sprintf( 'Parent %s:', $singular ),
-			'all_items'                => sprintf( 'All %s', $plural ),
-			'add_new_item'             => sprintf( 'Add New %s', $singular ),
-			'add_new'                  => 'Add New',
-			'new_item'                 => sprintf( 'New %s', $singular ),
-			'edit_item'                => sprintf( 'Edit %s', $singular ),
-			'update_item'              => sprintf( 'Update %s', $singular ),
-			'view_item'                => sprintf( 'View %s', $singular ),
-			'view_items'               => sprintf( 'View %s', $plural ),
-			'search_items'             => sprintf( 'Search %s', $plural ),
-			'not_found'                => 'Not found',
-			'not_found_in_trash'       => 'Not found in Trash',
-			'featured_image'           => 'Featured Image',
-			'set_featured_image'       => 'Set featured image',
-			'remove_featured_image'    => 'Remove featured image',
-			'use_featured_image'       => 'Use as featured image',
-			'insert_into_item'         => sprintf( 'Insert into %s', strtolower( $singular ) ),
-			'uploaded_to_this_item'    => sprintf( 'Uploaded to this %s', strtolower( $singular ) ),
-			'items_list'               => sprintf( '%s list', $plural ),
-			'items_list_navigation'    => sprintf( '%s list navigation', $plural ),
-			'filter_items_list'        => sprintf( 'Filter %s list', strtolower( $plural ) ),
-		], $this->labels );
+		$this->labels = array_merge(
+			array(
+				'name'                  => $plural,
+				'singular_name'         => $singular,
+				'menu_name'             => $plural,
+				'name_admin_bar'        => $singular,
+				'archives'              => sprintf( '%s Archives', $singular ),
+				'attributes'            => sprintf( '%s Attributes', $singular ),
+				'parent_item_colon'     => sprintf( 'Parent %s:', $singular ),
+				'all_items'             => sprintf( 'All %s', $plural ),
+				'add_new_item'          => sprintf( 'Add New %s', $singular ),
+				'add_new'               => 'Add New',
+				'new_item'              => sprintf( 'New %s', $singular ),
+				'edit_item'             => sprintf( 'Edit %s', $singular ),
+				'update_item'           => sprintf( 'Update %s', $singular ),
+				'view_item'             => sprintf( 'View %s', $singular ),
+				'view_items'            => sprintf( 'View %s', $plural ),
+				'search_items'          => sprintf( 'Search %s', $plural ),
+				'not_found'             => 'Not found',
+				'not_found_in_trash'    => 'Not found in Trash',
+				'featured_image'        => 'Featured Image',
+				'set_featured_image'    => 'Set featured image',
+				'remove_featured_image' => 'Remove featured image',
+				'use_featured_image'    => 'Use as featured image',
+				'insert_into_item'      => sprintf( 'Insert into %s', strtolower( $singular ) ),
+				'uploaded_to_this_item' => sprintf( 'Uploaded to this %s', strtolower( $singular ) ),
+				'items_list'            => sprintf( '%s list', $plural ),
+				'items_list_navigation' => sprintf( '%s list navigation', $plural ),
+				'filter_items_list'     => sprintf( 'Filter %s list', strtolower( $plural ) ),
+			),
+			$this->labels
+		);
 
 		return $this;
 	}
@@ -219,25 +225,25 @@ class CustomPostType {
 	 * @return self
 	 */
 	public function set_defaults(): self {
-		$defaults = [
+		$defaults = array(
 			'public'             => true,
 			'publicly_queryable' => true,
 			'show_ui'            => true,
 			'show_in_menu'       => true,
 			'query_var'          => true,
-			'rewrite'            => [ 'slug' => $this->post_type ],
+			'rewrite'            => array( 'slug' => $this->post_type ),
 			'capability_type'    => 'post',
 			'has_archive'        => true,
 			'hierarchical'       => false,
 			'menu_position'      => null,
 			'show_in_rest'       => true,
-		];
+		);
 
 		$this->args = array_merge( $defaults, $this->args );
 
 		// Set default supports if none specified
 		if ( empty( $this->supports ) ) {
-			$this->supports = [ 'title', 'editor', 'thumbnail' ];
+			$this->supports = array( 'title', 'editor', 'thumbnail' );
 		}
 
 		return $this;
@@ -339,7 +345,7 @@ class CustomPostType {
 
 		// If no explicit labels are set, try to generate them from config
 		if ( empty( $instance->labels ) ) {
-			$singular = $config['singular'] ?? ucfirst( str_replace( [ '_', '-' ], ' ', $post_type ) );
+			$singular = $config['singular'] ?? ucfirst( str_replace( array( '_', '-' ), ' ', $post_type ) );
 			$plural   = $config['plural'] ?? $singular . 's';
 			$instance->generate_labels( $singular, $plural );
 		}

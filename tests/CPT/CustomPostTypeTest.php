@@ -20,24 +20,24 @@ class CustomPostTypeTest extends WP_UnitTestCase {
 	 * Test CustomPostType configuration
 	 */
 	public function test_custom_post_type_configure() {
-		$config = [
-			'labels' => [
-				'name' => 'Books',
+		$config = array(
+			'labels'   => array(
+				'name'          => 'Books',
 				'singular_name' => 'Book',
-			],
-			'supports' => [ 'title', 'editor' ],
-			'public' => true,
-		];
+			),
+			'supports' => array( 'title', 'editor' ),
+			'public'   => true,
+		);
 
 		$cpt = new \Pedalcms\WpCmf\CPT\CustomPostType( 'book', $config );
 
-		$labels = $cpt->get_labels();
+		$labels   = $cpt->get_labels();
 		$supports = $cpt->get_supports();
-		$args = $cpt->get_args();
+		$args     = $cpt->get_args();
 
 		$this->assertEquals( 'Books', $labels['name'] );
 		$this->assertEquals( 'Book', $labels['singular_name'] );
-		$this->assertEquals( [ 'title', 'editor' ], $supports );
+		$this->assertEquals( array( 'title', 'editor' ), $supports );
 		$this->assertTrue( $args['public'] );
 	}
 
@@ -46,10 +46,10 @@ class CustomPostTypeTest extends WP_UnitTestCase {
 	 */
 	public function test_custom_post_type_fluent_interface() {
 		$cpt = new \Pedalcms\WpCmf\CPT\CustomPostType( 'product' );
-		
+
 		$result = $cpt->set_label( 'name', 'Products' )
-			         ->set_arg( 'public', true )
-			         ->add_support( 'thumbnail' );
+					->set_arg( 'public', true )
+					->add_support( 'thumbnail' );
 
 		$this->assertInstanceOf( \Pedalcms\WpCmf\CPT\CustomPostType::class, $result );
 		$this->assertEquals( 'Products', $cpt->get_labels()['name'] );
@@ -79,25 +79,25 @@ class CustomPostTypeTest extends WP_UnitTestCase {
 		$cpt = new \Pedalcms\WpCmf\CPT\CustomPostType( 'testimonial' );
 		$cpt->set_defaults();
 
-		$args = $cpt->get_args();
+		$args     = $cpt->get_args();
 		$supports = $cpt->get_supports();
 
 		$this->assertTrue( $args['public'] );
 		$this->assertTrue( $args['show_ui'] );
 		$this->assertTrue( $args['show_in_rest'] );
-		$this->assertEquals( [ 'title', 'editor', 'thumbnail' ], $supports );
+		$this->assertEquals( array( 'title', 'editor', 'thumbnail' ), $supports );
 	}
 
 	/**
 	 * Test CustomPostType from_array factory method
 	 */
 	public function test_custom_post_type_from_array() {
-		$config = [
+		$config = array(
 			'singular' => 'Portfolio Item',
-			'plural' => 'Portfolio Items',
-			'public' => true,
-			'supports' => [ 'title', 'editor', 'thumbnail' ],
-		];
+			'plural'   => 'Portfolio Items',
+			'public'   => true,
+			'supports' => array( 'title', 'editor', 'thumbnail' ),
+		);
 
 		$cpt = \Pedalcms\WpCmf\CPT\CustomPostType::from_array( 'portfolio', $config );
 
@@ -112,10 +112,10 @@ class CustomPostTypeTest extends WP_UnitTestCase {
 	 */
 	public function test_custom_post_type_support_management() {
 		$cpt = new \Pedalcms\WpCmf\CPT\CustomPostType( 'project' );
-		
+
 		$cpt->add_support( 'title' )
-		    ->add_support( 'editor' )
-		    ->add_support( 'thumbnail' );
+			->add_support( 'editor' )
+			->add_support( 'thumbnail' );
 
 		$supports = $cpt->get_supports();
 		$this->assertContains( 'title', $supports );
