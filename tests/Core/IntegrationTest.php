@@ -17,7 +17,7 @@ class IntegrationTest extends WP_UnitTestCase {
 	 * Test Manager and Registrar integration
 	 */
 	public function test_manager_registrar_integration() {
-		$manager = Manager::init();
+		$manager   = Manager::init();
 		$registrar = $manager->get_registrar();
 
 		$this->assertInstanceOf( Registrar::class, $registrar );
@@ -28,16 +28,19 @@ class IntegrationTest extends WP_UnitTestCase {
 	 * Test complete CPT registration workflow
 	 */
 	public function test_complete_cpt_workflow() {
-		$manager = Manager::init();
+		$manager   = Manager::init();
 		$registrar = $manager->get_registrar();
 
 		// Add CPT via array config
-		$registrar->add_custom_post_type( 'book', [
-			'singular' => 'Book',
-			'plural'   => 'Books',
-			'public'   => true,
-			'supports' => [ 'title', 'editor', 'thumbnail' ],
-		] );
+		$registrar->add_custom_post_type(
+			'book',
+			array(
+				'singular' => 'Book',
+				'plural'   => 'Books',
+				'public'   => true,
+				'supports' => array( 'title', 'editor', 'thumbnail' ),
+			)
+		);
 
 		// Verify CPT was added
 		$cpts = $registrar->get_custom_post_types();
@@ -48,23 +51,26 @@ class IntegrationTest extends WP_UnitTestCase {
 		$book_cpt = $cpts['book'];
 		$this->assertEquals( 'book', $book_cpt->get_post_type() );
 		$this->assertTrue( $book_cpt->get_args()['public'] );
-		$this->assertEquals( [ 'title', 'editor', 'thumbnail' ], $book_cpt->get_supports() );
+		$this->assertEquals( array( 'title', 'editor', 'thumbnail' ), $book_cpt->get_supports() );
 	}
 
 	/**
 	 * Test complete settings page workflow
 	 */
 	public function test_complete_settings_page_workflow() {
-		$manager = Manager::init();
+		$manager   = Manager::init();
 		$registrar = $manager->get_registrar();
 
 		// Add settings page via array config
-		$registrar->add_settings_page( 'plugin-settings', [
-			'page_title' => 'Plugin Settings',
-			'menu_title' => 'Plugin',
-			'capability' => 'manage_options',
-			'icon_url'   => 'dashicons-admin-generic',
-		] );
+		$registrar->add_settings_page(
+			'plugin-settings',
+			array(
+				'page_title' => 'Plugin Settings',
+				'menu_title' => 'Plugin',
+				'capability' => 'manage_options',
+				'icon_url'   => 'dashicons-admin-generic',
+			)
+		);
 
 		// Verify page was added
 		$pages = $registrar->get_settings_pages();
@@ -85,7 +91,7 @@ class IntegrationTest extends WP_UnitTestCase {
 		$registrar = new Registrar( false );
 
 		// Add CPT with just post type slug
-		$registrar->add_custom_post_type( 'product', [] );
+		$registrar->add_custom_post_type( 'product', array() );
 
 		$cpts = $registrar->get_custom_post_types();
 		$this->assertCount( 1, $cpts );
@@ -102,7 +108,7 @@ class IntegrationTest extends WP_UnitTestCase {
 		$registrar = new Registrar( false );
 
 		// Add page with minimal config
-		$registrar->add_settings_page( 'minimal-page', [] );
+		$registrar->add_settings_page( 'minimal-page', array() );
 
 		$pages = $registrar->get_settings_pages();
 		$this->assertCount( 1, $pages );
@@ -117,18 +123,18 @@ class IntegrationTest extends WP_UnitTestCase {
 	 * Test CPT config validation with full options
 	 */
 	public function test_cpt_full_config_validation() {
-		$config = [
+		$config = array(
 			'singular'        => 'Portfolio Item',
 			'plural'          => 'Portfolio Items',
 			'public'          => true,
 			'show_ui'         => true,
 			'show_in_rest'    => true,
 			'menu_icon'       => 'dashicons-portfolio',
-			'supports'        => [ 'title', 'editor', 'thumbnail', 'excerpt' ],
+			'supports'        => array( 'title', 'editor', 'thumbnail', 'excerpt' ),
 			'has_archive'     => true,
-			'rewrite'         => [ 'slug' => 'portfolio' ],
+			'rewrite'         => array( 'slug' => 'portfolio' ),
 			'capability_type' => 'post',
-		];
+		);
 
 		$cpt = CustomPostType::from_array( 'portfolio', $config );
 
@@ -140,7 +146,7 @@ class IntegrationTest extends WP_UnitTestCase {
 		$this->assertTrue( $cpt->get_args()['show_ui'] );
 		$this->assertTrue( $cpt->get_args()['show_in_rest'] );
 		$this->assertEquals( 'dashicons-portfolio', $cpt->get_args()['menu_icon'] );
-		$this->assertEquals( [ 'title', 'editor', 'thumbnail', 'excerpt' ], $cpt->get_supports() );
+		$this->assertEquals( array( 'title', 'editor', 'thumbnail', 'excerpt' ), $cpt->get_supports() );
 		$this->assertTrue( $cpt->get_args()['has_archive'] );
 	}
 
@@ -148,14 +154,14 @@ class IntegrationTest extends WP_UnitTestCase {
 	 * Test settings page config validation with full options
 	 */
 	public function test_settings_page_full_config_validation() {
-		$config = [
+		$config = array(
 			'page_title' => 'Advanced Settings',
 			'menu_title' => 'Advanced',
 			'capability' => 'manage_options',
 			'menu_slug'  => 'advanced-settings',
 			'icon_url'   => 'dashicons-admin-settings',
 			'position'   => 85,
-		];
+		);
 
 		$page = SettingsPage::from_array( 'advanced', $config );
 
@@ -173,12 +179,12 @@ class IntegrationTest extends WP_UnitTestCase {
 	 * Test submenu page config validation
 	 */
 	public function test_submenu_page_config_validation() {
-		$config = [
+		$config = array(
 			'page_title'  => 'Plugin Tools',
 			'menu_title'  => 'Tools',
 			'parent_slug' => 'options-general.php',
 			'capability'  => 'manage_options',
-		];
+		);
 
 		$page = SettingsPage::from_array( 'plugin-tools', $config );
 
@@ -195,9 +201,9 @@ class IntegrationTest extends WP_UnitTestCase {
 
 		// Add multiple CPTs
 		$registrar
-			->add_custom_post_type( 'book', [ 'singular' => 'Book' ] )
-			->add_custom_post_type( 'product', [ 'singular' => 'Product' ] )
-			->add_custom_post_type( 'event', [ 'singular' => 'Event' ] );
+			->add_custom_post_type( 'book', array( 'singular' => 'Book' ) )
+			->add_custom_post_type( 'product', array( 'singular' => 'Product' ) )
+			->add_custom_post_type( 'event', array( 'singular' => 'Event' ) );
 
 		$cpts = $registrar->get_custom_post_types();
 		$this->assertCount( 3, $cpts );
@@ -216,9 +222,9 @@ class IntegrationTest extends WP_UnitTestCase {
 
 		// Add multiple pages
 		$registrar
-			->add_settings_page( 'general', [ 'page_title' => 'General' ] )
-			->add_settings_page( 'advanced', [ 'page_title' => 'Advanced' ] )
-			->add_settings_page( 'api', [ 'page_title' => 'API Settings' ] );
+			->add_settings_page( 'general', array( 'page_title' => 'General' ) )
+			->add_settings_page( 'advanced', array( 'page_title' => 'Advanced' ) )
+			->add_settings_page( 'api', array( 'page_title' => 'API Settings' ) );
 
 		$pages = $registrar->get_settings_pages();
 		$this->assertCount( 3, $pages );
@@ -236,15 +242,15 @@ class IntegrationTest extends WP_UnitTestCase {
 		$registrar = new Registrar( false );
 
 		// Add CPTs
-		$registrar->add_custom_post_type( 'book', [ 'singular' => 'Book' ] );
-		$registrar->add_custom_post_type( 'product', [ 'singular' => 'Product' ] );
+		$registrar->add_custom_post_type( 'book', array( 'singular' => 'Book' ) );
+		$registrar->add_custom_post_type( 'product', array( 'singular' => 'Product' ) );
 
 		// Add settings pages
-		$registrar->add_settings_page( 'general', [ 'page_title' => 'General' ] );
-		$registrar->add_settings_page( 'api', [ 'page_title' => 'API' ] );
+		$registrar->add_settings_page( 'general', array( 'page_title' => 'General' ) );
+		$registrar->add_settings_page( 'api', array( 'page_title' => 'API' ) );
 
 		// Add fields
-		$registrar->add_fields( 'book', [ 'isbn' => [ 'type' => 'text' ] ] );
+		$registrar->add_fields( 'book', array( 'isbn' => array( 'type' => 'text' ) ) );
 
 		// Verify all were added
 		$this->assertCount( 2, $registrar->get_custom_post_types() );
@@ -290,12 +296,12 @@ class IntegrationTest extends WP_UnitTestCase {
 	 * Test CPT with custom capabilities
 	 */
 	public function test_cpt_custom_capabilities() {
-		$config = [
+		$config = array(
 			'singular'        => 'Book',
 			'plural'          => 'Books',
 			'capability_type' => 'book',
 			'map_meta_cap'    => true,
-		];
+		);
 
 		$cpt = CustomPostType::from_array( 'book', $config );
 
@@ -309,7 +315,7 @@ class IntegrationTest extends WP_UnitTestCase {
 	public function test_settings_page_custom_callback() {
 		$callback_executed = false;
 
-		$callback = function() use ( &$callback_executed ) {
+		$callback = function () use ( &$callback_executed ) {
 			$callback_executed = true;
 			echo 'Custom callback executed';
 		};
@@ -336,16 +342,34 @@ class IntegrationTest extends WP_UnitTestCase {
 		$registrar = new Registrar( false );
 
 		// Add fields to CPT
-		$registrar->add_fields( 'book', [
-			'isbn'   => [ 'type' => 'text', 'label' => 'ISBN' ],
-			'author' => [ 'type' => 'text', 'label' => 'Author' ],
-		] );
+		$registrar->add_fields(
+			'book',
+			array(
+				'isbn'   => array(
+					'type'  => 'text',
+					'label' => 'ISBN',
+				),
+				'author' => array(
+					'type'  => 'text',
+					'label' => 'Author',
+				),
+			)
+		);
 
 		// Add fields to settings page
-		$registrar->add_fields( 'general-settings', [
-			'site_name' => [ 'type' => 'text', 'label' => 'Site Name' ],
-			'api_key'   => [ 'type' => 'text', 'label' => 'API Key' ],
-		] );
+		$registrar->add_fields(
+			'general-settings',
+			array(
+				'site_name' => array(
+					'type'  => 'text',
+					'label' => 'Site Name',
+				),
+				'api_key'   => array(
+					'type'  => 'text',
+					'label' => 'API Key',
+				),
+			)
+		);
 
 		$fields = $registrar->get_fields();
 

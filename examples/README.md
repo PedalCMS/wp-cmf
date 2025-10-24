@@ -110,6 +110,80 @@ To use any example:
 
 3. **Ensure WP-CMF is loaded** via Composer autoloader
 
+## Settings Page Examples
+
+### 📁 `settings-page-basic/`
+**Basic Settings Page**  
+Demonstrates creating a simple top-level settings page with the SettingsPage class.
+
+### 📁 `settings-page-submenu/`
+**Submenu Pages**  
+Shows how to create submenu pages under core WordPress menus.
+
+### 📁 `settings-page-custom-render/`
+**Advanced Rendering**  
+Advanced rendering with tabs, widgets, and custom classes.
+
+### 📁 `settings-page-manager-usage/`
+**Manager Patterns**  
+Manager patterns and dynamic page creation.
+
+## Field Examples
+
+### 📁 `field-custom-assets/`
+**Custom Field Assets**  
+Custom field types with CSS/JS asset enqueuing, including:
+- ColorField with WordPress color picker
+- Custom slider field with custom assets
+- Common assets hook demonstration
+
+### 📁 `field-factory-usage/`
+**FieldFactory Patterns**  
+FieldFactory patterns and dynamic field creation:
+- Creating fields from configuration arrays
+- Registering custom field types
+- Batch field creation
+- Manager integration
+- Error handling
+
+## Complete Integration Examples
+
+### 📁 `settings-with-fields/`
+**Complete Settings Page with Fields**  
+Production-ready settings page demonstrating:
+- 20+ fields across 4 organized sections
+- All 11 field types in action
+- WordPress Settings API integration
+- Field validation and sanitization
+- Section organization with descriptions
+- Settings export/import (demo)
+- Custom rendering and styling
+- Nonce security
+
+**Features:**
+- General Settings (site name, tagline, welcome message, features, language)
+- Appearance Settings (theme style, colors, items per page, animations)
+- Email Settings (admin email, support email, templates, footer)
+- Advanced Settings (API key, endpoint, cache, debug mode, data retention)
+
+### 📁 `cpt-with-metabox-fields/`
+**Custom Post Type with Metabox Fields**  
+Complete Book CPT with comprehensive metadata:
+- Custom post type registration (Book)
+- 4 metaboxes with different contexts (normal, side, advanced)
+- 25+ fields demonstrating all field types
+- Field organization by logical grouping
+- Validation and sanitization
+- Nonce security
+- Data retrieval for frontend display
+- WordPress standards compliant
+
+**Metaboxes:**
+- Book Details (ISBN, author, genre, pages, language, series)
+- Pricing & Availability (price, sale price, stock)
+- Publication Information (publisher, date, edition, formats, awards)
+- Additional Information (audience, rating, featured, keywords, website)
+
 ## Quick Start
 
 The simplest way to get started:
@@ -130,14 +204,19 @@ add_action( 'init', function() {
 } );
 ```
 
-## Milestone 2 Feature 1 ✅
+## Implementation Status
 
-These examples demonstrate the complete implementation of **Milestone 2 Feature 1: Custom Post Type Registration**.
+### ✅ Milestone 2 - Custom Post Types & Settings Pages
+**Complete** - All features implemented with comprehensive examples and tests
+- 4 CPT examples demonstrating various configuration approaches
+- 4 Settings page examples showing different use cases
 
-**Acceptance Criteria Met:**
-- ✅ Register labels, args, supports
-- ✅ Accepts array config  
-- ✅ Example plugin registers CPT
-- ✅ CPT appears in WP admin
+### ✅ Milestone 3 - Field System
+**Complete** - Full field API with extensibility
+- 11 core field types (Text, Textarea, Select, Checkbox, Radio, Number, Email, URL, Date, Password, Color)
+- FieldFactory for dynamic field creation
+- Custom field type registration
+- Asset enqueuing system
+- 2 comprehensive field examples
 
-**Test Coverage:** 13/13 tests passing (8 CustomPostType + 3 Manager + 2 Registrar tests)
+**Test Coverage:** 130/130 tests passing (414 assertions)

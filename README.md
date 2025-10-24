@@ -1,37 +1,193 @@
-# WP-CMF
+# WP-CMF (WordPress Content Modeling Framework)
 
-WP-CMF is a Composer library designed to streamline and enhance WordPress plugin development. It provides a modular framework and utility functions to accelerate building robust, maintainable plugins.
+A powerful, flexible Composer library for building WordPress plugins with custom post types, settings pages, and dynamic form fields.
 
 ## Features
 
-- Modular architecture for scalable plugin development
-- Helper classes for common WordPress tasks
-- Composer-based autoloading
-- Easy integration with existing plugins
+- **Custom Post Types**: Easy registration with fluent interface and array configuration
+- **Settings Pages**: Top-level and submenu pages with automatic rendering
+- **Dynamic Fields**: 11 core field types with extensibility via custom field types
+- **Configuration-Driven**: Create fields from PHP arrays or JSON (coming in Milestone 4)
+- **Validation & Sanitization**: Built-in security with customizable rules
+- **Asset Management**: Context-aware CSS/JS enqueuing for fields
+- **Type-Safe**: PSR-4 autoloading with full interface contracts
+- **Well-Tested**: 130+ PHPUnit tests with 414 assertions
 
 ## Installation
 
 ```bash
-composer require wp-cmf/wp-cmf
+composer require pedalcms/wp-cmf
 ```
 
-## Usage
+## Quick Start
 
-1. Include the Composer autoloader in your plugin:
-    ```php
-    require_once __DIR__ . '/vendor/autoload.php';
-    ```
-2. Initialize WP-CMF components as needed in your plugin code.
+### Custom Post Type
+
+```php
+use Pedalcms\WpCmf\Core\Manager;
+use Pedalcms\WpCmf\CPT\CustomPostType;
+
+$manager = Manager::init();
+$registrar = $manager->get_registrar();
+
+$registrar->add_custom_post_type([
+    'id'   => 'book',
+    'args' => [
+        'label'    => 'Books',
+        'supports' => ['title', 'editor', 'thumbnail'],
+        'public'   => true,
+    ],
+]);
+```
+
+### Settings Page with Fields
+
+```php
+use Pedalcms\WpCmf\Field\FieldFactory;
+
+// Create settings page
+$registrar->add_settings_page([
+    'id'         => 'my-settings',
+    'title'      => 'My Plugin Settings',
+    'menu_title' => 'My Plugin',
+    'capability' => 'manage_options',
+]);
+
+// Add fields
+$fields = FieldFactory::create_multiple([
+    'site_name' => [
+        'type'     => 'text',
+        'label'    => 'Site Name',
+        'required' => true,
+    ],
+    'contact_email' => [
+        'type'  => 'email',
+        'label' => 'Contact Email',
+    ],
+    'theme_color' => [
+        'type'    => 'color',
+        'label'   => 'Theme Color',
+        'default' => '#3498db',
+    ],
+]);
+
+$registrar->add_fields('my-settings', $fields);
+```
+
+### Custom Field Type
+
+```php
+use Pedalcms\WpCmf\Field\AbstractField;
+use Pedalcms\WpCmf\Field\FieldFactory;
+
+class SliderField extends AbstractField {
+    public function render($value = null): string {
+        $value = $value ?? $this->get_config('default', 50);
+        $min = $this->get_config('min', 0);
+        $max = $this->get_config('max', 100);
+        
+        $attrs = $this->get_attributes([
+            'type'  => 'range',
+            'min'   => $min,
+            'max'   => $max,
+            'value' => $value,
+        ]);
+        
+        return $this->render_wrapper(
+            $this->render_label() .
+            "<input {$attrs} />" .
+            "<output>{$value}</output>" .
+            $this->render_description()
+        );
+    }
+}
+
+// Register and use
+FieldFactory::register_type('slider', SliderField::class);
+
+$volume = FieldFactory::create([
+    'name'  => 'volume',
+    'type'  => 'slider',
+    'label' => 'Volume',
+]);
+```
+
+## Core Field Types
+
+WP-CMF includes 11 ready-to-use field types:
+
+| Type       | Description                    | Features                          |
+|------------|--------------------------------|-----------------------------------|
+| `text`     | Single-line text input         | Placeholder, maxlength, pattern   |
+| `textarea` | Multi-line text input          | Rows, cols, maxlength             |
+| `select`   | Dropdown select                | Single/multiple, options          |
+| `checkbox` | Single or multiple checkboxes  | Inline/stacked layout             |
+| `radio`    | Radio button group             | Inline/stacked layout             |
+| `number`   | Numeric input                  | Min, max, step, validation        |
+| `email`    | Email input                    | Automatic validation              |
+| `url`      | URL input                      | Automatic validation              |
+| `date`     | Date picker                    | Min/max date, format validation   |
+| `password` | Password input                 | Masked, security-focused          |
+| `color`    | Color picker                   | WordPress color picker integration|
+
+## Documentation
+
+- **[Field API Documentation](docs/field-api.md)** - Complete guide to creating and using fields
+- **[Examples Directory](examples/)** - Working examples for all features
+  - [Custom Post Types](examples/cpt-direct-usage/)
+  - [Settings Pages](examples/settings-page-basic/)
+  - [Field Factory](examples/field-factory-usage/)
+  - [Custom Assets](examples/field-custom-assets/)
 
 ## Requirements
 
-- PHP 7.4 or higher
-- WordPress 5.0 or higher
+- **PHP**: 8.1 or higher
+- **WordPress**: 6.0 or higher
+- **Composer**: For autoloading
+
+## Development Status
+
+### ✅ Completed (Milestone 3)
+- ✅ Custom Post Type registration
+- ✅ Settings Page registration
+- ✅ Field Interface & AbstractField
+- ✅ 11 Core field types
+- ✅ FieldFactory for dynamic field creation
+- ✅ Field asset enqueuing system
+- ✅ Comprehensive documentation
+
+### 🔄 In Progress
+- Milestone 4: Array/JSON-driven configuration
+- Milestone 5: Security hardening
+- Milestone 6: Additional documentation
+- Milestone 7: CI/CD pipeline
+
+## Testing
+
+Run the test suite:
+
+```bash
+composer test
+```
+
+Current coverage: **130 tests, 414 assertions** ✅
 
 ## Contributing
 
-Contributions are welcome! Please submit issues or pull requests via GitHub.
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Write tests for your changes
+4. Ensure all tests pass (`composer test`)
+5. Submit a pull request
 
 ## License
 
-This project is licensed under the GPL-2.0-or-later License.
+This project is licensed under the GPL-2.0-or-later License. See [LICENSE](LICENSE) for details.
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/PedalCMS/wp-cmf/issues)
+- **Documentation**: [docs/](docs/)
+- **Examples**: [examples/](examples/)

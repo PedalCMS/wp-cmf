@@ -27,21 +27,21 @@ class Registrar {
 	 *
 	 * @var array<string, CustomPostType>
 	 */
-	private array $custom_post_types = [];
+	private array $custom_post_types = array();
 
 	/**
 	 * Registered settings pages
 	 *
 	 * @var array<string, SettingsPage>
 	 */
-	private array $settings_pages = [];
+	private array $settings_pages = array();
 
 	/**
 	 * Registered field definitions
 	 *
 	 * @var array<string, array<string, mixed>>
 	 */
-	private array $fields = [];
+	private array $fields = array();
 
 	/**
 	 * Whether hooks have been initialized
@@ -77,17 +77,20 @@ class Registrar {
 		}
 
 		// Register custom post types
-		add_action( 'init', [ $this, 'register_custom_post_types' ] );
+		add_action( 'init', array( $this, 'register_custom_post_types' ) );
 
 		// Register admin pages and settings
-		add_action( 'admin_menu', [ $this, 'register_admin_pages' ] );
-		add_action( 'admin_init', [ $this, 'register_settings_fields' ] );
+		add_action( 'admin_menu', array( $this, 'register_admin_pages' ) );
+		add_action( 'admin_init', array( $this, 'register_settings_fields' ) );
+
+		// Enqueue field assets
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_field_assets' ) );
 
 		// Register meta boxes for CPTs
-		add_action( 'add_meta_boxes', [ $this, 'register_meta_boxes' ] );
+		add_action( 'add_meta_boxes', array( $this, 'register_meta_boxes' ) );
 
 		// Handle form submissions
-		add_action( 'save_post', [ $this, 'save_meta_box_data' ] );
+		add_action( 'save_post', array( $this, 'save_meta_box_data' ) );
 
 		$this->hooks_initialized = true;
 	}
@@ -100,7 +103,7 @@ class Registrar {
 	 * @return self
 	 */
 	public function add_custom_post_type( string $post_type, array $args ): self {
-		$cpt = CustomPostType::from_array( $post_type, $args );
+		$cpt                                   = CustomPostType::from_array( $post_type, $args );
 		$this->custom_post_types[ $post_type ] = $cpt;
 		return $this;
 	}
@@ -124,7 +127,7 @@ class Registrar {
 	 * @return self
 	 */
 	public function add_settings_page( string $page_id, array $args ): self {
-		$settings_page = SettingsPage::from_array( $page_id, $args );
+		$settings_page                    = SettingsPage::from_array( $page_id, $args );
 		$this->settings_pages[ $page_id ] = $settings_page;
 		return $this;
 	}
@@ -149,7 +152,7 @@ class Registrar {
 	 */
 	public function add_fields( string $context, array $fields ): self {
 		if ( ! isset( $this->fields[ $context ] ) ) {
-			$this->fields[ $context ] = [];
+			$this->fields[ $context ] = array();
 		}
 		$this->fields[ $context ] = array_merge( $this->fields[ $context ], $fields );
 		return $this;
@@ -185,6 +188,62 @@ class Registrar {
 	public function register_settings_fields(): void {
 		// TODO: Implement settings field registration
 		// This will be implemented when field classes are available in Milestone 3
+	}
+
+	/**
+	 * Enqueue field assets (CSS and JS)
+	 *
+	 * Calls enqueue_assets() on all registered field instances,
+	 * allowing fields to load their required stylesheets and scripts.
+	 *
+	 * @return void
+	 */
+	public function enqueue_field_assets(): void {
+		// Get current screen to determine context
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return;
+		}
+
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return;
+		}
+
+		// Enqueue assets for fields in the current context
+		foreach ( $this->fields as $context => $field_definitions ) {
+			// Check if we're on a relevant screen for this context
+			// For CPTs, check post_type; for settings pages, check base/id
+			$is_relevant_screen = (
+				$screen->post_type === $context ||
+				$screen->base === $context ||
+				$screen->id === $context ||
+				strpos( $screen->id, $context ) !== false
+			);
+
+			if ( $is_relevant_screen ) {
+				// If field definitions contain FieldInterface instances, call enqueue_assets
+				foreach ( $field_definitions as $field ) {
+					if ( is_object( $field ) && method_exists( $field, 'enqueue_assets' ) ) {
+						$field->enqueue_assets();
+					}
+				}
+			}
+		}
+
+		// Also enqueue common assets for all WP-CMF fields
+		$this->enqueue_common_assets();
+	}
+
+	/**
+	 * Enqueue common assets used by all fields
+	 *
+	 * @return void
+	 */
+	protected function enqueue_common_assets(): void {
+		// Hook for plugins/themes to add common WP-CMF assets
+		if ( function_exists( 'do_action' ) ) {
+			do_action( 'wp_cmf_enqueue_common_assets' );
+		}
 	}
 
 	/**
