@@ -15,7 +15,9 @@ A powerful, flexible Composer library for building WordPress plugins with custom
 - **Validation & Sanitization**: Built-in security with customizable rules
 - **Asset Management**: Context-aware CSS/JS enqueuing for fields
 - **Type-Safe**: PSR-4 autoloading with full interface contracts
-- **Well-Tested**: 212 PHPUnit tests with 618 assertions ✨ UPDATED
+- **Well-Tested**: 229 PHPUnit tests with 691 assertions ✨ UPDATED
+- **Security**: Nonces, capability checks, output escaping, and input sanitization
+- **i18n Ready**: Full internationalization support with translation infrastructure ✨ NEW
 
 ## Installation
 
@@ -196,7 +198,9 @@ WP-CMF includes 11 ready-to-use field types:
 
 ## Development Status
 
-### ✅ Completed (Milestone 4)
+### ✅ Completed Milestones
+
+#### Milestone 1-4: Core Framework ✅
 - ✅ Custom Post Type registration
 - ✅ Settings Page registration
 - ✅ Field Interface & AbstractField
@@ -205,28 +209,35 @@ WP-CMF includes 11 ready-to-use field types:
 - ✅ Field asset enqueuing system
 - ✅ Core CSS and JavaScript files
 - ✅ Automatic asset loading with context awareness
-- ✅ Array-based configuration (Milestone 4.1)
-- ✅ JSON configuration with schema validation (Milestone 4.2)
-- ✅ Enhanced JSON schema with strict validation (Milestone 4.3)
-- ✅ Extended testing with edge cases & integration tests (Milestone 4.4)
-- ✅ Comprehensive documentation
+- ✅ Array-based configuration
+- ✅ JSON configuration with schema validation
+- ✅ Enhanced JSON schema with strict validation
+- ✅ Extended testing with edge cases & integration tests
+
+#### Milestone 5: Security & Internationalization ✅
+- ✅ **M5F1**: Sanitize & validate pipeline for fields
+- ✅ **M5F2**: Nonces and capability checks (CSRF protection)
+- ✅ **M5F3**: Escaping output on render (esc_attr, esc_html)
+- ✅ **M5F4**: i18n support with translation infrastructure
+  - Text domain 'wp-cmf' implemented
+  - Translation helper with WordPress fallback
+  - POT template file (languages/wp-cmf.pot)
+  - Complete translation documentation
+  - 10 translatable strings
 
 ### 🔄 In Progress
-- Milestone 5: Security hardening
-- Milestone 6: Additional documentation
-- Milestone 7: CI/CD pipeline
+- Milestone 6: Additional documentation & examples
+- Milestone 7: CI/CD pipeline & first release
 
 ## Testing
 
-**Current Status: 212/212 tests passing (618 assertions)**
+**Current Status: 229/229 tests passing (691 assertions)** ✅
 
 Run the test suite:
 
 ```bash
 composer test
 ```
-
-Current coverage: **156 tests, 481 assertions** ✅
 
 ## Contributing
 
