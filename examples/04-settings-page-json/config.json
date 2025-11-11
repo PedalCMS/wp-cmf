@@ -1,0 +1,55 @@
+{
+  "settings_pages": [
+    {
+      "id": "my_plugin_settings",
+      "title": "My Plugin Settings",
+      "menu_title": "My Plugin",
+      "capability": "manage_options",
+      "slug": "my-plugin-settings",
+      "icon": "dashicons-admin-generic",
+      "position": 80,
+      "fields": [
+        {
+          "name": "site_title",
+          "type": "text",
+          "label": "Site Title",
+          "description": "Custom site title for your plugin",
+          "placeholder": "Enter site title",
+          "required": true,
+          "default": "My Awesome Site"
+        },
+        {
+          "name": "site_description",
+          "type": "textarea",
+          "label": "Site Description",
+          "description": "Brief description of your site",
+          "rows": 5,
+          "cols": 50,
+          "placeholder": "Enter description"
+        },
+        {
+          "name": "enable_feature",
+          "type": "checkbox",
+          "label": "Enable Feature",
+          "description": "Check to enable this feature",
+          "default": true
+        },
+        {
+          "name": "theme_color",
+          "type": "color",
+          "label": "Theme Color",
+          "description": "Choose your theme color",
+          "default": "#0073aa"
+        },
+        {
+          "name": "contact_email",
+          "type": "email",
+          "label": "Contact Email",
+          "description": "Email address for contact",
+          "placeholder": "you@example.com",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

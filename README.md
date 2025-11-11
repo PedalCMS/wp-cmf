@@ -9,11 +9,13 @@ A powerful, flexible Composer library for building WordPress plugins with custom
 - **Dynamic Fields**: 11 core field types with extensibility via custom field types
 - **Array Configuration**: Register CPTs, settings, and fields from a single array ✨ NEW
 - **Asset System**: Automatic CSS/JS loading for field styling and validation ✨ NEW
-- **Configuration-Driven**: Create fields from PHP arrays or JSON (Milestone 4)
+- **Configuration-Driven**: Create fields from PHP arrays or JSON files
+- **JSON Configuration**: Load configurations from JSON files with schema validation ✨ NEW
+- **Advanced Validation**: Enhanced schema with boundary checks and type-specific rules ✨ NEW
 - **Validation & Sanitization**: Built-in security with customizable rules
 - **Asset Management**: Context-aware CSS/JS enqueuing for fields
 - **Type-Safe**: PSR-4 autoloading with full interface contracts
-- **Well-Tested**: 156 PHPUnit tests with 481 assertions
+- **Well-Tested**: 212 PHPUnit tests with 618 assertions ✨ UPDATED
 
 ## Installation
 
@@ -184,7 +186,7 @@ WP-CMF includes 11 ready-to-use field types:
 
 - **[Field API](docs/field-api.md)** - Complete field system documentation
 - **[Usage Guide](docs/usage.md)** - Comprehensive usage examples
-- **[Examples](examples/)** - 10 working examples covering all features
+- **[Examples](examples/)** - 11 working examples covering all features
 
 ## Requirements
 
@@ -194,7 +196,7 @@ WP-CMF includes 11 ready-to-use field types:
 
 ## Development Status
 
-### ✅ Completed (Milestone 3)
+### ✅ Completed (Milestone 4)
 - ✅ Custom Post Type registration
 - ✅ Settings Page registration
 - ✅ Field Interface & AbstractField
@@ -203,15 +205,20 @@ WP-CMF includes 11 ready-to-use field types:
 - ✅ Field asset enqueuing system
 - ✅ Core CSS and JavaScript files
 - ✅ Automatic asset loading with context awareness
+- ✅ Array-based configuration (Milestone 4.1)
+- ✅ JSON configuration with schema validation (Milestone 4.2)
+- ✅ Enhanced JSON schema with strict validation (Milestone 4.3)
+- ✅ Extended testing with edge cases & integration tests (Milestone 4.4)
 - ✅ Comprehensive documentation
 
 ### 🔄 In Progress
-- Milestone 4: Array/JSON-driven configuration (COMPLETE - testing phase)
 - Milestone 5: Security hardening
 - Milestone 6: Additional documentation
 - Milestone 7: CI/CD pipeline
 
 ## Testing
+
+**Current Status: 212/212 tests passing (618 assertions)**
 
 Run the test suite:
 

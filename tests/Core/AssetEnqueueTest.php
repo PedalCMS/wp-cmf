@@ -31,7 +31,7 @@ class AssetEnqueueTest extends TestCase {
 	 * Test that get_assets_url method exists
 	 */
 	public function test_get_assets_url_method_exists(): void {
-		$registrar = new Registrar( false );
+		$registrar  = new Registrar( false );
 		$reflection = new \ReflectionClass( $registrar );
 		$this->assertTrue( $reflection->hasMethod( 'get_assets_url' ) );
 	}
@@ -40,7 +40,7 @@ class AssetEnqueueTest extends TestCase {
 	 * Test that get_version method exists
 	 */
 	public function test_get_version_method_exists(): void {
-		$registrar = new Registrar( false );
+		$registrar  = new Registrar( false );
 		$reflection = new \ReflectionClass( $registrar );
 		$this->assertTrue( $reflection->hasMethod( 'get_version' ) );
 	}
@@ -49,7 +49,7 @@ class AssetEnqueueTest extends TestCase {
 	 * Test that enqueue_common_assets method exists
 	 */
 	public function test_enqueue_common_assets_method_exists(): void {
-		$registrar = new Registrar( false );
+		$registrar  = new Registrar( false );
 		$reflection = new \ReflectionClass( $registrar );
 		$this->assertTrue( $reflection->hasMethod( 'enqueue_common_assets' ) );
 	}
@@ -58,9 +58,9 @@ class AssetEnqueueTest extends TestCase {
 	 * Test get_version returns a string
 	 */
 	public function test_get_version_returns_string(): void {
-		$registrar = new Registrar( false );
+		$registrar  = new Registrar( false );
 		$reflection = new \ReflectionClass( $registrar );
-		$method = $reflection->getMethod( 'get_version' );
+		$method     = $reflection->getMethod( 'get_version' );
 		$method->setAccessible( true );
 
 		$version = $method->invoke( $registrar );
@@ -72,9 +72,9 @@ class AssetEnqueueTest extends TestCase {
 	 * Test get_assets_url returns a string
 	 */
 	public function test_get_assets_url_returns_string(): void {
-		$registrar = new Registrar( false );
+		$registrar  = new Registrar( false );
 		$reflection = new \ReflectionClass( $registrar );
-		$method = $reflection->getMethod( 'get_assets_url' );
+		$method     = $reflection->getMethod( 'get_assets_url' );
 		$method->setAccessible( true );
 
 		$url = $method->invoke( $registrar );
@@ -127,13 +127,13 @@ class AssetEnqueueTest extends TestCase {
 		// Add some fields to trigger asset enqueuing
 		$registrar->add_fields(
 			'test_context',
-			[
-				[
-					'name' => 'test_field',
-					'type' => 'text',
+			array(
+				array(
+					'name'  => 'test_field',
+					'type'  => 'text',
 					'label' => 'Test Field',
-				],
-			]
+				),
+			)
 		);
 
 		// This should not throw any errors even without WordPress functions
@@ -145,11 +145,11 @@ class AssetEnqueueTest extends TestCase {
 	 */
 	public function test_field_enqueue_assets_method(): void {
 		$field = FieldFactory::create(
-			[
-				'name' => 'test_color',
-				'type' => 'color',
+			array(
+				'name'  => 'test_color',
+				'type'  => 'color',
 				'label' => 'Test Color',
-			]
+			)
 		);
 
 		$this->assertTrue( method_exists( $field, 'enqueue_assets' ) );

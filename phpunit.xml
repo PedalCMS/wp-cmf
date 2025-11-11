@@ -10,6 +10,7 @@
             <directory>./tests/CPT</directory>
             <directory>./tests/Field</directory>
             <directory>./tests/Settings</directory>
+            <directory>./tests/Json</directory>
         </testsuite>
     </testsuites>
     <source>

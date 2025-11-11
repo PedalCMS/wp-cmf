@@ -32,8 +32,8 @@ class ArrayRegistrationTest extends WP_UnitTestCase {
 				array(
 					'id'   => 'book',
 					'args' => array(
-						'label'   => 'Books',
-						'public'  => true,
+						'label'    => 'Books',
+						'public'   => true,
 						'supports' => array( 'title', 'editor' ),
 					),
 				),
@@ -383,9 +383,9 @@ class ArrayRegistrationTest extends WP_UnitTestCase {
 					'args'   => array( 'label' => 'Movies' ),
 					'fields' => array(
 						array(
-							'name'  => 'rating',
-							'type'  => 'select',
-							'label' => 'Rating',
+							'name'    => 'rating',
+							'type'    => 'select',
+							'label'   => 'Rating',
 							'options' => array(
 								'G'  => 'G',
 								'PG' => 'PG',
@@ -487,7 +487,7 @@ class ArrayRegistrationTest extends WP_UnitTestCase {
 
 	/**
 	 * Test that settings pages and fields are registered when called after hooks fire
-	 * 
+	 *
 	 * This simulates calling register_from_array() after admin_menu and admin_init
 	 * hooks have already fired.
 	 */
@@ -498,23 +498,23 @@ class ArrayRegistrationTest extends WP_UnitTestCase {
 		$wp_actions['admin_menu'] = 1;
 		$wp_actions['admin_init'] = 1;
 
-		$config = [
-			'settings_pages' => [
-				[
+		$config = array(
+			'settings_pages' => array(
+				array(
 					'id'         => 'test_settings',
 					'page_title' => 'Test Settings',
 					'menu_title' => 'Test Settings',
 					'capability' => 'manage_options',
-					'fields'     => [
-						[
+					'fields'     => array(
+						array(
 							'name'  => 'test_field',
 							'type'  => 'text',
 							'label' => 'Test Field',
-						],
-					],
-				],
-			],
-		];
+						),
+					),
+				),
+			),
+		);
 
 		$manager = Manager::init();
 		$manager->register_from_array( $config );

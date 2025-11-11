@@ -87,23 +87,35 @@ class Manager {
 	 * array(
 	 *   'cpts' => array(
 	 *     array(
-	 *       'id' => 'book',
+	 *       'id' => 'book',  // For new CPTs, include 'args'
 	 *       'args' => array('label' => 'Books', 'supports' => array('title', 'editor')),
 	 *       'fields' => array( ... field definitions ... )
+	 *     ),
+	 *     array(
+	 *       'id' => 'post',  // For existing post types, omit 'args' or leave empty
+	 *       'fields' => array( ... field definitions ... )  // Fields will be added to existing type
 	 *     )
 	 *   ),
 	 *   'settings_pages' => array(
 	 *     array(
-	 *       'id' => 'my-plugin-settings',
+	 *       'id' => 'my-plugin-settings',  // For new settings pages, include 'args'
 	 *       'title' => 'My Plugin',
 	 *       'menu_title' => 'My Plugin',
 	 *       'capability' => 'manage_options',
 	 *       'slug' => 'my-plugin',
 	 *       'fields' => array( ... field definitions ... )
+	 *     ),
+	 *     array(
+	 *       'id' => 'general',  // For existing WordPress settings pages, omit 'args'
+	 *       'fields' => array( ... field definitions ... )  // Fields will be added to existing page
 	 *     )
 	 *   )
 	 * )
 	 * </code>
+	 *
+	 * Note: The system automatically detects existing post types and settings pages.
+	 * - For post types: If 'id' matches an existing post type (e.g., 'post', 'page'), only fields are added.
+	 * - For settings: If 'id' matches a built-in settings page (e.g., 'general', 'reading'), only fields are added.
 	 *
 	 * @param array<string, mixed> $config Configuration array containing CPTs, settings pages, and fields.
 	 * @return self
@@ -149,6 +161,9 @@ class Manager {
 	/**
 	 * Register a custom post type from array configuration
 	 *
+	 * Automatically detects if the post type already exists and only adds fields,
+	 * or creates a new post type if it doesn't exist.
+	 *
 	 * @param array<string, mixed> $config CPT configuration.
 	 * @return void
 	 * @throws \InvalidArgumentException If required fields are missing.
@@ -162,10 +177,15 @@ class Manager {
 		$args      = $config['args'] ?? array();
 		$fields    = $config['fields'] ?? array();
 
-		// Register the CPT
-		$this->registrar->add_custom_post_type( $post_type, $args );
+		// Check if this is an existing post type
+		$is_existing = function_exists( 'post_type_exists' ) && post_type_exists( $post_type );
 
-		// Register fields if provided
+		// Only register new CPT if it doesn't already exist and args are provided
+		if ( ! $is_existing && ! empty( $args ) ) {
+			$this->registrar->add_custom_post_type( $post_type, $args );
+		}
+
+		// Register fields if provided (works for both new and existing post types)
 		if ( ! empty( $fields ) && is_array( $fields ) ) {
 			$this->registrar->add_fields( $post_type, $fields );
 		}
@@ -173,6 +193,10 @@ class Manager {
 
 	/**
 	 * Register a settings page from array configuration
+	 *
+	 * Automatically detects if this is an existing WordPress settings page
+	 * (like 'general', 'writing', 'reading') and only adds fields,
+	 * or creates a new settings page if it doesn't exist.
 	 *
 	 * @param array<string, mixed> $config Settings page configuration.
 	 * @return void
@@ -186,14 +210,29 @@ class Manager {
 		$page_id = $config['id'];
 		$fields  = $config['fields'] ?? array();
 
-		// Remove 'fields' from config before passing to SettingsPage
-		$page_args = $config;
-		unset( $page_args['fields'] );
+		// Determine if this is creating a new settings page or adding to an existing one
+		// Settings pages that define properties like page_title, menu_title, capability, etc. are new
+		// Settings pages with ONLY id and fields are adding to existing pages
+		$settings_properties = array( 'page_title', 'menu_title', 'capability', 'menu_slug', 'callback', 'icon_url', 'position', 'parent_slug' );
+		$has_settings_config = false;
 
-		// Register the settings page
-		$this->registrar->add_settings_page( $page_id, $page_args );
+		foreach ( $settings_properties as $prop ) {
+			if ( isset( $config[ $prop ] ) ) {
+				$has_settings_config = true;
+				break;
+			}
+		}
 
-		// Register fields if provided
+		// Only register new settings page if configuration properties are provided
+		// If only id and fields provided, assume it's for adding fields to an existing settings page
+		if ( $has_settings_config ) {
+			// Remove 'fields' from config before passing to SettingsPage
+			$page_args = $config;
+			unset( $page_args['fields'] );
+			$this->registrar->add_settings_page( $page_id, $page_args );
+		}
+
+		// Register fields if provided (works for both new and existing settings pages)
 		if ( ! empty( $fields ) && is_array( $fields ) ) {
 			$this->registrar->add_fields( $page_id, $fields );
 		}
@@ -202,14 +241,62 @@ class Manager {
 	/**
 	 * Register configuration from JSON
 	 *
+	 * Accepts either a file path to a JSON file or a JSON string and
+	 * registers the configuration after validation.
+	 *
 	 * @param string $path_or_json File path to JSON file or JSON string.
+	 * @param bool   $validate     Whether to validate against schema (default: true).
 	 * @return self
+	 * @throws \InvalidArgumentException If JSON is invalid or validation fails.
 	 */
-	public function register_from_json( string $path_or_json ): self {
-		// TODO: Implement JSON-based registration
-		// This will be implemented in Milestone 4
-		unset( $path_or_json ); // Prevent unused parameter warning
-		return $this;
+	public function register_from_json( string $path_or_json, bool $validate = true ): self {
+		// Determine if it's a file path or JSON string
+		$json_string = $this->get_json_content( $path_or_json );
+
+		// Decode JSON
+		$config = json_decode( $json_string, true );
+
+		if ( null === $config ) {
+			$error = json_last_error_msg();
+			throw new \InvalidArgumentException( "Invalid JSON: {$error}" );
+		}
+
+		if ( ! is_array( $config ) ) {
+			throw new \InvalidArgumentException( 'JSON must decode to an array/object' );
+		}
+
+		// Validate against schema if requested
+		if ( $validate ) {
+			$validator = new \Pedalcms\WpCmf\Json\SchemaValidator();
+			if ( ! $validator->validate( $config ) ) {
+				throw new \InvalidArgumentException( $validator->get_error_message() );
+			}
+		}
+
+		// Register using array registration
+		return $this->register_from_array( $config );
+	}
+
+	/**
+	 * Get JSON content from file path or string
+	 *
+	 * @param string $path_or_json File path or JSON string.
+	 * @return string JSON content.
+	 * @throws \InvalidArgumentException If file doesn't exist or is not readable.
+	 */
+	private function get_json_content( string $path_or_json ): string {
+		// Check if it looks like a file path
+		if ( file_exists( $path_or_json ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$content = file_get_contents( $path_or_json );
+			if ( false === $content ) {
+				throw new \InvalidArgumentException( "Unable to read file: {$path_or_json}" );
+			}
+			return $content;
+		}
+
+		// Treat as JSON string
+		return $path_or_json;
 	}
 
 	/**

@@ -151,6 +151,10 @@ class Registrar {
 	 * Accepts field configuration arrays and creates field instances using FieldFactory.
 	 * Fields can be added as configuration arrays or as FieldInterface instances.
 	 *
+	 * Works for both new custom post types and existing WordPress post types (like 'post', 'page').
+	 * The method automatically handles field registration regardless of whether the post type
+	 * was created by WP-CMF or already exists in WordPress.
+	 *
 	 * @param string               $context Context (post_type slug or settings page ID).
 	 * @param array<string, mixed> $fields  Field definitions (config arrays or FieldInterface instances).
 	 * @return self
@@ -164,7 +168,7 @@ class Registrar {
 		foreach ( $fields as $key => $field ) {
 			// If it's already a FieldInterface instance, use it directly
 			if ( $field instanceof FieldInterface ) {
-				$field_name                                = $field->get_name();
+				$field_name                              = $field->get_name();
 				$this->fields[ $context ][ $field_name ] = $field;
 			} elseif ( is_array( $field ) ) {
 				// If it's a config array, create field using FieldFactory
@@ -174,9 +178,9 @@ class Registrar {
 				}
 
 				try {
-					$field_instance                                = FieldFactory::create( $field );
-					$field_name                                    = $field_instance->get_name();
-					$this->fields[ $context ][ $field_name ]     = $field_instance;
+					$field_instance                          = FieldFactory::create( $field );
+					$field_name                              = $field_instance->get_name();
+					$this->fields[ $context ][ $field_name ] = $field_instance;
 				} catch ( \InvalidArgumentException $e ) {
 					// If field creation fails, store the error or skip
 					// For now, we'll skip invalid fields
@@ -223,6 +227,8 @@ class Registrar {
 	 * This method is called on the 'admin_init' hook, but can also be called
 	 * directly if fields are added during or after the 'admin_init' hook.
 	 *
+	 * Handles both custom settings pages and existing WordPress settings pages.
+	 *
 	 * @return void
 	 */
 	public function register_settings_fields(): void {
@@ -230,6 +236,7 @@ class Registrar {
 			return;
 		}
 
+		// Register fields for custom settings pages (those we created)
 		foreach ( $this->settings_pages as $page_id => $page ) {
 			// Check if this settings page has fields
 			if ( empty( $this->fields[ $page_id ] ) ) {
@@ -251,7 +258,7 @@ class Registrar {
 					continue;
 				}
 
-				$field_name = $field->get_name();
+				$field_name  = $field->get_name();
 				$option_name = $page_id . '_' . $field_name;
 
 				// Register setting
@@ -270,6 +277,57 @@ class Registrar {
 					array( $this, 'render_settings_field' ),
 					$page->get_menu_slug(),
 					$section_id,
+					array(
+						'field'       => $field,
+						'option_name' => $option_name,
+					)
+				);
+			}
+		}
+
+		// Register fields for existing settings pages (any registered settings page we didn't create)
+		foreach ( $this->fields as $page_id => $field_definitions ) {
+			// Skip if already handled above (custom settings pages we created)
+			if ( isset( $this->settings_pages[ $page_id ] ) ) {
+				continue;
+			}
+
+			// Skip if it's a CPT context
+			if ( isset( $this->custom_post_types[ $page_id ] ) ) {
+				continue;
+			}
+
+			// At this point, assume it's an existing settings page (built-in or from another plugin)
+			// Check if this settings page has fields
+			if ( empty( $field_definitions ) ) {
+				continue;
+			}
+
+			// Register each field for the existing settings page
+			foreach ( $field_definitions as $field ) {
+				if ( ! $field instanceof FieldInterface ) {
+					continue;
+				}
+
+				$field_name  = $field->get_name();
+				$option_name = $page_id . '_' . $field_name;
+
+				// Register setting with the built-in settings group
+				register_setting(
+					$page_id,
+					$option_name,
+					array(
+						'sanitize_callback' => array( $field, 'sanitize' ),
+					)
+				);
+
+				// Add settings field to the existing page's default section
+				add_settings_field(
+					$field_name,
+					$field->get_label(),
+					array( $this, 'render_settings_field' ),
+					$page_id,
+					'default',
 					array(
 						'field'       => $field,
 						'option_name' => $option_name,
@@ -389,7 +447,7 @@ class Registrar {
 		wp_enqueue_style(
 			'wp-cmf',
 			$assets_url . 'css/wp-cmf.css',
-			[],
+			array(),
 			$version,
 			'all'
 		);
@@ -398,7 +456,7 @@ class Registrar {
 		wp_enqueue_script(
 			'wp-cmf',
 			$assets_url . 'js/wp-cmf.js',
-			[ 'jquery', 'wp-color-picker' ],
+			array( 'jquery', 'wp-color-picker' ),
 			$version,
 			true
 		);
@@ -475,6 +533,7 @@ class Registrar {
 	 * Register meta boxes for custom post types
 	 *
 	 * Creates meta boxes for fields associated with custom post types.
+	 * Also handles fields added to existing WordPress post types.
 	 *
 	 * @return void
 	 */
@@ -483,6 +542,7 @@ class Registrar {
 			return;
 		}
 
+		// Register meta boxes for our custom post types
 		foreach ( $this->custom_post_types as $post_type => $cpt ) {
 			// Check if this CPT has fields
 			if ( empty( $this->fields[ $post_type ] ) ) {
@@ -493,7 +553,36 @@ class Registrar {
 			add_meta_box(
 				$post_type . '_fields',
 				ucfirst( $post_type ) . ' Fields',
-				[ $this, 'render_meta_box' ],
+				array( $this, 'render_meta_box' ),
+				$post_type,
+				'normal',
+				'high'
+			);
+		}
+
+		// Register meta boxes for existing post types that have fields
+		// but aren't in our custom_post_types array
+		foreach ( $this->fields as $post_type => $fields ) {
+			// Skip if already handled above or if it's a settings page
+			if ( isset( $this->custom_post_types[ $post_type ] ) || isset( $this->settings_pages[ $post_type ] ) ) {
+				continue;
+			}
+
+			// Check if this is a valid post type
+			if ( ! function_exists( 'post_type_exists' ) || ! post_type_exists( $post_type ) ) {
+				continue;
+			}
+
+			// Add meta box for existing post type
+			$post_type_obj = function_exists( 'get_post_type_object' ) ? get_post_type_object( $post_type ) : null;
+			$label         = $post_type_obj && isset( $post_type_obj->labels->singular_name )
+				? $post_type_obj->labels->singular_name
+				: ucfirst( $post_type );
+
+			add_meta_box(
+				$post_type . '_cmf_fields',
+				$label . ' Fields',
+				array( $this, 'render_meta_box' ),
 				$post_type,
 				'normal',
 				'high'

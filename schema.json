@@ -1,0 +1,512 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WP-CMF Configuration Schema",
+  "description": "JSON schema for WP-CMF custom post types, settings pages, and field definitions",
+  "type": "object",
+  "properties": {
+    "cpts": {
+      "type": "array",
+      "description": "Array of custom post type definitions",
+      "items": {
+        "$ref": "#/definitions/customPostType"
+      }
+    },
+    "settings_pages": {
+      "type": "array",
+      "description": "Array of settings page definitions",
+      "items": {
+        "$ref": "#/definitions/settingsPage"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "customPostType": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Post type identifier (max 20 characters, lowercase, underscores)",
+          "pattern": "^[a-z_]{1,20}$",
+          "minLength": 1,
+          "maxLength": 20,
+          "examples": ["book", "product", "event", "portfolio"]
+        },
+        "args": {
+          "type": "object",
+          "description": "WordPress register_post_type() arguments",
+          "additionalProperties": true,
+          "properties": {
+            "label": {
+              "type": "string",
+              "description": "Plural name for the post type",
+              "minLength": 1
+            },
+            "labels": {
+              "$ref": "#/definitions/postTypeLabels"
+            },
+            "description": {
+              "type": "string",
+              "description": "Short descriptive summary",
+              "maxLength": 255
+            },
+            "public": {
+              "type": "boolean",
+              "description": "Whether the post type is public",
+              "default": true
+            },
+            "hierarchical": {
+              "type": "boolean",
+              "description": "Whether the post type is hierarchical (like pages)",
+              "default": false
+            },
+            "supports": {
+              "type": "array",
+              "description": "Features this post type supports",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "enum": ["title", "editor", "author", "thumbnail", "excerpt", "trackbacks", "custom-fields", "comments", "revisions", "page-attributes", "post-formats"]
+              }
+            },
+            "menu_icon": {
+              "type": "string",
+              "description": "Dashicon class (dashicons-*) or URL for menu icon",
+              "examples": ["dashicons-book", "dashicons-cart", "dashicons-admin-home"]
+            },
+            "menu_position": {
+              "type": "integer",
+              "description": "Position in admin menu (5-100)",
+              "minimum": 5,
+              "maximum": 100
+            },
+            "show_in_rest": {
+              "type": "boolean",
+              "description": "Enable REST API and Gutenberg editor support",
+              "default": false
+            },
+            "rest_base": {
+              "type": "string",
+              "description": "Custom REST API base path",
+              "pattern": "^[a-z0-9_-]+$"
+            },
+            "capability_type": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "description": "Capability type (singular)",
+                  "examples": ["post", "page"]
+                },
+                {
+                  "type": "array",
+                  "description": "Capability type (singular, plural)",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              ]
+            },
+            "rewrite": {
+              "oneOf": [
+                {
+                  "type": "boolean",
+                  "description": "Enable/disable rewrite"
+                },
+                {
+                  "type": "object",
+                  "description": "Rewrite configuration",
+                  "properties": {
+                    "slug": {
+                      "type": "string",
+                      "description": "Custom URL slug",
+                      "pattern": "^[a-z0-9_-]+$"
+                    },
+                    "with_front": {
+                      "type": "boolean",
+                      "description": "Prepend front base to permalink",
+                      "default": true
+                    },
+                    "feeds": {
+                      "type": "boolean",
+                      "description": "Build feed permastruct"
+                    },
+                    "pages": {
+                      "type": "boolean",
+                      "description": "Build page permastruct"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "has_archive": {
+              "oneOf": [
+                {
+                  "type": "boolean",
+                  "description": "Enable archive page"
+                },
+                {
+                  "type": "string",
+                  "description": "Custom archive slug"
+                }
+              ]
+            },
+            "exclude_from_search": {
+              "type": "boolean",
+              "description": "Exclude from search results",
+              "default": false
+            },
+            "publicly_queryable": {
+              "type": "boolean",
+              "description": "Whether queries can be performed on the front end"
+            },
+            "show_ui": {
+              "type": "boolean",
+              "description": "Show admin UI",
+              "default": true
+            },
+            "show_in_menu": {
+              "oneOf": [
+                {
+                  "type": "boolean",
+                  "description": "Show in admin menu"
+                },
+                {
+                  "type": "string",
+                  "description": "Show as submenu under parent page"
+                }
+              ]
+            },
+            "show_in_nav_menus": {
+              "type": "boolean",
+              "description": "Make available for selection in navigation menus"
+            },
+            "show_in_admin_bar": {
+              "type": "boolean",
+              "description": "Show in admin bar"
+            }
+          }
+        },
+        "fields": {
+          "type": "array",
+          "description": "Array of field definitions for this post type",
+          "items": {
+            "$ref": "#/definitions/field"
+          }
+        }
+      }
+    },
+    "postTypeLabels": {
+      "type": "object",
+      "description": "Custom labels for post type",
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "General name (plural)"
+        },
+        "singular_name": {
+          "type": "string",
+          "description": "Singular name"
+        },
+        "add_new": {
+          "type": "string",
+          "description": "Add new label"
+        },
+        "add_new_item": {
+          "type": "string",
+          "description": "Add new item label"
+        },
+        "edit_item": {
+          "type": "string",
+          "description": "Edit item label"
+        },
+        "new_item": {
+          "type": "string",
+          "description": "New item label"
+        },
+        "view_item": {
+          "type": "string",
+          "description": "View item label"
+        },
+        "search_items": {
+          "type": "string",
+          "description": "Search items label"
+        },
+        "not_found": {
+          "type": "string",
+          "description": "Not found message"
+        },
+        "not_found_in_trash": {
+          "type": "string",
+          "description": "Not found in trash message"
+        },
+        "all_items": {
+          "type": "string",
+          "description": "All items label"
+        },
+        "menu_name": {
+          "type": "string",
+          "description": "Menu name"
+        }
+      }
+    },
+    "settingsPage": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the settings page",
+          "pattern": "^[a-z0-9_-]+$",
+          "minLength": 1,
+          "maxLength": 100,
+          "examples": ["my-plugin-settings", "theme-options", "site-config"]
+        },
+        "page_title": {
+          "type": "string",
+          "description": "Title shown in browser tab",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "menu_title": {
+          "type": "string",
+          "description": "Text to be used for the menu",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "capability": {
+          "type": "string",
+          "description": "Capability required to access the page",
+          "default": "manage_options",
+          "enum": ["manage_options", "edit_posts", "edit_pages", "edit_published_posts", "publish_posts", "manage_categories", "moderate_comments", "upload_files", "edit_theme_options", "administrator"]
+        },
+        "slug": {
+          "type": "string",
+          "description": "Menu slug (defaults to id)",
+          "pattern": "^[a-z0-9_-]+$"
+        },
+        "parent": {
+          "type": "string",
+          "description": "Parent menu slug for submenu pages",
+          "enum": ["options-general.php", "themes.php", "plugins.php", "users.php", "tools.php", "settings.php", "edit.php", "upload.php", "index.php", "edit-comments.php"]
+        },
+        "icon": {
+          "type": "string",
+          "description": "Dashicon class for top-level menu",
+          "pattern": "^(dashicons-|data:image/svg\\+xml;base64,)",
+          "examples": ["dashicons-admin-settings", "dashicons-admin-generic"]
+        },
+        "position": {
+          "type": "integer",
+          "description": "Menu position for top-level menu (1-100)",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "fields": {
+          "type": "array",
+          "description": "Array of field definitions for this settings page",
+          "items": {
+            "$ref": "#/definitions/field"
+          }
+        }
+      }
+    },
+    "field": {
+      "type": "object",
+      "required": ["name", "type"],
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseField"
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "select"
+              }
+            }
+          },
+          "then": {
+            "required": ["options"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": ["radio", "checkbox"]
+              }
+            }
+          },
+          "then": {
+            "required": ["options"]
+          }
+        }
+      ]
+    },
+    "baseField": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Field identifier (used as meta key or option name)",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "minLength": 1,
+          "maxLength": 64,
+          "examples": ["site_title", "user_email", "product_price"]
+        },
+        "type": {
+          "type": "string",
+          "description": "Field type",
+          "enum": ["text", "textarea", "select", "checkbox", "radio", "number", "email", "url", "date", "password", "color"]
+        },
+        "label": {
+          "type": "string",
+          "description": "Field label shown to users",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "description": {
+          "type": "string",
+          "description": "Help text displayed below the field",
+          "maxLength": 500
+        },
+        "default": {
+          "description": "Default value for the field (type varies by field type)"
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Whether the field is required",
+          "default": false
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Placeholder text for text-based inputs",
+          "maxLength": 200
+        },
+        "min": {
+          "description": "Minimum value (for number/date fields) or length (for text fields)"
+        },
+        "max": {
+          "description": "Maximum value (for number/date fields) or length (for text fields)"
+        },
+        "step": {
+          "type": ["integer", "number"],
+          "description": "Step increment for number fields",
+          "exclusiveMinimum": 0
+        },
+        "pattern": {
+          "type": "string",
+          "description": "Regular expression pattern for validation (without delimiters)",
+          "examples": ["[0-9]{5}", "[A-Z]{2}[0-9]{4}"]
+        },
+        "options": {
+          "type": "object",
+          "description": "Options for select, radio, and checkbox fields (key: value pairs)",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string"
+          },
+          "examples": [
+            {
+              "option1": "Label 1",
+              "option2": "Label 2"
+            }
+          ]
+        },
+        "multiple": {
+          "type": "boolean",
+          "description": "Allow multiple selections (for select and checkbox)",
+          "default": false
+        },
+        "inline": {
+          "type": "boolean",
+          "description": "Display options inline (for radio and checkbox)",
+          "default": false
+        },
+        "rows": {
+          "type": "integer",
+          "description": "Number of rows for textarea",
+          "minimum": 1,
+          "maximum": 50,
+          "default": 5
+        },
+        "cols": {
+          "type": "integer",
+          "description": "Number of columns for textarea",
+          "minimum": 10,
+          "maximum": 200,
+          "default": 50
+        },
+        "maxlength": {
+          "type": "integer",
+          "description": "Maximum length for text-based fields",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "readonly": {
+          "type": "boolean",
+          "description": "Make field read-only",
+          "default": false
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Disable the field",
+          "default": false
+        },
+        "class": {
+          "type": "string",
+          "description": "Additional CSS classes (space-separated)",
+          "pattern": "^[a-zA-Z0-9_-]+(\\s+[a-zA-Z0-9_-]+)*$"
+        },
+        "wrapper_class": {
+          "type": "string",
+          "description": "CSS classes for field wrapper (space-separated)",
+          "pattern": "^[a-zA-Z0-9_-]+(\\s+[a-zA-Z0-9_-]+)*$"
+        },
+        "context": {
+          "type": "string",
+          "description": "Metabox context for CPT fields",
+          "enum": ["normal", "side", "advanced"],
+          "default": "normal"
+        },
+        "priority": {
+          "type": "string",
+          "description": "Metabox priority for CPT fields",
+          "enum": ["high", "default", "low"],
+          "default": "default"
+        },
+        "sanitize_callback": {
+          "type": "string",
+          "description": "Custom sanitization callback function name"
+        },
+        "validation": {
+          "type": "object",
+          "description": "Validation rules",
+          "properties": {
+            "min_length": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "max_length": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "regex": {
+              "type": "string"
+            },
+            "custom_callback": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

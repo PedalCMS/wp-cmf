@@ -1,0 +1,54 @@
+{
+  "cpts": [
+    {
+      "id": "post",
+      "fields": [
+        {
+          "name": "reading_time",
+          "type": "number",
+          "label": "Estimated Reading Time",
+          "description": "Estimated reading time in minutes",
+          "placeholder": "5",
+          "min": 1,
+          "max": 120,
+          "step": 1
+        },
+        {
+          "name": "post_subtitle",
+          "type": "text",
+          "label": "Subtitle",
+          "description": "Optional subtitle for this post",
+          "placeholder": "Enter a catchy subtitle",
+          "maxlength": 200
+        },
+        {
+          "name": "featured_content",
+          "type": "checkbox",
+          "label": "Featured Content",
+          "description": "Mark this post as featured content"
+        },
+        {
+          "name": "content_type",
+          "type": "select",
+          "label": "Content Type",
+          "description": "Select the type of content",
+          "options": {
+            "article": "Article",
+            "tutorial": "Tutorial",
+            "review": "Review",
+            "news": "News",
+            "interview": "Interview"
+          },
+          "default": "article"
+        },
+        {
+          "name": "external_source",
+          "type": "url",
+          "label": "External Source URL",
+          "description": "If this content is from an external source, provide the URL",
+          "placeholder": "https://example.com/article"
+        }
+      ]
+    }
+  ]
+}
