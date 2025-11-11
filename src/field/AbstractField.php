@@ -174,7 +174,8 @@ abstract class AbstractField implements FieldInterface {
 
 		// Check required
 		if ( ! empty( $this->config['required'] ) && empty( $input ) ) {
-			$errors[] = sprintf( '%s is required.', $this->get_label() );
+			/* translators: %s: field label */
+			$errors[] = sprintf( $this->translate( '%s is required.' ), $this->get_label() );
 		}
 
 		// Apply custom validation rules
@@ -203,25 +204,30 @@ abstract class AbstractField implements FieldInterface {
 		switch ( $rule ) {
 			case 'min':
 				if ( is_numeric( $input ) && $input < $rule_value ) {
-					return sprintf( '%s must be at least %s.', $this->get_label(), $rule_value );
+					/* translators: 1: field label, 2: minimum value */
+					return sprintf( $this->translate( '%1$s must be at least %2$s.' ), $this->get_label(), $rule_value );
 				}
 				if ( is_string( $input ) && strlen( $input ) < $rule_value ) {
-					return sprintf( '%s must be at least %s characters.', $this->get_label(), $rule_value );
+					/* translators: 1: field label, 2: minimum character length */
+					return sprintf( $this->translate( '%1$s must be at least %2$s characters.' ), $this->get_label(), $rule_value );
 				}
 				break;
 
 			case 'max':
 				if ( is_numeric( $input ) && $input > $rule_value ) {
-					return sprintf( '%s must be at most %s.', $this->get_label(), $rule_value );
+					/* translators: 1: field label, 2: maximum value */
+					return sprintf( $this->translate( '%1$s must be at most %2$s.' ), $this->get_label(), $rule_value );
 				}
 				if ( is_string( $input ) && strlen( $input ) > $rule_value ) {
-					return sprintf( '%s must be at most %s characters.', $this->get_label(), $rule_value );
+					/* translators: 1: field label, 2: maximum character length */
+					return sprintf( $this->translate( '%1$s must be at most %2$s characters.' ), $this->get_label(), $rule_value );
 				}
 				break;
 
 			case 'pattern':
 				if ( is_string( $input ) && ! preg_match( $rule_value, $input ) ) {
-					return sprintf( '%s format is invalid.', $this->get_label() );
+					/* translators: %s: field label */
+					return sprintf( $this->translate( '%s format is invalid.' ), $this->get_label() );
 				}
 				break;
 
@@ -231,14 +237,16 @@ abstract class AbstractField implements FieldInterface {
 						? \is_email( $input )
 						: filter_var( $input, FILTER_VALIDATE_EMAIL );
 					if ( ! $is_valid_email ) {
-						return sprintf( '%s must be a valid email address.', $this->get_label() );
+						/* translators: %s: field label */
+						return sprintf( $this->translate( '%s must be a valid email address.' ), $this->get_label() );
 					}
 				}
 				break;
 
 			case 'url':
 				if ( $rule_value && ! filter_var( $input, FILTER_VALIDATE_URL ) ) {
-					return sprintf( '%s must be a valid URL.', $this->get_label() );
+					/* translators: %s: field label */
+					return sprintf( $this->translate( '%s must be a valid URL.' ), $this->get_label() );
 				}
 				break;
 		}
@@ -286,11 +294,26 @@ abstract class AbstractField implements FieldInterface {
 		if ( function_exists( 'esc_html' ) ) {
 			return \esc_html( $text );
 		}
-		return htmlspecialchars( $text, ENT_NOQUOTES, 'UTF-8' );
+		return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' );
 	}
 
 	/**
-	 * Render field wrapper start
+	 * Translate text with fallback
+	 *
+	 * @param string $text       Text to translate.
+	 * @param string $text_domain Text domain.
+	 * @return string Translated text or original if WordPress not available.
+	 */
+	protected function translate( string $text, string $text_domain = 'wp-cmf' ): string {
+		if ( function_exists( '__' ) ) {
+			return \__( $text, $text_domain );
+		}
+		// Fallback when WordPress not loaded (e.g., in tests)
+		return $text;
+	}
+
+	/**
+	 * Render wrapper start
 	 *
 	 * @return string
 	 */

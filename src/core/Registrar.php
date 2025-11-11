@@ -247,12 +247,10 @@ class Registrar {
 			$section_id = $page_id . '_section';
 			add_settings_section(
 				$section_id,
-				'Settings',
+				__( 'Settings', 'wp-cmf' ),
 				'__return_empty_string',
 				$page->get_menu_slug()
-			);
-
-			// Register each field
+			);          // Register each field
 			foreach ( $this->fields[ $page_id ] as $field ) {
 				if ( ! $field instanceof FieldInterface ) {
 					continue;

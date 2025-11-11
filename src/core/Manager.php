@@ -51,6 +51,7 @@ class Manager {
 	private function __construct( array $options = array() ) {
 		$this->options   = $options;
 		$this->registrar = new Registrar( function_exists( 'add_action' ) );
+		$this->load_textdomain();
 	}
 
 	/**
@@ -65,6 +66,21 @@ class Manager {
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Load plugin text domain for translations
+	 *
+	 * @return void
+	 */
+	public function load_textdomain(): void {
+		if ( function_exists( 'load_plugin_textdomain' ) ) {
+			load_plugin_textdomain(
+				'wp-cmf',
+				false,
+				dirname( plugin_basename( __FILE__ ) ) . '/../../languages'
+			);
+		}
 	}
 
 	/**
