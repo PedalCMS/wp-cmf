@@ -1,0 +1,62 @@
+# Copyright (C) 2025 PedalCMS
+# This file is distributed under the same license as the WP-CMF package.
+msgid ""
+msgstr ""
+"Project-Id-Version: WP-CMF 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/PedalCMS/wp-cmf/issues\n"
+"POT-Creation-Date: 2025-11-12 00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. translators: %s: field label
+#: src/field/AbstractField.php:177
+msgid "%s is required."
+msgstr ""
+
+#. translators: 1: field label, 2: minimum value
+#: src/field/AbstractField.php:208
+msgid "%1$s must be at least %2$s."
+msgstr ""
+
+#. translators: 1: field label, 2: minimum character length
+#: src/field/AbstractField.php:212
+msgid "%1$s must be at least %2$s characters."
+msgstr ""
+
+#. translators: 1: field label, 2: maximum value
+#: src/field/AbstractField.php:219
+msgid "%1$s must be at most %2$s."
+msgstr ""
+
+#. translators: 1: field label, 2: maximum character length
+#: src/field/AbstractField.php:223
+msgid "%1$s must be at most %2$s characters."
+msgstr ""
+
+#. translators: %s: field label
+#: src/field/AbstractField.php:230
+msgid "%s format is invalid."
+msgstr ""
+
+#. translators: %s: field label
+#: src/field/AbstractField.php:241
+msgid "%s must be a valid email address."
+msgstr ""
+
+#. translators: %s: field label
+#: src/field/AbstractField.php:249
+msgid "%s must be a valid URL."
+msgstr ""
+
+#: src/core/Registrar.php:250
+msgid "Settings"
+msgstr ""
+
+#: src/settings/SettingsPage.php:316
+msgid "No settings configured for this page."
+msgstr ""
