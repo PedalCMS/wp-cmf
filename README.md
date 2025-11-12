@@ -184,11 +184,38 @@ WP-CMF includes 11 ready-to-use field types:
 
 ## Documentation
 
-## Documentation
-
 - **[Field API](docs/field-api.md)** - Complete field system documentation
 - **[Usage Guide](docs/usage.md)** - Comprehensive usage examples
-- **[Examples](examples/)** - 11 working examples covering all features
+- **[Examples](examples/)** - 13 working examples covering all features
+
+## Examples
+
+WP-CMF includes 13 complete, working examples demonstrating all major features:
+
+### Basic Examples
+1. **[Basic CPT (Array)](examples/01-basic-cpt-array/)** - Simple custom post type with array configuration
+2. **[Basic CPT (JSON)](examples/02-basic-cpt-json/)** - Simple custom post type with JSON configuration
+3. **[Settings Page (Array)](examples/03-settings-page-array/)** - Basic settings page with array config
+4. **[Settings Page (JSON)](examples/04-settings-page-json/)** - Basic settings page with JSON config
+
+### Complete Integration Examples
+5. **[Complete Array Example](examples/05-complete-array-example/)** - Multiple CPTs and settings pages with all field types (array)
+6. **[Complete JSON Example](examples/06-complete-json-example/)** - Multiple CPTs and settings pages with all field types (JSON)
+
+### Advanced Features
+7. **[Existing Post Type (Array)](examples/07-existing-post-type-array/)** - Add fields to WordPress core post types (array)
+8. **[Existing Post Type (JSON)](examples/08-existing-post-type-json/)** - Add fields to WordPress core post types (JSON)
+9. **[Existing Settings Page (Array)](examples/09-existing-settings-page-array/)** - Add fields to WordPress General Settings (array)
+10. **[Existing Settings Page (JSON)](examples/10-existing-settings-page-json/)** - Add fields to WordPress General Settings (JSON)
+
+### Advanced Integration Examples
+11. **[CPT with Submenu Settings (Array)](examples/11-cpt-with-submenu-settings/)** ⭐ - Product CPT with settings submenu (13 fields + 19 settings, array config)
+12. **[CPT with Submenu Settings (JSON)](examples/12-cpt-with-submenu-settings-json/)** ⭐ - Product CPT with settings submenu (13 fields + 19 settings, JSON config)
+
+### Custom Field Types
+13. **[Custom Field Type](examples/13-custom-field-type/)** ⭐ - Create custom SliderField and use in settings
+
+**⭐ = Recommended starting points for complex projects**
 
 ## Requirements
 
