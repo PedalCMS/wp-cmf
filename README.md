@@ -27,141 +27,175 @@ composer require pedalcms/wp-cmf
 
 ## Quick Start
 
-### Array-Based Configuration (Recommended)
+### Complete Example - Array Configuration (Recommended)
+
+Create a complete plugin with custom post types and settings in one configuration array:
 
 ```php
+<?php
+/**
+ * Plugin Name: My Custom Plugin
+ * Description: Built with WP-CMF
+ */
+
 use Pedalcms\WpCmf\Core\Manager;
 
-$config = [
-    'cpts' => [
-        [
-            'id'   => 'book',
-            'args' => [
-                'label'    => 'Books',
-                'supports' => ['title', 'editor', 'thumbnail'],
-                'public'   => true,
-            ],
-            'fields' => [
-                [
-                    'name'     => 'isbn',
-                    'type'     => 'text',
-                    'label'    => 'ISBN',
-                    'required' => true,
+function my_plugin_init() {
+    $config = [
+        'cpts' => [
+            [
+                'id'   => 'product',
+                'args' => [
+                    'label'       => 'Products',
+                    'public'      => true,
+                    'has_archive' => true,
+                    'supports'    => [ 'title', 'editor', 'thumbnail' ],
+                    'menu_icon'   => 'dashicons-cart',
                 ],
-                [
-                    'name'  => 'price',
-                    'type'  => 'number',
-                    'label' => 'Price',
-                    'min'   => 0,
+                'fields' => [
+                    [
+                        'name'        => 'sku',
+                        'type'        => 'text',
+                        'label'       => 'SKU',
+                        'required'    => true,
+                        'placeholder' => 'PROD-001',
+                    ],
+                    [
+                        'name'    => 'price',
+                        'type'    => 'number',
+                        'label'   => 'Price',
+                        'min'     => 0,
+                        'step'    => 0.01,
+                        'default' => 0,
+                    ],
+                    [
+                        'name'    => 'stock_status',
+                        'type'    => 'select',
+                        'label'   => 'Stock Status',
+                        'options' => [
+                            'in_stock'    => 'In Stock',
+                            'out_of_stock' => 'Out of Stock',
+                            'on_backorder' => 'On Backorder',
+                        ],
+                        'default' => 'in_stock',
+                    ],
+                    [
+                        'name'        => 'featured',
+                        'type'        => 'checkbox',
+                        'label'       => 'Featured Product',
+                        'description' => 'Display this product prominently',
+                    ],
                 ],
             ],
         ],
-    ],
-    'settings_pages' => [
-        [
-            'id'         => 'my-settings',
-            'page_title' => 'My Plugin Settings',
-            'menu_title' => 'My Plugin',
-            'capability' => 'manage_options',
-            'fields'     => [
-                [
-                    'name'  => 'api_key',
-                    'type'  => 'text',
-                    'label' => 'API Key',
+        'settings_pages' => [
+            [
+                'id'         => 'my-plugin-settings',
+                'page_title' => 'My Plugin Settings',
+                'menu_title' => 'My Plugin',
+                'capability' => 'manage_options',
+                'icon'       => 'dashicons-admin-settings',
+                'fields'     => [
+                    [
+                        'name'        => 'api_key',
+                        'type'        => 'text',
+                        'label'       => 'API Key',
+                        'required'    => true,
+                        'description' => 'Enter your API key from the service provider',
+                    ],
+                    [
+                        'name'    => 'api_secret',
+                        'type'    => 'password',
+                        'label'   => 'API Secret',
+                        'required' => true,
+                    ],
+                    [
+                        'name'        => 'enable_cache',
+                        'type'        => 'checkbox',
+                        'label'       => 'Enable Caching',
+                        'description' => 'Cache API responses for better performance',
+                        'default'     => true,
+                    ],
+                    [
+                        'name'        => 'cache_duration',
+                        'type'        => 'number',
+                        'label'       => 'Cache Duration (hours)',
+                        'min'         => 1,
+                        'max'         => 168,
+                        'default'     => 24,
+                    ],
                 ],
             ],
         ],
-    ],
-];
+    ];
 
-Manager::init()->register_from_array($config);
-```
-
-### Custom Post Type
-
-```php
-use Pedalcms\WpCmf\Core\Manager;
-use Pedalcms\WpCmf\CPT\CustomPostType;
-
-$manager = Manager::init();
-$registrar = $manager->get_registrar();
-
-$registrar->add_custom_post_type('book', [
-    'label'    => 'Books',
-    'supports' => ['title', 'editor', 'thumbnail'],
-    'public'   => true,
-]);
-```
-
-### Settings Page with Fields
-
-```php
-use Pedalcms\WpCmf\Field\FieldFactory;
-
-// Create settings page
-$registrar->add_settings_page('my-settings', [
-    'page_title' => 'My Plugin Settings',
-    'menu_title' => 'My Plugin',
-    'capability' => 'manage_options',
-]);
-
-// Add fields
-$fields = FieldFactory::create_multiple([
-    'site_name' => [
-        'type'     => 'text',
-        'label'    => 'Site Name',
-        'required' => true,
-    ],
-    'contact_email' => [
-        'type'  => 'email',
-        'label' => 'Contact Email',
-    ],
-    'theme_color' => [
-        'type'    => 'color',
-        'label'   => 'Theme Color',
-        'default' => '#3498db',
-    ],
-]);
-
-$registrar->add_fields('my-settings', $fields);
-```
-
-### Custom Field Type
-
-```php
-use Pedalcms\WpCmf\Field\AbstractField;
-use Pedalcms\WpCmf\Field\FieldFactory;
-
-class SliderField extends AbstractField {
-    public function render($value = null): string {
-        $value = $value ?? $this->get_config('default', 50);
-        $min = $this->get_config('min', 0);
-        $max = $this->get_config('max', 100);
-
-        $attrs = $this->get_attributes([
-            'type'  => 'range',
-            'min'   => $min,
-            'max'   => $max,
-            'value' => $value,
-        ]);
-
-        return $this->render_wrapper(
-            $this->render_label() .
-            "<input {$attrs} />" .
-            "<output>{$value}</output>" .
-            $this->render_description()
-        );
-    }
+    Manager::init()->register_from_array( $config );
 }
+add_action( 'init', 'my_plugin_init' );
+```
 
-// Register and use
-FieldFactory::register_type('slider', SliderField::class);
+### Minimal Example - Just a Custom Post Type
 
-$volume = FieldFactory::create([
-    'name'  => 'volume',
-    'type'  => 'slider',
-    'label' => 'Volume',
-]);
+```php
+use Pedalcms\WpCmf\Core\Manager;
+
+function my_cpt_init() {
+    Manager::init()->register_from_array([
+        'cpts' => [
+            [
+                'id'   => 'book',
+                'args' => [
+                    'label'    => 'Books',
+                    'public'   => true,
+                    'supports' => [ 'title', 'editor', 'thumbnail' ],
+                ],
+                'fields' => [
+                    [
+                        'name'  => 'isbn',
+                        'type'  => 'text',
+                        'label' => 'ISBN',
+                    ],
+                    [
+                        'name'  => 'author',
+                        'type'  => 'text',
+                        'label' => 'Author',
+                    ],
+                ],
+            ],
+        ],
+    ]);
+}
+add_action( 'init', 'my_cpt_init' );
+```
+
+### Add Fields to Existing WordPress Settings
+
+```php
+use Pedalcms\WpCmf\Core\Manager;
+
+function extend_general_settings() {
+    Manager::init()->register_from_array([
+        'settings_pages' => [
+            [
+                'id'     => 'general', // WordPress built-in page
+                'fields' => [
+                    [
+                        'name'        => 'company_name',
+                        'type'        => 'text',
+                        'label'       => 'Company Name',
+                        'description' => 'Your company or organization name',
+                    ],
+                    [
+                        'name'  => 'contact_email',
+                        'type'  => 'email',
+                        'label' => 'Contact Email',
+                    ],
+                ],
+            ],
+        ],
+    ]);
+}
+add_action( 'init', 'extend_general_settings' );
 ```
 
 ## Core Field Types
@@ -225,36 +259,38 @@ WP-CMF includes 13 complete, working examples demonstrating all major features:
 
 ## Development Status
 
-### ✅ Completed Milestones
+### ✅ Completed Features
 
-#### Milestone 1-4: Core Framework ✅
-- ✅ Custom Post Type registration
-- ✅ Settings Page registration
-- ✅ Field Interface & AbstractField
-- ✅ 11 Core field types
+**Core Framework**
+- ✅ Custom Post Types with full WordPress integration
+- ✅ Settings Pages (top-level and submenu)
+- ✅ 11 production-ready field types
+- ✅ Custom field type extensibility via `AbstractField`
 - ✅ FieldFactory for dynamic field creation
-- ✅ Field asset enqueuing system
-- ✅ Core CSS and JavaScript files
-- ✅ Automatic asset loading with context awareness
-- ✅ Array-based configuration
+- ✅ Array-based configuration system
 - ✅ JSON configuration with schema validation
-- ✅ Enhanced JSON schema with strict validation
-- ✅ Extended testing with edge cases & integration tests
+- ✅ Context-aware asset enqueuing (CSS/JS)
 
-#### Milestone 5: Security & Internationalization ✅
-- ✅ **M5F1**: Sanitize & validate pipeline for fields
-- ✅ **M5F2**: Nonces and capability checks (CSRF protection)
-- ✅ **M5F3**: Escaping output on render (esc_attr, esc_html)
-- ✅ **M5F4**: i18n support with translation infrastructure
-  - Text domain 'wp-cmf' implemented
-  - Translation helper with WordPress fallback
-  - POT template file (languages/wp-cmf.pot)
-  - Complete translation documentation
-  - 10 translatable strings
+**Security & Standards**
+- ✅ Input sanitization and validation
+- ✅ CSRF protection (nonces and capability checks)
+- ✅ Output escaping (XSS prevention)
+- ✅ WordPress coding standards compliant
+- ✅ PSR-4 autoloading
 
-### 🔄 In Progress
-- Milestone 6: Additional documentation & examples
-- Milestone 7: CI/CD pipeline & first release
+**Internationalization**
+- ✅ Full i18n support with `wp-cmf` text domain
+- ✅ Translation template (POT file)
+- ✅ WordPress and non-WordPress fallbacks
+
+**Quality Assurance**
+- ✅ 229 PHPUnit tests (691 assertions)
+- ✅ Edge case and integration testing
+- ✅ 13 complete working examples
+
+### 🎯 Roadmap
+- 📋 Milestone 6: Documentation expansion
+- 🚀 Milestone 7: CI/CD pipeline & v1.0 release
 
 ## Testing
 
