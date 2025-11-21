@@ -21,6 +21,8 @@ use Pedalcms\WpCmf\Field\Fields\URLField;
 use Pedalcms\WpCmf\Field\Fields\DateField;
 use Pedalcms\WpCmf\Field\Fields\PasswordField;
 use Pedalcms\WpCmf\Field\Fields\ColorField;
+use Pedalcms\WpCmf\Field\Fields\TabsField;
+use Pedalcms\WpCmf\Field\Fields\WysiwygField;
 
 /**
  * FieldFactory test case
@@ -50,7 +52,7 @@ class FieldFactoryTest extends TestCase {
 		$types = FieldFactory::get_registered_types();
 
 		$this->assertIsArray( $types );
-		$this->assertCount( 11, $types );
+		$this->assertCount( 13, $types );
 		$this->assertArrayHasKey( 'text', $types );
 		$this->assertArrayHasKey( 'textarea', $types );
 		$this->assertArrayHasKey( 'select', $types );
@@ -62,6 +64,8 @@ class FieldFactoryTest extends TestCase {
 		$this->assertArrayHasKey( 'date', $types );
 		$this->assertArrayHasKey( 'password', $types );
 		$this->assertArrayHasKey( 'color', $types );
+		$this->assertArrayHasKey( 'tabs', $types );
+		$this->assertArrayHasKey( 'wysiwyg', $types );
 	}
 
 	/**
@@ -81,6 +85,8 @@ class FieldFactoryTest extends TestCase {
 		$this->assertEquals( DateField::class, $types['date'] );
 		$this->assertEquals( PasswordField::class, $types['password'] );
 		$this->assertEquals( ColorField::class, $types['color'] );
+		$this->assertEquals( TabsField::class, $types['tabs'] );
+		$this->assertEquals( WysiwygField::class, $types['wysiwyg'] );
 	}
 
 	/**
@@ -313,7 +319,7 @@ class FieldFactoryTest extends TestCase {
 		$types = FieldFactory::get_registered_types();
 
 		$this->assertArrayHasKey( 'custom', $types );
-		$this->assertCount( 12, $types ); // 11 defaults + 1 custom
+		$this->assertCount( 14, $types ); // 13 defaults + 1 custom
 	}
 
 	/**
@@ -334,7 +340,7 @@ class FieldFactoryTest extends TestCase {
 		// Custom type should be gone, but defaults will re-register
 		$types = FieldFactory::get_registered_types();
 		$this->assertArrayNotHasKey( 'custom', $types );
-		$this->assertCount( 11, $types ); // Only defaults
+		$this->assertCount( 13, $types ); // Only defaults
 	}
 
 	/**

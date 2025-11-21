@@ -22,6 +22,8 @@ use Pedalcms\WpCmf\Field\Fields\URLField;
 use Pedalcms\WpCmf\Field\Fields\DateField;
 use Pedalcms\WpCmf\Field\Fields\PasswordField;
 use Pedalcms\WpCmf\Field\Fields\ColorField;
+use Pedalcms\WpCmf\Field\Fields\TabsField;
+use Pedalcms\WpCmf\Field\Fields\WysiwygField;
 
 /**
  * FieldFactory class
@@ -98,6 +100,8 @@ class FieldFactory {
 			'date'     => DateField::class,
 			'password' => PasswordField::class,
 			'color'    => ColorField::class,
+			'tabs'     => TabsField::class,
+			'wysiwyg'  => WysiwygField::class,
 		);
 
 		// Merge back any custom types

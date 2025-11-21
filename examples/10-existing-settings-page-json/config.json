@@ -43,6 +43,15 @@
             "pinterest": "Pinterest"
           },
           "description": "Select which social sharing buttons to display"
+        },
+        {
+          "name": "site_footer_text",
+          "type": "wysiwyg",
+          "label": "Footer Text",
+          "description": "Custom HTML for site footer",
+          "media_buttons": false,
+          "teeny": true,
+          "textarea_rows": 6
         }
       ]
     }

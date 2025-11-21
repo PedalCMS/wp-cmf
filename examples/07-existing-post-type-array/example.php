@@ -34,7 +34,7 @@ function existing_post_type_array_init() {
 				// The post type slug for WordPress's built-in posts
 				// Since 'post' already exists, only fields will be added (no new CPT created)
 				'id' => 'post',
-				
+
 				// Fields to add to the post edit screen
 				'fields' => [
 					[
@@ -81,6 +81,15 @@ function existing_post_type_array_init() {
 						'label'       => 'External Source URL',
 						'description' => 'If this content is from an external source, provide the URL',
 						'placeholder' => 'https://example.com/article',
+					],
+					[
+						'name'          => 'author_bio',
+						'type'          => 'wysiwyg',
+						'label'         => 'Author Bio',
+						'description'   => 'Brief biography of the post author',
+						'media_buttons' => false,
+						'teeny'         => true,
+						'textarea_rows' => 5,
 					],
 				],
 			],
