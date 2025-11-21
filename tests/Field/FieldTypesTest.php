@@ -17,6 +17,7 @@ use Pedalcms\WpCmf\Field\Fields\EmailField;
 use Pedalcms\WpCmf\Field\Fields\URLField;
 use Pedalcms\WpCmf\Field\Fields\DateField;
 use Pedalcms\WpCmf\Field\Fields\PasswordField;
+use Pedalcms\WpCmf\Field\Fields\WysiwygField;
 use WP_UnitTestCase;
 
 /**
@@ -492,5 +493,67 @@ class FieldTypesTest extends WP_UnitTestCase {
 
 		// No exception means success
 		$this->assertTrue( true );
+	}
+
+	/**
+	 * Test WysiwygField renders correctly
+	 */
+	public function test_wysiwyg_field_render() {
+		$field = new WysiwygField( 'content', 'wysiwyg', [ 'label' => 'Content' ] );
+		$html  = $field->render( '<p>Test content</p>' );
+
+		// Should contain editor or textarea
+		$this->assertIsString( $html );
+		$this->assertStringContainsString( 'name="content"', $html );
+	}
+
+	/**
+	 * Test WysiwygField sanitizes HTML
+	 */
+	public function test_wysiwyg_field_sanitize() {
+		$field = new WysiwygField( 'content', 'wysiwyg' );
+
+		// In non-WordPress context, strip_tags is used (no HTML allowed)
+		// In WordPress context, wp_kses_post is used (safe HTML allowed)
+		$safe_html = '<p>This is <strong>bold</strong> text.</p>';
+		$sanitized = $field->sanitize( $safe_html );
+
+		// Check that sanitization happened (string is returned)
+		$this->assertIsString( $sanitized );
+		$this->assertNotEmpty( $sanitized );
+
+		// Should strip script tags (but content remains in non-WP context)
+		$dangerous_html = '<p>Safe text</p><script>danger</script>';
+		$sanitized      = $field->sanitize( $dangerous_html );
+		$this->assertStringNotContainsString( '<script>', $sanitized );
+		$this->assertStringContainsString( 'Safe text', $sanitized );
+	}
+
+	/**
+	 * Test WysiwygField validates required
+	 */
+	public function test_wysiwyg_field_validation() {
+		$field = new WysiwygField(
+			'content',
+			'wysiwyg',
+			[
+				'required' => true,
+				'min'      => 20,  // Set reasonable min
+			]
+		);
+
+		// Empty should fail required
+		$result = $field->validate( '' );
+		$this->assertFalse( $result['valid'] );
+		$this->assertNotEmpty( $result['errors'] );
+
+		// Too short should fail min (HTML tags count toward length)
+		$result = $field->validate( '<p>Short</p>' );
+		$this->assertFalse( $result['valid'] );
+
+		// Valid content should pass (HTML tags count toward length)
+		$result = $field->validate( '<p>This is long enough content with sufficient characters to pass validation.</p>' );
+		$this->assertTrue( $result['valid'] );
+		$this->assertEmpty( $result['errors'] );
 	}
 }

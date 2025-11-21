@@ -46,6 +46,13 @@ class Registrar {
 	private array $fields = array();
 
 	/**
+	 * Nested field names that should not be rendered separately
+	 *
+	 * @var array<string, array<string>>
+	 */
+	private array $nested_field_names = array();
+
+	/**
 	 * Whether hooks have been initialized
 	 *
 	 * @var bool
@@ -181,6 +188,9 @@ class Registrar {
 					$field_instance                          = FieldFactory::create( $field );
 					$field_name                              = $field_instance->get_name();
 					$this->fields[ $context ][ $field_name ] = $field_instance;
+
+					// If this is a container field, register nested fields too
+					$this->register_nested_fields( $context, $field_instance );
 				} catch ( \InvalidArgumentException $e ) {
 					// If field creation fails, store the error or skip
 					// For now, we'll skip invalid fields
@@ -190,6 +200,51 @@ class Registrar {
 		}
 
 		return $this;
+	}
+
+	/**
+	 * Register nested fields from container fields
+	 *
+	 * Container fields (like tabs) contain other fields that need to be
+	 * registered individually so they can save/load their own values.
+	 *
+	 * @param string         $context Context (post type or settings page ID).
+	 * @param FieldInterface $field   Field instance to check.
+	 * @return void
+	 */
+	protected function register_nested_fields( string $context, FieldInterface $field ): void {
+		// Check if this is a container field
+		if ( ! $field instanceof \Pedalcms\WpCmf\Field\ContainerFieldInterface ) {
+			return;
+		}
+
+		// Get nested fields from the container
+		$nested_fields = $field->get_nested_fields();
+
+		// Register each nested field
+		foreach ( $nested_fields as $nested_config ) {
+			if ( empty( $nested_config['name'] ) ) {
+				continue;
+			}
+
+			try {
+				$nested_field = FieldFactory::create( $nested_config );
+				$nested_name  = $nested_field->get_name();
+				$this->fields[ $context ][ $nested_name ] = $nested_field;
+
+				// Track this as a nested field so we don't render it separately
+				if ( ! isset( $this->nested_field_names[ $context ] ) ) {
+					$this->nested_field_names[ $context ] = array();
+				}
+				$this->nested_field_names[ $context ][] = $nested_name;
+
+				// Recursively handle nested containers (if a container contains another container)
+				$this->register_nested_fields( $context, $nested_field );
+			} catch ( \InvalidArgumentException $e ) {
+				// Skip invalid nested fields
+				continue;
+			}
+		}
 	}
 
 	/**
@@ -250,7 +305,9 @@ class Registrar {
 				__( 'Settings', 'wp-cmf' ),
 				'__return_empty_string',
 				$page->get_menu_slug()
-			);          // Register each field
+			);
+
+			// Register each field
 			foreach ( $this->fields[ $page_id ] as $field ) {
 				if ( ! $field instanceof FieldInterface ) {
 					continue;
@@ -258,8 +315,9 @@ class Registrar {
 
 				$field_name  = $field->get_name();
 				$option_name = $page_id . '_' . $field_name;
+				$is_nested   = isset( $this->nested_field_names[ $page_id ] ) && in_array( $field_name, $this->nested_field_names[ $page_id ], true );
 
-				// Register setting
+				// Always register settings with WordPress (even nested fields need to be registered to save)
 				register_setting(
 					$page->get_menu_slug(),
 					$option_name,
@@ -268,7 +326,12 @@ class Registrar {
 					)
 				);
 
-				// Add settings field
+				// Skip rendering nested fields as separate fields - they're rendered inside their container
+				if ( $is_nested ) {
+					continue;
+				}
+
+				// Add settings field (only for non-nested fields)
 				add_settings_field(
 					$field_name,
 					$field->get_label(),
@@ -278,6 +341,7 @@ class Registrar {
 					array(
 						'field'       => $field,
 						'option_name' => $option_name,
+						'page_id'     => $page_id,
 					)
 				);
 			}
@@ -348,6 +412,16 @@ class Registrar {
 
 		$field       = $args['field'];
 		$option_name = $args['option_name'] ?? $field->get_name();
+
+		// Container fields don't have their own values - they only render UI
+		// Their nested fields handle their own value loading
+		if ( $field instanceof \Pedalcms\WpCmf\Field\ContainerFieldInterface ) {
+			// Pass page_id as context so container can construct correct option names
+			$page_id = $args['page_id'] ?? null;
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Field's render method handles escaping
+			echo $field->render( $page_id );
+			return;
+		}
 
 		// Get current value
 		$value = function_exists( 'get_option' ) ? get_option( $option_name, '' ) : '';
@@ -613,6 +687,20 @@ class Registrar {
 				continue;
 			}
 
+			// Skip nested fields - they're rendered inside their container
+			$field_name = $field->get_name();
+			if ( isset( $this->nested_field_names[ $post_type ] ) && in_array( $field_name, $this->nested_field_names[ $post_type ], true ) ) {
+				continue;
+			}
+
+			// Container fields don't have their own values - they only render UI
+			// Their nested fields handle their own value loading
+			if ( $field instanceof \Pedalcms\WpCmf\Field\ContainerFieldInterface ) {
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Field's render method handles escaping
+				echo $field->render( null );
+				continue;
+			}
+
 			// Get field value from post meta
 			$value = function_exists( 'get_post_meta' )
 				? get_post_meta( $post->ID, $field->get_name(), true )
@@ -676,6 +764,12 @@ class Registrar {
 		// Save each field
 		foreach ( $this->fields[ $post_type ] as $field ) {
 			if ( ! $field instanceof FieldInterface ) {
+				continue;
+			}
+
+			// Skip container fields - they don't store values
+			// Their nested fields are registered separately and save independently
+			if ( $field instanceof \Pedalcms\WpCmf\Field\ContainerFieldInterface ) {
 				continue;
 			}
 
