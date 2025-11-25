@@ -23,6 +23,7 @@ use Pedalcms\WpCmf\Field\Fields\DateField;
 use Pedalcms\WpCmf\Field\Fields\PasswordField;
 use Pedalcms\WpCmf\Field\Fields\ColorField;
 use Pedalcms\WpCmf\Field\Fields\TabsField;
+use Pedalcms\WpCmf\Field\Fields\MetaboxField;
 use Pedalcms\WpCmf\Field\Fields\WysiwygField;
 
 /**
@@ -101,6 +102,7 @@ class FieldFactory {
 			'password' => PasswordField::class,
 			'color'    => ColorField::class,
 			'tabs'     => TabsField::class,
+			'metabox'  => MetaboxField::class,
 			'wysiwyg'  => WysiwygField::class,
 		);
 

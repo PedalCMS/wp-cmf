@@ -606,6 +606,7 @@ class Registrar {
 	 *
 	 * Creates meta boxes for fields associated with custom post types.
 	 * Also handles fields added to existing WordPress post types.
+	 * Supports multiple meta boxes per post type using MetaboxField containers.
 	 *
 	 * @return void
 	 */
@@ -621,15 +622,7 @@ class Registrar {
 				continue;
 			}
 
-			// Add meta box for this CPT's fields
-			add_meta_box(
-				$post_type . '_fields',
-				ucfirst( $post_type ) . ' Fields',
-				array( $this, 'render_meta_box' ),
-				$post_type,
-				'normal',
-				'high'
-			);
+			$this->register_post_type_meta_boxes( $post_type );
 		}
 
 		// Register meta boxes for existing post types that have fields
@@ -645,7 +638,72 @@ class Registrar {
 				continue;
 			}
 
-			// Add meta box for existing post type
+			$this->register_post_type_meta_boxes( $post_type );
+		}
+	}
+
+	/**
+	 * Register meta boxes for a specific post type
+	 *
+	 * Handles both MetaboxField containers (creates individual meta boxes)
+	 * and regular fields (groups them into a default meta box).
+	 *
+	 * @param string $post_type Post type slug.
+	 * @return void
+	 */
+	protected function register_post_type_meta_boxes( string $post_type ): void {
+		if ( empty( $this->fields[ $post_type ] ) ) {
+			return;
+		}
+
+		$metabox_fields  = [];
+		$regular_fields  = [];
+		$registered_metaboxes = [];
+
+		// Separate MetaboxField containers from regular fields
+		foreach ( $this->fields[ $post_type ] as $field ) {
+			if ( ! $field instanceof FieldInterface ) {
+				continue;
+			}
+
+			// Skip nested fields - they're rendered inside their container
+			$field_name = $field->get_name();
+			if ( isset( $this->nested_field_names[ $post_type ] ) && in_array( $field_name, $this->nested_field_names[ $post_type ], true ) ) {
+				continue;
+			}
+
+			// Check if this is a MetaboxField
+			if ( $field instanceof \Pedalcms\WpCmf\Field\fields\MetaboxField ) {
+				$metabox_fields[] = $field;
+			} else {
+				$regular_fields[] = $field;
+			}
+		}
+
+		// Register individual meta boxes for MetaboxField containers
+		foreach ( $metabox_fields as $metabox_field ) {
+			$metabox_id = $metabox_field->get_metabox_id();
+
+			// Skip if this metabox ID was already registered
+			if ( in_array( $metabox_id, $registered_metaboxes, true ) ) {
+				continue;
+			}
+
+			add_meta_box(
+				$metabox_id,
+				$metabox_field->get_metabox_title(),
+				array( $this, 'render_metabox_container' ),
+				$post_type,
+				$metabox_field->get_context(),
+				$metabox_field->get_priority(),
+				array( 'metabox_field' => $metabox_field )
+			);
+
+			$registered_metaboxes[] = $metabox_id;
+		}
+
+		// Register default meta box for regular fields (if any)
+		if ( ! empty( $regular_fields ) ) {
 			$post_type_obj = function_exists( 'get_post_type_object' ) ? get_post_type_object( $post_type ) : null;
 			$label         = $post_type_obj && isset( $post_type_obj->labels->singular_name )
 				? $post_type_obj->labels->singular_name
@@ -660,6 +718,43 @@ class Registrar {
 				'high'
 			);
 		}
+	}
+
+	/**
+	 * Render a MetaboxField container
+	 *
+	 * This is called by WordPress for meta boxes created from MetaboxField definitions.
+	 *
+	 * @param \WP_Post $post Current post object.
+	 * @param array    $args Additional arguments including the metabox_field.
+	 * @return void
+	 */
+	public function render_metabox_container( $post, $args ): void {
+		if ( ! isset( $args['args']['metabox_field'] ) ) {
+			return;
+		}
+
+		$metabox_field = $args['args']['metabox_field'];
+
+		if ( ! $metabox_field instanceof \Pedalcms\WpCmf\Field\fields\MetaboxField ) {
+			return;
+		}
+
+		// Add nonce for security (once per post type)
+		$post_type  = $post->post_type;
+		$nonce_name = $post_type . '_fields_nonce';
+
+		static $nonce_rendered = [];
+		if ( ! isset( $nonce_rendered[ $post_type ] ) ) {
+			if ( function_exists( 'wp_nonce_field' ) ) {
+				wp_nonce_field( 'save_' . $post_type . '_fields', $nonce_name );
+			}
+			$nonce_rendered[ $post_type ] = true;
+		}
+
+		// Render the metabox field container
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Field's render method handles escaping
+		echo $metabox_field->render( null );
 	}
 
 	/**
