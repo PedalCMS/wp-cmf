@@ -1,0 +1,231 @@
+{
+  "cpts": [
+    {
+      "id": "product",
+      "args": {
+        "label": "Products",
+        "public": true,
+        "has_archive": true,
+        "menu_icon": "dashicons-products",
+        "supports": ["title", "editor", "thumbnail"]
+      },
+      "fields": [
+        {
+          "type": "metabox",
+          "name": "basic_info_metabox",
+          "metabox_id": "product_basic_info",
+          "metabox_title": "Basic Product Information",
+          "context": "normal",
+          "priority": "high",
+          "fields": [
+            {
+              "name": "product_sku",
+              "type": "text",
+              "label": "SKU",
+              "placeholder": "PROD-001",
+              "required": true,
+              "description": "Unique product identifier"
+            },
+            {
+              "name": "product_price",
+              "type": "number",
+              "label": "Price ($)",
+              "placeholder": "99.99",
+              "validation": {
+                "min": 0,
+                "step": 0.01
+              },
+              "description": "Product price in USD"
+            },
+            {
+              "name": "product_stock",
+              "type": "select",
+              "label": "Stock Status",
+              "options": {
+                "in_stock": "In Stock",
+                "out_of_stock": "Out of Stock",
+                "on_backorder": "On Backorder"
+              },
+              "default": "in_stock",
+              "description": "Current stock availability"
+            },
+            {
+              "name": "product_brand",
+              "type": "text",
+              "label": "Brand",
+              "placeholder": "Brand name",
+              "description": "Product brand or manufacturer"
+            }
+          ]
+        },
+        {
+          "type": "metabox",
+          "name": "specifications_metabox",
+          "metabox_id": "product_specifications",
+          "metabox_title": "Product Specifications",
+          "context": "normal",
+          "priority": "default",
+          "fields": [
+            {
+              "name": "product_weight",
+              "type": "number",
+              "label": "Weight (kg)",
+              "placeholder": "1.5",
+              "validation": {
+                "min": 0,
+                "step": 0.1
+              },
+              "description": "Product weight in kilograms"
+            },
+            {
+              "name": "product_dimensions",
+              "type": "text",
+              "label": "Dimensions",
+              "placeholder": "10 x 5 x 3 cm",
+              "description": "Product dimensions (L x W x H)"
+            },
+            {
+              "name": "product_color",
+              "type": "color",
+              "label": "Primary Color",
+              "default": "#000000",
+              "description": "Primary product color"
+            },
+            {
+              "name": "product_material",
+              "type": "text",
+              "label": "Material",
+              "placeholder": "Cotton, Polyester, etc.",
+              "description": "Product material composition"
+            }
+          ]
+        },
+        {
+          "type": "metabox",
+          "name": "shipping_metabox",
+          "metabox_id": "product_shipping",
+          "metabox_title": "Shipping & Delivery",
+          "context": "side",
+          "priority": "default",
+          "fields": [
+            {
+              "name": "product_free_shipping",
+              "type": "checkbox",
+              "label": "Free Shipping",
+              "options": {
+                "yes": "Enable free shipping"
+              },
+              "description": "Check to offer free shipping"
+            },
+            {
+              "name": "product_shipping_class",
+              "type": "select",
+              "label": "Shipping Class",
+              "options": {
+                "standard": "Standard",
+                "express": "Express",
+                "heavy": "Heavy Item"
+              },
+              "placeholder": "Select class",
+              "description": "Shipping method classification"
+            },
+            {
+              "name": "product_delivery_days",
+              "type": "number",
+              "label": "Delivery Time (days)",
+              "placeholder": "5",
+              "validation": {
+                "min": 1,
+                "max": 90
+              },
+              "default": 5,
+              "description": "Estimated delivery time"
+            }
+          ]
+        },
+        {
+          "type": "metabox",
+          "name": "features_metabox",
+          "metabox_id": "product_features",
+          "metabox_title": "Product Features",
+          "context": "normal",
+          "priority": "low",
+          "fields": [
+            {
+              "name": "product_features",
+              "type": "textarea",
+              "label": "Key Features",
+              "rows": 5,
+              "placeholder": "List key features, one per line...",
+              "description": "List the main features of this product"
+            },
+            {
+              "name": "product_warranty",
+              "type": "checkbox",
+              "label": "Warranty",
+              "options": {
+                "1_year": "1 Year Warranty",
+                "2_years": "2 Years Warranty",
+                "3_years": "3 Years Warranty",
+                "lifetime": "Lifetime Warranty"
+              },
+              "description": "Select applicable warranties"
+            },
+            {
+              "name": "product_eco_friendly",
+              "type": "radio",
+              "label": "Eco-Friendly",
+              "options": {
+                "yes": "Yes",
+                "no": "No",
+                "partial": "Partially"
+              },
+              "default": "no",
+              "description": "Is this product eco-friendly?"
+            }
+          ]
+        },
+        {
+          "type": "metabox",
+          "name": "seo_metabox",
+          "metabox_id": "product_seo",
+          "metabox_title": "SEO & Marketing",
+          "context": "advanced",
+          "priority": "default",
+          "fields": [
+            {
+              "name": "product_meta_title",
+              "type": "text",
+              "label": "Meta Title",
+              "placeholder": "SEO title for this product",
+              "validation": {
+                "max_length": 60
+              },
+              "description": "SEO meta title (max 60 characters)"
+            },
+            {
+              "name": "product_meta_description",
+              "type": "textarea",
+              "label": "Meta Description",
+              "rows": 3,
+              "placeholder": "Brief description for search engines...",
+              "validation": {
+                "max_length": 160
+              },
+              "description": "SEO meta description (max 160 characters)"
+            },
+            {
+              "name": "product_featured",
+              "type": "checkbox",
+              "label": "Featured Product",
+              "options": {
+                "yes": "Mark as featured on homepage"
+              },
+              "description": "Feature this product in promotions"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
