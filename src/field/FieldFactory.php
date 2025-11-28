@@ -24,6 +24,7 @@ use Pedalcms\WpCmf\Field\Fields\PasswordField;
 use Pedalcms\WpCmf\Field\Fields\ColorField;
 use Pedalcms\WpCmf\Field\Fields\TabsField;
 use Pedalcms\WpCmf\Field\Fields\MetaboxField;
+use Pedalcms\WpCmf\Field\Fields\RepeaterField;
 use Pedalcms\WpCmf\Field\Fields\WysiwygField;
 
 /**
@@ -103,6 +104,7 @@ class FieldFactory {
 			'color'    => ColorField::class,
 			'tabs'     => TabsField::class,
 			'metabox'  => MetaboxField::class,
+			'repeater' => RepeaterField::class,
 			'wysiwyg'  => WysiwygField::class,
 		);
 

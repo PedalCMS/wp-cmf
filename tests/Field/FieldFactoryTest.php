@@ -52,7 +52,7 @@ class FieldFactoryTest extends TestCase {
 		$types = FieldFactory::get_registered_types();
 
 		$this->assertIsArray( $types );
-		$this->assertCount( 13, $types );
+		$this->assertCount( 15, $types );
 		$this->assertArrayHasKey( 'text', $types );
 		$this->assertArrayHasKey( 'textarea', $types );
 		$this->assertArrayHasKey( 'select', $types );
@@ -66,6 +66,8 @@ class FieldFactoryTest extends TestCase {
 		$this->assertArrayHasKey( 'color', $types );
 		$this->assertArrayHasKey( 'tabs', $types );
 		$this->assertArrayHasKey( 'wysiwyg', $types );
+		$this->assertArrayHasKey( 'metabox', $types );
+		$this->assertArrayHasKey( 'repeater', $types );
 	}
 
 	/**
@@ -319,7 +321,7 @@ class FieldFactoryTest extends TestCase {
 		$types = FieldFactory::get_registered_types();
 
 		$this->assertArrayHasKey( 'custom', $types );
-		$this->assertCount( 14, $types ); // 13 defaults + 1 custom
+		$this->assertCount( 16, $types ); // 15 defaults + 1 custom
 	}
 
 	/**
@@ -340,7 +342,7 @@ class FieldFactoryTest extends TestCase {
 		// Custom type should be gone, but defaults will re-register
 		$types = FieldFactory::get_registered_types();
 		$this->assertArrayNotHasKey( 'custom', $types );
-		$this->assertCount( 13, $types ); // Only defaults
+		$this->assertCount( 15, $types ); // Only defaults
 	}
 
 	/**

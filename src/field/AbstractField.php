@@ -232,7 +232,8 @@ abstract class AbstractField implements FieldInterface {
 				break;
 
 			case 'email':
-				if ( $rule_value ) {
+				// Skip email validation for empty values when field is not required
+				if ( $rule_value && ! empty( $input ) ) {
 					$is_valid_email = function_exists( 'is_email' )
 						? \is_email( $input )
 						: filter_var( $input, FILTER_VALIDATE_EMAIL );
@@ -244,7 +245,8 @@ abstract class AbstractField implements FieldInterface {
 				break;
 
 			case 'url':
-				if ( $rule_value && ! filter_var( $input, FILTER_VALIDATE_URL ) ) {
+				// Skip URL validation for empty values when field is not required
+				if ( $rule_value && ! empty( $input ) && ! filter_var( $input, FILTER_VALIDATE_URL ) ) {
 					/* translators: %s: field label */
 					return sprintf( $this->translate( '%s must be a valid URL.' ), $this->get_label() );
 				}
