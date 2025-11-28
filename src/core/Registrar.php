@@ -445,6 +445,14 @@ class Registrar {
 			$field_html
 		);
 
+		// Handle repeater/nested field names like "field_name[0][sub_field]"
+		// Replace "field_name[" with "option_name["
+		$field_html = str_replace(
+			'name="' . $original_name . '[',
+			'name="' . $option_name . '[',
+			$field_html
+		);
+
 		// Render field with correct name
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Field's render method handles escaping
 		echo $field_html;
@@ -814,10 +822,13 @@ class Registrar {
 	 *
 	 * Saves field values from post edit screen to post meta.
 	 *
-	 * @param int $post_id Post ID.
+	 * @param int|mixed $post_id Post ID.
 	 * @return void
 	 */
-	public function save_meta_box_data( int $post_id ): void {
+	public function save_meta_box_data( $post_id ): void {
+		// Ensure post_id is an integer
+		$post_id = (int) $post_id;
+
 		// Check if this is an autosave
 		if ( function_exists( 'wp_is_post_autosave' ) && wp_is_post_autosave( $post_id ) ) {
 			return;
@@ -830,6 +841,7 @@ class Registrar {
 
 		// Get post type
 		$post_type = function_exists( 'get_post_type' ) ? get_post_type( $post_id ) : '';
+
 		if ( ! $post_type || empty( $this->fields[ $post_type ] ) ) {
 			return;
 		}
@@ -872,6 +884,12 @@ class Registrar {
 
 			// Check if field value was submitted
 			if ( ! isset( $_POST[ $field_name ] ) ) {
+				// For repeaters and other array fields, delete meta if field existed but now empty
+				if ( function_exists( 'delete_post_meta' ) && function_exists( 'metadata_exists' ) ) {
+					if ( metadata_exists( 'post', $post_id, $field_name ) ) {
+						delete_post_meta( $post_id, $field_name );
+					}
+				}
 				continue;
 			}
 

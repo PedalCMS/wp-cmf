@@ -129,7 +129,7 @@ class NumberField extends AbstractField {
 		}
 
 		// Validate min
-		if ( isset( $this->config['min'] ) && $input < $this->config['min'] ) {
+		if ( isset( $this->config['min'] ) && '' !== $this->config['min'] && $input < $this->config['min'] ) {
 			$result['valid']    = false;
 			$result['errors'][] = sprintf(
 				'%s must be at least %s.',
@@ -139,7 +139,7 @@ class NumberField extends AbstractField {
 		}
 
 		// Validate max
-		if ( isset( $this->config['max'] ) && $input > $this->config['max'] ) {
+		if ( isset( $this->config['max'] ) && '' !== $this->config['max'] && $input > $this->config['max'] ) {
 			$result['valid']    = false;
 			$result['errors'][] = sprintf(
 				'%s must be at most %s.',
