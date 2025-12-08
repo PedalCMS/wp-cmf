@@ -72,13 +72,14 @@ abstract class AbstractField implements FieldInterface {
 	 */
 	protected function get_defaults(): array {
 		return array(
-			'label'       => ucwords( str_replace( array( '_', '-' ), ' ', $this->name ?? '' ) ),
-			'description' => '',
-			'placeholder' => '',
-			'default'     => '',
-			'required'    => false,
-			'class'       => '',
-			'attributes'  => array(),
+			'label'           => ucwords( str_replace( array( '_', '-' ), ' ', $this->name ?? '' ) ),
+			'description'     => '',
+			'placeholder'     => '',
+			'default'         => '',
+			'required'        => false,
+			'class'           => '',
+			'attributes'      => array(),
+			'use_name_prefix' => true,
 		);
 	}
 
@@ -107,6 +108,34 @@ abstract class AbstractField implements FieldInterface {
 	 */
 	public function get_type(): string {
 		return $this->type;
+	}
+
+	/**
+	 * Get the option name for storing this field's value
+	 *
+	 * By default, option names are prefixed with the context (page_id) to avoid collisions.
+	 * Set 'use_name_prefix' => false in field config to use just the field name.
+	 *
+	 * @param string $prefix The prefix (usually page_id or context).
+	 * @return string The option name to use for storage.
+	 */
+	public function get_option_name( string $prefix = '' ): string {
+		$use_prefix = $this->get_config( 'use_name_prefix', true );
+
+		if ( $use_prefix && ! empty( $prefix ) ) {
+			return $prefix . '_' . $this->name;
+		}
+
+		return $this->name;
+	}
+
+	/**
+	 * Check if this field uses name prefix
+	 *
+	 * @return bool
+	 */
+	public function uses_name_prefix(): bool {
+		return (bool) $this->get_config( 'use_name_prefix', true );
 	}
 
 	/**

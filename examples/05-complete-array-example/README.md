@@ -1,12 +1,13 @@
 # Complete Array Configuration Example
 
-This is the most comprehensive example demonstrating **all 11 WP-CMF field types** with 2 Custom Post Types and 2 Settings Pages using array-based configuration.
+This is the most comprehensive example demonstrating **all 13 WP-CMF field types** with 2 Custom Post Types and 2 Settings Pages using array-based configuration.
 
 ## 📋 What This Example Shows
 
 - ✅ **2 Custom Post Types** (Products & Events)
 - ✅ **2 Settings Pages** (Shop Settings & Event Management)
-- ✅ **All 11 Core Field Types** demonstrated
+- ✅ **All 13 Core Field Types** demonstrated (including WYSIWYG)
+- ✅ **`use_name_prefix` option** for controlling option naming
 - ✅ Multiple metabox contexts (normal, side, advanced)
 - ✅ Field validation and requirements
 - ✅ Default values and placeholders
@@ -18,7 +19,7 @@ This is the most comprehensive example demonstrating **all 11 WP-CMF field types
 ### Custom Post Types
 
 #### 1. Product CPT
-**11 Fields demonstrating all field types:**
+**12 Fields demonstrating all field types:**
 1. **SKU** (text) - Required, with validation
 2. **Detailed Description** (textarea) - 8 rows
 3. **Price** (number) - Min/max/step validation
@@ -30,9 +31,10 @@ This is the most comprehensive example demonstrating **all 11 WP-CMF field types
 9. **Release Date** (date) - Min/max dates
 10. **Admin Access Code** (password) - Secured field
 11. **Primary Color** (color) - Color picker
+12. **Product Features** (wysiwyg) - Rich text editor
 
 **Metabox Contexts:**
-- Normal: SKU, Description, Release Date
+- Normal: SKU, Description, Release Date, Product Features
 - Side: Price, Category, Condition, In Stock, Color
 - Advanced: Supplier Email, Product URL, Access Code
 
@@ -47,7 +49,7 @@ This is the most comprehensive example demonstrating **all 11 WP-CMF field types
 ### Settings Pages
 
 #### 1. Shop Settings
-**11 Fields (all types):**
+**12 Fields (all types including new features):**
 - Store Name (text) - Required
 - Store Description (textarea)
 - Enable Shopping Cart (checkbox)
@@ -57,15 +59,17 @@ This is the most comprehensive example demonstrating **all 11 WP-CMF field types
 - Store URL (url)
 - Brand Color (color)
 - API Key (password)
+- **Stripe API Key** (password) - **Uses `use_name_prefix: false`**
 - Maximum Order Amount (number)
 - Next Sale Start Date (date)
 
 #### 2. Event Management Settings
-**4 Configuration Fields:**
+**5 Configuration Fields:**
 - Enable Events (checkbox)
 - Default Duration (number)
 - Notification Email (email)
 - Event Page Color (color)
+- **Event Disclaimer** (wysiwyg) - Rich text with teeny mode
 
 ## 📁 Files
 
@@ -89,7 +93,7 @@ This is the most comprehensive example demonstrating **all 11 WP-CMF field types
 **Add a Product:**
 1. Go to Products → Add New
 2. Fill in the title and editor content
-3. Scroll down to see metaboxes with all 11 field types
+3. Scroll down to see metaboxes with all 13 field types
 4. Fill in fields (SKU and Description are required)
 5. Publish
 
@@ -116,7 +120,7 @@ $config = [
             'id' => 'product',
             'args' => [...],
             'fields' => [
-                // 11 fields demonstrating all types
+                // 13 fields demonstrating all types
             ]
         ],
         [
@@ -129,7 +133,7 @@ $config = [
         [
             'id' => 'shop_settings',
             'fields' => [
-                // 11 fields demonstrating all types
+                // 13 fields demonstrating all types (inc. use_name_prefix)
             ]
         ],
         [
@@ -140,7 +144,7 @@ $config = [
 ];
 ```
 
-### All 11 Field Types Explained
+### All 13 Field Types Explained
 
 #### 1. Text Field
 ```php
@@ -273,6 +277,49 @@ $config = [
 ```
 **Use for:** Color schemes, branding, themes
 
+#### 12. WYSIWYG Field
+```php
+[
+    'name' => 'product_features',
+    'type' => 'wysiwyg',
+    'label' => 'Product Features',
+    'description' => 'Rich text description with formatting',
+    'media_buttons' => true,
+    'teeny' => false,
+    'textarea_rows' => 10
+]
+```
+**Use for:** Rich content, formatted descriptions, HTML content
+
+#### 13. Tabs Field
+```php
+[
+    'name' => 'product_tabs',
+    'type' => 'tabs',
+    'label' => 'Product Details',
+    'orientation' => 'horizontal', // or 'vertical'
+    'tabs' => [
+        [
+            'id' => 'general',
+            'label' => 'General',
+            'fields' => [...]
+        ]
+    ]
+]
+```
+**Use for:** Grouping related fields, organizing complex forms
+
+### New: `use_name_prefix` Option
+```php
+[
+    'name' => 'stripe_api_key',
+    'type' => 'password',
+    'label' => 'Stripe API Key',
+    'use_name_prefix' => false  // Saves as 'stripe_api_key' not 'shop_settings_stripe_api_key'
+]
+```
+**Use for:** Global options, third-party integrations, sharing options between pages
+
 ## 🔍 Retrieving Data
 
 ### CPT Fields (Post Meta)
@@ -294,16 +341,20 @@ $product_data = [
 ### Settings Fields (Options)
 
 ```php
-// Get individual settings
-$store_name = get_option('store_name', 'Default Store');
-$brand_color = get_option('brand_color', '#E74C3C');
+// Get individual settings (with page_id prefix - default)
+$store_name = get_option('shop_settings_store_name', 'Default Store');
+$brand_color = get_option('shop_settings_brand_color', '#E74C3C');
+
+// Get setting without prefix (use_name_prefix: false)
+$stripe_key = get_option('stripe_api_key');  // No prefix!
 
 // Get all shop settings
 $shop_settings = [
-    'name' => get_option('store_name'),
-    'email' => get_option('support_email'),
-    'currency' => get_option('currency', 'USD'),
-    'cart_enabled' => get_option('enable_cart', false),
+    'name' => get_option('shop_settings_store_name'),
+    'email' => get_option('shop_settings_support_email'),
+    'currency' => get_option('shop_settings_currency', 'USD'),
+    'cart_enabled' => get_option('shop_settings_enable_cart', false),
+    'stripe_key' => get_option('stripe_api_key'),  // No prefix
 ];
 ```
 
@@ -471,7 +522,7 @@ A: Yes, use the `validation` property or WordPress filters for custom validation
 
 ## 💡 Pro Tips
 
-1. **Start Simple**: Don't use all 11 types at once. Add fields as needed.
+1. **Start Simple**: Don't use all 13 types at once. Add fields as needed.
 2. **Organize by Context**: Use normal/side/advanced for better UX.
 3. **Set Defaults**: Always provide sensible default values.
 4. **Validate Input**: Use required, min/max, and validation rules.

@@ -23,6 +23,9 @@ This example demonstrates how to create a WordPress settings page with fields us
 3. **Enable Feature** - Checkbox for on/off toggle
 4. **Theme Color** - Color picker with default color
 5. **Contact Email** - Email field with validation (required)
+6. **Welcome Message** - WYSIWYG rich text editor
+7. **License Key** - Text field with `use_name_prefix: false`
+
 
 ## 📁 Files
 
@@ -213,11 +216,20 @@ Use description fields to create visual sections:
 Settings are stored in the WordPress `wp_options` table:
 
 ```sql
+-- Fields with use_name_prefix: true (default)
 SELECT * FROM wp_options
-WHERE option_name IN ('site_title', 'theme_color', 'contact_email');
+WHERE option_name IN (
+    'my_plugin_settings_site_title',
+    'my_plugin_settings_theme_color',
+    'my_plugin_settings_contact_email',
+    'my_plugin_settings_welcome_message'
+);
+
+-- Fields with use_name_prefix: false
+SELECT * FROM wp_options WHERE option_name = 'license_key';
 ```
 
-Each field is stored as a separate option by default.
+Each field is stored as a separate option. The naming convention depends on `use_name_prefix`.
 
 ## 🧩 Integration Examples
 

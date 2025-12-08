@@ -48,6 +48,22 @@
           "description": "Email address for contact",
           "placeholder": "you@example.com",
           "required": true
+        },
+        {
+          "name": "welcome_message",
+          "type": "wysiwyg",
+          "label": "Welcome Message",
+          "description": "Rich text welcome message for visitors",
+          "media_buttons": true,
+          "textarea_rows": 8
+        },
+        {
+          "name": "license_key",
+          "type": "text",
+          "label": "License Key",
+          "description": "Your plugin license key (saved without page prefix)",
+          "placeholder": "XXXX-XXXX-XXXX-XXXX",
+          "use_name_prefix": false
         }
       ]
     }

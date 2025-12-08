@@ -101,4 +101,22 @@ interface FieldInterface {
 	 * @return void
 	 */
 	public function enqueue_assets(): void;
+
+	/**
+	 * Get the option name for storing this field's value
+	 *
+	 * By default, option names are prefixed with the context (page_id) to avoid collisions.
+	 * Set 'use_name_prefix' => false in field config to use just the field name.
+	 *
+	 * @param string $prefix The prefix (usually page_id or context).
+	 * @return string The option name to use for storage.
+	 */
+	public function get_option_name( string $prefix = '' ): string;
+
+	/**
+	 * Check if this field uses name prefix
+	 *
+	 * @return bool True if field uses prefix, false otherwise.
+	 */
+	public function uses_name_prefix(): bool;
 }
