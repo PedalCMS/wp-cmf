@@ -163,6 +163,16 @@ function complete_array_example_init() {
 						'default'     => '#FF5733',
 						'context'     => 'side',
 					],
+					// WYSIWYG Field
+					[
+						'name'          => 'product_features',
+						'type'          => 'wysiwyg',
+						'label'         => 'Product Features',
+						'description'   => 'Rich text list of product features',
+						'media_buttons' => true,
+						'textarea_rows' => 10,
+						'context'       => 'normal',
+					],
 				],
 			],
 
@@ -315,6 +325,13 @@ function complete_array_example_init() {
 						'description' => 'Secure API key for integrations',
 					],
 					[
+						'name'            => 'stripe_api_key',
+						'type'            => 'password',
+						'label'           => 'Stripe API Key',
+						'description'     => 'Saved as just "stripe_api_key" without page prefix',
+						'use_name_prefix' => false,
+					],
+					[
 						'name'        => 'max_order_amount',
 						'type'        => 'number',
 						'label'       => 'Maximum Order Amount',
@@ -372,6 +389,15 @@ function complete_array_example_init() {
 						'label'       => 'Event Page Color',
 						'description' => 'Color scheme for event pages',
 						'default'     => '#3498DB',
+					],
+					[
+						'name'          => 'event_disclaimer',
+						'type'          => 'wysiwyg',
+						'label'         => 'Event Disclaimer',
+						'description'   => 'Legal disclaimer shown on event pages',
+						'teeny'         => true,
+						'media_buttons' => false,
+						'textarea_rows' => 6,
 					],
 				],
 			],

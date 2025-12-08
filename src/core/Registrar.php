@@ -314,7 +314,7 @@ class Registrar {
 				}
 
 				$field_name  = $field->get_name();
-				$option_name = $page_id . '_' . $field_name;
+				$option_name = $field->get_option_name( $page_id );
 				$is_nested   = isset( $this->nested_field_names[ $page_id ] ) && in_array( $field_name, $this->nested_field_names[ $page_id ], true );
 
 				// Always register settings with WordPress (even nested fields need to be registered to save)
@@ -372,7 +372,7 @@ class Registrar {
 				}
 
 				$field_name  = $field->get_name();
-				$option_name = $page_id . '_' . $field_name;
+				$option_name = $field->get_option_name( $page_id );
 
 				// Register setting with the built-in settings group
 				register_setting(

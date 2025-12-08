@@ -267,7 +267,7 @@ class TabsField extends AbstractField implements ContainerFieldInterface {
 
 					// For settings pages (when context is a string page_id), fix the name attribute
 					if ( is_string( $context ) && ! empty( $context ) ) {
-						$option_name = $context . '_' . $field_name;
+						$option_name = $field->get_option_name( $context );
 						$field_html  = str_replace(
 							'name="' . $field_name . '"',
 							'name="' . $option_name . '"',
@@ -315,9 +315,18 @@ class TabsField extends AbstractField implements ContainerFieldInterface {
 
 		// For settings pages: use options (context is page_id string)
 		if ( function_exists( 'get_option' ) ) {
-			// If context is a string (page_id), prefix the field name
+			// If context is a string (page_id), check field config for prefix preference
 			if ( is_string( $context_value ) && ! empty( $context_value ) ) {
-				$option_name = $context_value . '_' . $field_name;
+				// Get the field config to check use_name_prefix
+				$use_prefix = true; // Default to true
+				foreach ( $this->get_nested_fields() as $field_config ) {
+					if ( ( $field_config['name'] ?? '' ) === $field_name ) {
+						$use_prefix = $field_config['use_name_prefix'] ?? true;
+						break;
+					}
+				}
+
+				$option_name = $use_prefix ? $context_value . '_' . $field_name : $field_name;
 				return get_option( $option_name, '' );
 			}
 			// Fallback: try without prefix (for backward compatibility)

@@ -374,4 +374,43 @@ class AbstractFieldTest extends WP_UnitTestCase {
 		// Default implementation should do nothing (no exception)
 		$this->assertTrue( true );
 	}
+
+	/**
+	 * Test get_option_name with prefix (default behavior)
+	 */
+	public function test_get_option_name_with_prefix() {
+		$field = new TestField( 'api_key', 'text' );
+
+		// Default: use_name_prefix is true
+		$this->assertTrue( $field->uses_name_prefix() );
+		$this->assertEquals( 'my_plugin_api_key', $field->get_option_name( 'my_plugin' ) );
+		$this->assertEquals( 'general_api_key', $field->get_option_name( 'general' ) );
+	}
+
+	/**
+	 * Test get_option_name without prefix
+	 */
+	public function test_get_option_name_without_prefix() {
+		$field = new TestField(
+			'api_key',
+			'text',
+			[ 'use_name_prefix' => false ]
+		);
+
+		// use_name_prefix is false
+		$this->assertFalse( $field->uses_name_prefix() );
+		$this->assertEquals( 'api_key', $field->get_option_name( 'my_plugin' ) );
+		$this->assertEquals( 'api_key', $field->get_option_name( 'general' ) );
+	}
+
+	/**
+	 * Test get_option_name with empty prefix
+	 */
+	public function test_get_option_name_empty_prefix() {
+		$field = new TestField( 'api_key', 'text' );
+
+		// Even with use_name_prefix = true, empty prefix returns just field name
+		$this->assertEquals( 'api_key', $field->get_option_name( '' ) );
+		$this->assertEquals( 'api_key', $field->get_option_name() );
+	}
 }
