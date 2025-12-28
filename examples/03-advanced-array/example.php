@@ -11,11 +11,11 @@
  * @package WpCmfAdvancedArray
  */
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
+require_once dirname( __DIR__, 2 ) . '/vendor/autoload.php';
 
 use Pedalcms\WpCmf\Core\Manager;
 
@@ -39,257 +39,257 @@ use Pedalcms\WpCmf\Core\Manager;
  * 7. Field validation and sanitization
  * =============================================================================
  */
-
-function wp_cmf_advanced_array_init()
-{
+function wp_cmf_advanced_array_init() {
 	$manager = Manager::init();
 
 	// =========================================================================
 	// PART 1: NEW CUSTOM POST TYPE - Product
 	// =========================================================================
-	$manager->register_from_array([
-		'cpts' => [
-			[
-				'id'   => 'product',
-				'args' => [
-					'label'         => 'Products',
-					'public'        => true,
-					'has_archive'   => true,
-					'show_in_rest'  => true,
-					'supports'      => ['title', 'editor', 'thumbnail', 'excerpt'],
-					'menu_icon'     => 'dashicons-cart',
-					'menu_position' => 25,
-				],
-				'fields' => [
-					// ---------------------------------------------------------
-					// METABOX 1: Basic Information
-					// ---------------------------------------------------------
-					[
-						'name'     => 'basic_info',
-						'type'     => 'metabox',
-						'label'    => 'Basic Information',
-						'context'  => 'normal',
-						'priority' => 'high',
-						'fields'   => [
-							[
-								'name'        => 'sku',
-								'type'        => 'text',
-								'label'       => 'SKU',
-								'description' => 'Stock Keeping Unit',
-								'required'    => true,
-							],
-							[
-								'name'  => 'price',
-								'type'  => 'number',
-								'label' => 'Price ($)',
-								'min'   => 0,
-								'step'  => 0.01,
-							],
-							[
-								'name'  => 'sale_price',
-								'type'  => 'number',
-								'label' => 'Sale Price ($)',
-								'min'   => 0,
-								'step'  => 0.01,
-							],
-							[
-								'name'    => 'stock_status',
-								'type'    => 'select',
-								'label'   => 'Stock Status',
-								'options' => [
-									'instock'    => 'In Stock',
-									'outofstock' => 'Out of Stock',
-									'backorder'  => 'On Backorder',
+	$manager->register_from_array(
+		[
+			'cpts' => [
+				[
+					'id'     => 'product',
+					'args'   => [
+						'label'         => 'Products',
+						'public'        => true,
+						'has_archive'   => true,
+						'show_in_rest'  => true,
+						'supports'      => [ 'title', 'editor', 'thumbnail', 'excerpt' ],
+						'menu_icon'     => 'dashicons-cart',
+						'menu_position' => 25,
+					],
+					'fields' => [
+						// ---------------------------------------------------------
+						// METABOX 1: Basic Information
+						// ---------------------------------------------------------
+						[
+							'name'     => 'basic_info',
+							'type'     => 'metabox',
+							'label'    => 'Basic Information',
+							'context'  => 'normal',
+							'priority' => 'high',
+							'fields'   => [
+								[
+									'name'        => 'sku',
+									'type'        => 'text',
+									'label'       => 'SKU',
+									'description' => 'Stock Keeping Unit',
+									'required'    => true,
 								],
-								'default' => 'instock',
-							],
-							[
-								'name'  => 'quantity',
-								'type'  => 'number',
-								'label' => 'Quantity in Stock',
-								'min'   => 0,
+								[
+									'name'  => 'price',
+									'type'  => 'number',
+									'label' => 'Price ($)',
+									'min'   => 0,
+									'step'  => 0.01,
+								],
+								[
+									'name'  => 'sale_price',
+									'type'  => 'number',
+									'label' => 'Sale Price ($)',
+									'min'   => 0,
+									'step'  => 0.01,
+								],
+								[
+									'name'    => 'stock_status',
+									'type'    => 'select',
+									'label'   => 'Stock Status',
+									'options' => [
+										'instock'    => 'In Stock',
+										'outofstock' => 'Out of Stock',
+										'backorder'  => 'On Backorder',
+									],
+									'default' => 'instock',
+								],
+								[
+									'name'  => 'quantity',
+									'type'  => 'number',
+									'label' => 'Quantity in Stock',
+									'min'   => 0,
+								],
 							],
 						],
-					],
 
-					// ---------------------------------------------------------
-					// METABOX 2: Product Details (with Tabs)
-					// ---------------------------------------------------------
-					[
-						'name'     => 'product_details',
-						'type'     => 'metabox',
-						'label'    => 'Product Details',
-						'context'  => 'normal',
-						'priority' => 'default',
-						'fields'   => [
-							[
-								'name'        => 'details_tabs',
-								'type'        => 'tabs',
-								'orientation' => 'horizontal',
-								'tabs'        => [
-									[
-										'id'     => 'description_tab',
-										'label'  => 'Description',
-										'icon'   => 'dashicons-edit',
-										'fields' => [
-											[
-												'name'  => 'short_description',
-												'type'  => 'textarea',
-												'label' => 'Short Description',
-												'rows'  => 3,
-											],
-											[
-												'name'  => 'full_description',
-												'type'  => 'wysiwyg',
-												'label' => 'Full Description',
-											],
-										],
-									],
-									[
-										'id'     => 'specs_tab',
-										'label'  => 'Specifications',
-										'icon'   => 'dashicons-list-view',
-										'fields' => [
-											[
-												'name'  => 'weight',
-												'type'  => 'text',
-												'label' => 'Weight',
-											],
-											[
-												'name'  => 'dimensions',
-												'type'  => 'text',
-												'label' => 'Dimensions (L x W x H)',
-											],
-											[
-												'name'  => 'material',
-												'type'  => 'text',
-												'label' => 'Material',
-											],
-											[
-												'name'  => 'color_options',
-												'type'  => 'text',
-												'label' => 'Available Colors',
-											],
-										],
-									],
-									[
-										'id'     => 'shipping_tab',
-										'label'  => 'Shipping',
-										'icon'   => 'dashicons-car',
-										'fields' => [
-											[
-												'name'        => 'free_shipping',
-												'type'        => 'checkbox',
-												'label'       => 'Free Shipping',
-												'description' => 'Enable free shipping for this product',
-											],
-											[
-												'name'  => 'shipping_class',
-												'type'  => 'select',
-												'label' => 'Shipping Class',
-												'options' => [
-													'standard' => 'Standard',
-													'express'  => 'Express',
-													'freight'  => 'Freight',
+						// ---------------------------------------------------------
+						// METABOX 2: Product Details (with Tabs)
+						// ---------------------------------------------------------
+						[
+							'name'     => 'product_details',
+							'type'     => 'metabox',
+							'label'    => 'Product Details',
+							'context'  => 'normal',
+							'priority' => 'default',
+							'fields'   => [
+								[
+									'name'        => 'details_tabs',
+									'type'        => 'tabs',
+									'orientation' => 'horizontal',
+									'tabs'        => [
+										[
+											'id'     => 'description_tab',
+											'label'  => 'Description',
+											'icon'   => 'dashicons-edit',
+											'fields' => [
+												[
+													'name' => 'short_description',
+													'type' => 'textarea',
+													'label' => 'Short Description',
+													'rows' => 3,
+												],
+												[
+													'name' => 'full_description',
+													'type' => 'wysiwyg',
+													'label' => 'Full Description',
 												],
 											],
-											[
-												'name'  => 'handling_time',
-												'type'  => 'number',
-												'label' => 'Handling Time (days)',
-												'min'   => 0,
-												'max'   => 30,
+										],
+										[
+											'id'     => 'specs_tab',
+											'label'  => 'Specifications',
+											'icon'   => 'dashicons-list-view',
+											'fields' => [
+												[
+													'name' => 'weight',
+													'type' => 'text',
+													'label' => 'Weight',
+												],
+												[
+													'name' => 'dimensions',
+													'type' => 'text',
+													'label' => 'Dimensions (L x W x H)',
+												],
+												[
+													'name' => 'material',
+													'type' => 'text',
+													'label' => 'Material',
+												],
+												[
+													'name' => 'color_options',
+													'type' => 'text',
+													'label' => 'Available Colors',
+												],
+											],
+										],
+										[
+											'id'     => 'shipping_tab',
+											'label'  => 'Shipping',
+											'icon'   => 'dashicons-car',
+											'fields' => [
+												[
+													'name' => 'free_shipping',
+													'type' => 'checkbox',
+													'label' => 'Free Shipping',
+													'description' => 'Enable free shipping for this product',
+												],
+												[
+													'name' => 'shipping_class',
+													'type' => 'select',
+													'label' => 'Shipping Class',
+													'options' => [
+														'standard' => 'Standard',
+														'express'  => 'Express',
+														'freight'  => 'Freight',
+													],
+												],
+												[
+													'name' => 'handling_time',
+													'type' => 'number',
+													'label' => 'Handling Time (days)',
+													'min'  => 0,
+													'max'  => 30,
+												],
 											],
 										],
 									],
 								],
 							],
 						],
-					],
 
-					// ---------------------------------------------------------
-					// METABOX 3: Categories & Tags (Side)
-					// ---------------------------------------------------------
-					[
-						'name'     => 'categorization',
-						'type'     => 'metabox',
-						'label'    => 'Categorization',
-						'context'  => 'side',
-						'priority' => 'default',
-						'fields'   => [
-							[
-								'name'     => 'product_category',
-								'type'     => 'checkbox',
-								'label'    => 'Categories',
-								'multiple' => true,
-								'options'  => [
-									'electronics' => 'Electronics',
-									'clothing'    => 'Clothing',
-									'home'        => 'Home & Garden',
-									'sports'      => 'Sports',
-									'books'       => 'Books',
+						// ---------------------------------------------------------
+						// METABOX 3: Categories & Tags (Side)
+						// ---------------------------------------------------------
+						[
+							'name'     => 'categorization',
+							'type'     => 'metabox',
+							'label'    => 'Categorization',
+							'context'  => 'side',
+							'priority' => 'default',
+							'fields'   => [
+								[
+									'name'     => 'product_category',
+									'type'     => 'checkbox',
+									'label'    => 'Categories',
+									'multiple' => true,
+									'options'  => [
+										'electronics' => 'Electronics',
+										'clothing'    => 'Clothing',
+										'home'        => 'Home & Garden',
+										'sports'      => 'Sports',
+										'books'       => 'Books',
+									],
 								],
-							],
-							[
-								'name'    => 'brand',
-								'type'    => 'select',
-								'label'   => 'Brand',
-								'options' => [
-									''       => '-- Select Brand --',
-									'apple'  => 'Apple',
-									'samsung' => 'Samsung',
-									'sony'   => 'Sony',
-									'nike'   => 'Nike',
-									'other'  => 'Other',
+								[
+									'name'    => 'brand',
+									'type'    => 'select',
+									'label'   => 'Brand',
+									'options' => [
+										''        => '-- Select Brand --',
+										'apple'   => 'Apple',
+										'samsung' => 'Samsung',
+										'sony'    => 'Sony',
+										'nike'    => 'Nike',
+										'other'   => 'Other',
+									],
 								],
-							],
-							[
-								'name'        => 'featured',
-								'type'        => 'checkbox',
-								'label'       => 'Featured Product',
-								'description' => 'Show on homepage',
+								[
+									'name'        => 'featured',
+									'type'        => 'checkbox',
+									'label'       => 'Featured Product',
+									'description' => 'Show on homepage',
+								],
 							],
 						],
-					],
 
-					// ---------------------------------------------------------
-					// METABOX 4: Variations (Repeater)
-					// ---------------------------------------------------------
-					[
-						'name'     => 'variations_box',
-						'type'     => 'metabox',
-						'label'    => 'Product Variations',
-						'context'  => 'normal',
-						'priority' => 'low',
-						'fields'   => [
-							[
-								'name'       => 'variations',
-								'type'       => 'repeater',
-								'label'      => 'Variations',
-								'button_label' => 'Add Variation',
-								'fields'     => [
-									[
-										'name'  => 'variant_name',
-										'type'  => 'text',
-										'label' => 'Variation Name',
-									],
-									[
-										'name'  => 'variant_sku',
-										'type'  => 'text',
-										'label' => 'Variation SKU',
-									],
-									[
-										'name'  => 'variant_price',
-										'type'  => 'number',
-										'label' => 'Price',
-										'min'   => 0,
-										'step'  => 0.01,
-									],
-									[
-										'name'  => 'variant_stock',
-										'type'  => 'number',
-										'label' => 'Stock',
-										'min'   => 0,
+						// ---------------------------------------------------------
+						// METABOX 4: Variations (Repeater)
+						// ---------------------------------------------------------
+						[
+							'name'     => 'variations_box',
+							'type'     => 'metabox',
+							'label'    => 'Product Variations',
+							'context'  => 'normal',
+							'priority' => 'low',
+							'fields'   => [
+								[
+									'name'         => 'variations',
+									'type'         => 'repeater',
+									'label'        => 'Variations',
+									'button_label' => 'Add Variation',
+									'fields'       => [
+										[
+											'name'  => 'variant_name',
+											'type'  => 'text',
+											'label' => 'Variation Name',
+										],
+										[
+											'name'  => 'variant_sku',
+											'type'  => 'text',
+											'label' => 'Variation SKU',
+										],
+										[
+											'name'  => 'variant_price',
+											'type'  => 'number',
+											'label' => 'Price',
+											'min'   => 0,
+											'step'  => 0.01,
+										],
+										[
+											'name'  => 'variant_stock',
+											'type'  => 'number',
+											'label' => 'Stock',
+											'min'   => 0,
+										],
 									],
 								],
 							],
@@ -297,247 +297,249 @@ function wp_cmf_advanced_array_init()
 					],
 				],
 			],
-		],
-	]);
+		]
+	);
 
 	// =========================================================================
 	// PART 2: NEW SETTINGS PAGE - Store Settings (as submenu under Products)
 	// =========================================================================
-	$manager->register_from_array([
-		'settings_pages' => [
-			[
-				'id'          => 'store-settings',
-				'page_title'  => 'Store Settings',
-				'menu_title'  => 'Store',
-				'capability'  => 'manage_options',
-				'parent_slug' => 'edit.php?post_type=product',
-				'fields'      => [
-					// Tabs must be inside a metabox on settings pages
-					[
-						'name'     => 'store_settings_metabox',
-						'type'     => 'metabox',
-						'label'    => 'Store Configuration',
-						'context'  => 'normal',
-						'priority' => 'high',
-						'fields'   => [
-							// Settings with Vertical Tabs.
-							[
-								'name'        => 'store_tabs',
-								'type'        => 'tabs',
-								'orientation' => 'vertical',
-								'tabs'        => [
-									// Tab 1: General Settings.
-									[
-										'id'     => 'general_tab',
-										'label'  => 'General',
-										'icon'   => 'dashicons-admin-settings',
-										'fields' => [
-											[
-												'name'        => 'store_name',
-												'type'        => 'text',
-												'label'       => 'Store Name',
-												'placeholder' => 'My Awesome Store',
-											],
-											[
-												'name'  => 'store_tagline',
-												'type'  => 'text',
-												'label' => 'Tagline',
-											],
-											[
-												'name'  => 'store_email',
-												'type'  => 'email',
-												'label' => 'Store Email',
-											],
-											[
-												'name'  => 'store_url',
-												'type'  => 'url',
-												'label' => 'Store URL',
-											],
-										],
-									],
-									// Tab 2: Currency & Pricing
-									[
-										'id'     => 'pricing_tab',
-										'label'  => 'Pricing',
-										'icon'   => 'dashicons-money-alt',
-										'fields' => [
-											[
-												'name'    => 'currency',
-												'type'    => 'select',
-												'label'   => 'Currency',
-												'options' => [
-													'USD' => 'US Dollar ($)',
-													'EUR' => 'Euro (€)',
-													'GBP' => 'British Pound (£)',
-													'JPY' => 'Japanese Yen (¥)',
+	$manager->register_from_array(
+		[
+			'settings_pages' => [
+				[
+					'id'          => 'store-settings',
+					'page_title'  => 'Store Settings',
+					'menu_title'  => 'Store',
+					'capability'  => 'manage_options',
+					'parent_slug' => 'edit.php?post_type=product',
+					'fields'      => [
+						// Tabs must be inside a metabox on settings pages
+						[
+							'name'     => 'store_settings_metabox',
+							'type'     => 'metabox',
+							'label'    => 'Store Configuration',
+							'context'  => 'normal',
+							'priority' => 'high',
+							'fields'   => [
+								// Settings with Vertical Tabs.
+								[
+									'name'        => 'store_tabs',
+									'type'        => 'tabs',
+									'orientation' => 'vertical',
+									'tabs'        => [
+										// Tab 1: General Settings.
+										[
+											'id'     => 'general_tab',
+											'label'  => 'General',
+											'icon'   => 'dashicons-admin-settings',
+											'fields' => [
+												[
+													'name' => 'store_name',
+													'type' => 'text',
+													'label' => 'Store Name',
+													'placeholder' => 'My Awesome Store',
 												],
-												'default' => 'USD',
-											],
-											[
-												'name'    => 'currency_position',
-												'type'    => 'radio',
-												'label'   => 'Currency Position',
-												'options' => [
-													'before' => 'Before: $99.99',
-													'after'  => 'After: 99.99$',
+												[
+													'name' => 'store_tagline',
+													'type' => 'text',
+													'label' => 'Tagline',
 												],
-												'default' => 'before',
-											],
-											[
-												'name'    => 'decimal_places',
-												'type'    => 'number',
-												'label'   => 'Decimal Places',
-												'min'     => 0,
-												'max'     => 4,
-												'default' => 2,
-											],
-											[
-												'name'        => 'tax_enabled',
-												'type'        => 'checkbox',
-												'label'       => 'Enable Tax',
-												'description' => 'Calculate tax on products',
-											],
-											[
-												'name'  => 'tax_rate',
-												'type'  => 'number',
-												'label' => 'Tax Rate (%)',
-												'min'   => 0,
-												'max'   => 100,
-												'step'  => 0.01,
-											],
-										],
-									],
-									// Tab 3: Shipping Group
-									[
-										'id'     => 'shipping_tab',
-										'label'  => 'Shipping',
-										'icon'   => 'dashicons-car',
-										'fields' => [
-											[
-												'name'        => 'domestic_shipping',
-												'type'        => 'group',
-												'label'       => 'Domestic Shipping',
-												'description' => 'Settings for domestic orders',
-												'fields'      => [
-													[
-														'name'  => 'domestic_flat_rate',
-														'type'  => 'number',
-														'label' => 'Flat Rate ($)',
-														'min'   => 0,
-														'step'  => 0.01,
-													],
-													[
-														'name'  => 'domestic_free_threshold',
-														'type'  => 'number',
-														'label' => 'Free Shipping Threshold ($)',
-														'min'   => 0,
-													],
-													[
-														'name'  => 'domestic_handling_days',
-														'type'  => 'number',
-														'label' => 'Handling Days',
-														'min'   => 0,
-														'max'   => 14,
-													],
+												[
+													'name' => 'store_email',
+													'type' => 'email',
+													'label' => 'Store Email',
 												],
-											],
-											[
-												'name'        => 'international_shipping',
-												'type'        => 'group',
-												'label'       => 'International Shipping',
-												'description' => 'Settings for international orders',
-												'fields'      => [
-													[
-														'name'        => 'intl_enabled',
-														'type'        => 'checkbox',
-														'label'       => 'Enable International Shipping',
-													],
-													[
-														'name'  => 'intl_flat_rate',
-														'type'  => 'number',
-														'label' => 'Flat Rate ($)',
-														'min'   => 0,
-														'step'  => 0.01,
-													],
-													[
-														'name'  => 'intl_handling_days',
-														'type'  => 'number',
-														'label' => 'Handling Days',
-														'min'   => 0,
-														'max'   => 30,
-													],
+												[
+													'name' => 'store_url',
+													'type' => 'url',
+													'label' => 'Store URL',
 												],
 											],
 										],
-									],
-									// Tab 4: Appearance
-									[
-										'id'     => 'appearance_tab',
-										'label'  => 'Appearance',
-										'icon'   => 'dashicons-admin-appearance',
-										'fields' => [
-											[
-												'name'    => 'primary_color',
-												'type'    => 'color',
-												'label'   => 'Primary Color',
-												'default' => '#0073aa',
-											],
-											[
-												'name'    => 'secondary_color',
-												'type'    => 'color',
-												'label'   => 'Secondary Color',
-												'default' => '#23282d',
-											],
-											[
-												'name'    => 'button_style',
-												'type'    => 'radio',
-												'label'   => 'Button Style',
-												'options' => [
-													'rounded'  => 'Rounded',
-													'square'   => 'Square',
-													'pill'     => 'Pill',
+										// Tab 2: Currency & Pricing
+										[
+											'id'     => 'pricing_tab',
+											'label'  => 'Pricing',
+											'icon'   => 'dashicons-money-alt',
+											'fields' => [
+												[
+													'name' => 'currency',
+													'type' => 'select',
+													'label' => 'Currency',
+													'options' => [
+														'USD' => 'US Dollar ($)',
+														'EUR' => 'Euro (€)',
+														'GBP' => 'British Pound (£)',
+														'JPY' => 'Japanese Yen (¥)',
+													],
+													'default' => 'USD',
 												],
-												'default' => 'rounded',
-											],
-											[
-												'name'  => 'custom_css',
-												'type'  => 'textarea',
-												'label' => 'Custom CSS',
-												'rows'  => 6,
+												[
+													'name' => 'currency_position',
+													'type' => 'radio',
+													'label' => 'Currency Position',
+													'options' => [
+														'before' => 'Before: $99.99',
+														'after'  => 'After: 99.99$',
+													],
+													'default' => 'before',
+												],
+												[
+													'name' => 'decimal_places',
+													'type' => 'number',
+													'label' => 'Decimal Places',
+													'min'  => 0,
+													'max'  => 4,
+													'default' => 2,
+												],
+												[
+													'name' => 'tax_enabled',
+													'type' => 'checkbox',
+													'label' => 'Enable Tax',
+													'description' => 'Calculate tax on products',
+												],
+												[
+													'name' => 'tax_rate',
+													'type' => 'number',
+													'label' => 'Tax Rate (%)',
+													'min'  => 0,
+													'max'  => 100,
+													'step' => 0.01,
+												],
 											],
 										],
-									],
-									// Tab 5: Advanced (All Remaining Field Types)
-									[
-										'id'     => 'advanced_tab',
-										'label'  => 'Advanced',
-										'icon'   => 'dashicons-admin-tools',
-										'fields' => [
-											[
-												'name'        => 'api_key',
-												'type'        => 'password',
-												'label'       => 'API Key',
-												'description' => 'Secret API key for integrations',
+										// Tab 3: Shipping Group
+										[
+											'id'     => 'shipping_tab',
+											'label'  => 'Shipping',
+											'icon'   => 'dashicons-car',
+											'fields' => [
+												[
+													'name' => 'domestic_shipping',
+													'type' => 'group',
+													'label' => 'Domestic Shipping',
+													'description' => 'Settings for domestic orders',
+													'fields' => [
+														[
+															'name'  => 'domestic_flat_rate',
+															'type'  => 'number',
+															'label' => 'Flat Rate ($)',
+															'min'   => 0,
+															'step'  => 0.01,
+														],
+														[
+															'name'  => 'domestic_free_threshold',
+															'type'  => 'number',
+															'label' => 'Free Shipping Threshold ($)',
+															'min'   => 0,
+														],
+														[
+															'name'  => 'domestic_handling_days',
+															'type'  => 'number',
+															'label' => 'Handling Days',
+															'min'   => 0,
+															'max'   => 14,
+														],
+													],
+												],
+												[
+													'name' => 'international_shipping',
+													'type' => 'group',
+													'label' => 'International Shipping',
+													'description' => 'Settings for international orders',
+													'fields' => [
+														[
+															'name'        => 'intl_enabled',
+															'type'        => 'checkbox',
+															'label'       => 'Enable International Shipping',
+														],
+														[
+															'name'  => 'intl_flat_rate',
+															'type'  => 'number',
+															'label' => 'Flat Rate ($)',
+															'min'   => 0,
+															'step'  => 0.01,
+														],
+														[
+															'name'  => 'intl_handling_days',
+															'type'  => 'number',
+															'label' => 'Handling Days',
+															'min'   => 0,
+															'max'   => 30,
+														],
+													],
+												],
 											],
-											[
-												'name'  => 'webhook_url',
-												'type'  => 'url',
-												'label' => 'Webhook URL',
+										],
+										// Tab 4: Appearance
+										[
+											'id'     => 'appearance_tab',
+											'label'  => 'Appearance',
+											'icon'   => 'dashicons-admin-appearance',
+											'fields' => [
+												[
+													'name' => 'primary_color',
+													'type' => 'color',
+													'label' => 'Primary Color',
+													'default' => '#0073aa',
+												],
+												[
+													'name' => 'secondary_color',
+													'type' => 'color',
+													'label' => 'Secondary Color',
+													'default' => '#23282d',
+												],
+												[
+													'name' => 'button_style',
+													'type' => 'radio',
+													'label' => 'Button Style',
+													'options' => [
+														'rounded' => 'Rounded',
+														'square' => 'Square',
+														'pill' => 'Pill',
+													],
+													'default' => 'rounded',
+												],
+												[
+													'name' => 'custom_css',
+													'type' => 'textarea',
+													'label' => 'Custom CSS',
+													'rows' => 6,
+												],
 											],
-											[
-												'name'  => 'admin_email',
-												'type'  => 'email',
-												'label' => 'Admin Email',
-											],
-											[
-												'name'  => 'launch_date',
-												'type'  => 'date',
-												'label' => 'Store Launch Date',
-											],
-											[
-												'name'  => 'terms_conditions',
-												'type'  => 'wysiwyg',
-												'label' => 'Terms & Conditions',
+										],
+										// Tab 5: Advanced (All Remaining Field Types)
+										[
+											'id'     => 'advanced_tab',
+											'label'  => 'Advanced',
+											'icon'   => 'dashicons-admin-tools',
+											'fields' => [
+												[
+													'name' => 'api_key',
+													'type' => 'password',
+													'label' => 'API Key',
+													'description' => 'Secret API key for integrations',
+												],
+												[
+													'name' => 'webhook_url',
+													'type' => 'url',
+													'label' => 'Webhook URL',
+												],
+												[
+													'name' => 'admin_email',
+													'type' => 'email',
+													'label' => 'Admin Email',
+												],
+												[
+													'name' => 'launch_date',
+													'type' => 'date',
+													'label' => 'Store Launch Date',
+												],
+												[
+													'name' => 'terms_conditions',
+													'type' => 'wysiwyg',
+													'label' => 'Terms & Conditions',
+												],
 											],
 										],
 									],
@@ -547,181 +549,187 @@ function wp_cmf_advanced_array_init()
 					],
 				],
 			],
-		],
-	]);
+		]
+	);
 
 	// =========================================================================
 	// PART 3: ADD FIELDS TO EXISTING POST TYPE (post)
 	// =========================================================================
-	$manager->register_from_array([
-		'cpts' => [
-			[
-				'id'     => 'post', // Built-in post type
-				'fields' => [
-					[
-						'name'     => 'post_options',
-						'type'     => 'metabox',
-						'label'    => 'Post Options',
-						'context'  => 'side',
-						'priority' => 'high',
-						'fields'   => [
-							[
-								'name'        => 'sponsored',
-								'type'        => 'checkbox',
-								'label'       => 'Sponsored Post',
-								'description' => 'Mark as sponsored content',
-							],
-							[
-								'name'  => 'sponsor_name',
-								'type'  => 'text',
-								'label' => 'Sponsor Name',
-							],
-							[
-								'name'  => 'sponsor_url',
-								'type'  => 'url',
-								'label' => 'Sponsor URL',
+	$manager->register_from_array(
+		[
+			'cpts' => [
+				[
+					'id'     => 'post', // Built-in post type
+					'fields' => [
+						[
+							'name'     => 'post_options',
+							'type'     => 'metabox',
+							'label'    => 'Post Options',
+							'context'  => 'side',
+							'priority' => 'high',
+							'fields'   => [
+								[
+									'name'        => 'sponsored',
+									'type'        => 'checkbox',
+									'label'       => 'Sponsored Post',
+									'description' => 'Mark as sponsored content',
+								],
+								[
+									'name'  => 'sponsor_name',
+									'type'  => 'text',
+									'label' => 'Sponsor Name',
+								],
+								[
+									'name'  => 'sponsor_url',
+									'type'  => 'url',
+									'label' => 'Sponsor URL',
+								],
 							],
 						],
-					],
-					[
-						'name'     => 'reading_time',
-						'type'     => 'metabox',
-						'label'    => 'Reading Info',
-						'context'  => 'side',
-						'priority' => 'low',
-						'fields'   => [
-							[
-								'name'        => 'read_time',
-								'type'        => 'number',
-								'label'       => 'Reading Time (min)',
-								'description' => 'Estimated reading time',
-								'min'         => 1,
-							],
-							[
-								'name'    => 'difficulty',
-								'type'    => 'select',
-								'label'   => 'Difficulty',
-								'options' => [
-									'beginner'     => 'Beginner',
-									'intermediate' => 'Intermediate',
-									'advanced'     => 'Advanced',
+						[
+							'name'     => 'reading_time',
+							'type'     => 'metabox',
+							'label'    => 'Reading Info',
+							'context'  => 'side',
+							'priority' => 'low',
+							'fields'   => [
+								[
+									'name'        => 'read_time',
+									'type'        => 'number',
+									'label'       => 'Reading Time (min)',
+									'description' => 'Estimated reading time',
+									'min'         => 1,
+								],
+								[
+									'name'    => 'difficulty',
+									'type'    => 'select',
+									'label'   => 'Difficulty',
+									'options' => [
+										'beginner'     => 'Beginner',
+										'intermediate' => 'Intermediate',
+										'advanced'     => 'Advanced',
+									],
 								],
 							],
 						],
 					],
 				],
 			],
-		],
-	]);
+		]
+	);
 
 	// =========================================================================
 	// PART 4: ADD FIELDS TO EXISTING POST TYPE (page)
 	// =========================================================================
-	$manager->register_from_array([
-		'cpts' => [
-			[
-				'id'     => 'page', // Built-in page type
-				'fields' => [
-					[
-						'name'     => 'page_settings',
-						'type'     => 'metabox',
-						'label'    => 'Page Settings',
-						'context'  => 'normal',
-						'priority' => 'high',
-						'fields'   => [
-							[
-								'name'        => 'hide_title',
-								'type'        => 'checkbox',
-								'label'       => 'Hide Page Title',
-								'description' => 'Hide the title on the frontend',
-							],
-							[
-								'name'    => 'sidebar_position',
-								'type'    => 'radio',
-								'label'   => 'Sidebar Position',
-								'options' => [
-									'none'  => 'No Sidebar',
-									'left'  => 'Left',
-									'right' => 'Right',
+	$manager->register_from_array(
+		[
+			'cpts' => [
+				[
+					'id'     => 'page', // Built-in page type
+					'fields' => [
+						[
+							'name'     => 'page_settings',
+							'type'     => 'metabox',
+							'label'    => 'Page Settings',
+							'context'  => 'normal',
+							'priority' => 'high',
+							'fields'   => [
+								[
+									'name'        => 'hide_title',
+									'type'        => 'checkbox',
+									'label'       => 'Hide Page Title',
+									'description' => 'Hide the title on the frontend',
 								],
-								'default' => 'none',
-							],
-							[
-								'name'    => 'page_layout',
-								'type'    => 'select',
-								'label'   => 'Page Layout',
-								'options' => [
-									'default'    => 'Default',
-									'full-width' => 'Full Width',
-									'boxed'      => 'Boxed',
-									'landing'    => 'Landing Page',
+								[
+									'name'    => 'sidebar_position',
+									'type'    => 'radio',
+									'label'   => 'Sidebar Position',
+									'options' => [
+										'none'  => 'No Sidebar',
+										'left'  => 'Left',
+										'right' => 'Right',
+									],
+									'default' => 'none',
 								],
-							],
-							[
-								'name'  => 'header_background',
-								'type'  => 'color',
-								'label' => 'Header Background Color',
+								[
+									'name'    => 'page_layout',
+									'type'    => 'select',
+									'label'   => 'Page Layout',
+									'options' => [
+										'default'    => 'Default',
+										'full-width' => 'Full Width',
+										'boxed'      => 'Boxed',
+										'landing'    => 'Landing Page',
+									],
+								],
+								[
+									'name'  => 'header_background',
+									'type'  => 'color',
+									'label' => 'Header Background Color',
+								],
 							],
 						],
 					],
 				],
 			],
-		],
-	]);
+		]
+	);
 
 	// =========================================================================
 	// PART 5: ADD FIELDS TO EXISTING SETTINGS PAGE (general)
 	// =========================================================================
-	$manager->register_from_array([
-		'settings_pages' => [
-			[
-				'id'       => 'general', // WordPress General Settings
-				'parent'   => 'options-general.php',
-				'fields'   => [
-					[
-						'name'        => 'social_links',
-						'type'        => 'group',
-						'label'       => 'Social Media Links',
-						'description' => 'Add your social media profiles',
-						'fields'      => [
-							[
-								'name'        => 'facebook_url',
-								'type'        => 'url',
-								'label'       => 'Facebook URL',
-								'placeholder' => 'https://facebook.com/yourpage',
-							],
-							[
-								'name'        => 'twitter_url',
-								'type'        => 'url',
-								'label'       => 'Twitter/X URL',
-								'placeholder' => 'https://twitter.com/yourhandle',
-							],
-							[
-								'name'        => 'instagram_url',
-								'type'        => 'url',
-								'label'       => 'Instagram URL',
-								'placeholder' => 'https://instagram.com/yourprofile',
-							],
-							[
-								'name'        => 'linkedin_url',
-								'type'        => 'url',
-								'label'       => 'LinkedIn URL',
-								'placeholder' => 'https://linkedin.com/in/yourprofile',
+	$manager->register_from_array(
+		[
+			'settings_pages' => [
+				[
+					'id'     => 'general', // WordPress General Settings
+					'parent' => 'options-general.php',
+					'fields' => [
+						[
+							'name'        => 'social_links',
+							'type'        => 'group',
+							'label'       => 'Social Media Links',
+							'description' => 'Add your social media profiles',
+							'fields'      => [
+								[
+									'name'        => 'facebook_url',
+									'type'        => 'url',
+									'label'       => 'Facebook URL',
+									'placeholder' => 'https://facebook.com/yourpage',
+								],
+								[
+									'name'        => 'twitter_url',
+									'type'        => 'url',
+									'label'       => 'Twitter/X URL',
+									'placeholder' => 'https://twitter.com/yourhandle',
+								],
+								[
+									'name'        => 'instagram_url',
+									'type'        => 'url',
+									'label'       => 'Instagram URL',
+									'placeholder' => 'https://instagram.com/yourprofile',
+								],
+								[
+									'name'        => 'linkedin_url',
+									'type'        => 'url',
+									'label'       => 'LinkedIn URL',
+									'placeholder' => 'https://linkedin.com/in/yourprofile',
+								],
 							],
 						],
-					],
-					[
-						'name'    => 'site_logo_color',
-						'type'    => 'color',
-						'label'   => 'Brand Color',
-						'default' => '#0073aa',
+						[
+							'name'    => 'site_logo_color',
+							'type'    => 'color',
+							'label'   => 'Brand Color',
+							'default' => '#0073aa',
+						],
 					],
 				],
 			],
-		],
-	]);
+		]
+	);
 }
-add_action('init', 'wp_cmf_advanced_array_init');
+add_action( 'init', 'wp_cmf_advanced_array_init' );
 
 /**
  * =============================================================================
@@ -733,19 +741,19 @@ add_action('init', 'wp_cmf_advanced_array_init');
 // Ensure SKU is uppercase
 add_filter(
 	'wp_cmf_before_save_sku',
-	function ($value) {
-		return strtoupper($value);
+	function ( $value ) {
+		return strtoupper( $value );
 	}
 );
 
-// Auto-calculate reading time based on content length
+// Auto-calculate reading time based on content length.
 add_filter(
 	'wp_cmf_before_save_read_time',
-	function ($value, $post_id) {
-		if (empty($value)) {
-			$content    = get_post_field('post_content', $post_id);
-			$word_count = str_word_count(strip_tags($content));
-			$value      = max(1, ceil($word_count / 200)); // 200 words per minute
+	function ( $value, $post_id ) {
+		if ( empty( $value ) ) {
+			$content    = get_post_field( 'post_content', $post_id );
+			$word_count = str_word_count( wp_strip_all_tags( $content ) );
+			$value      = max( 1, ceil( $word_count / 200 ) ); // 200 words per minute.
 		}
 		return $value;
 	},
@@ -762,41 +770,36 @@ add_filter(
 /**
  * Get product field value
  */
-function get_product_field($post_id, $field)
-{
-	return get_post_meta($post_id, $field, true);
+function get_product_field( $post_id, $field ) {
+	return get_post_meta( $post_id, $field, true );
 }
 
 /**
  * Get store setting
  */
-function get_store_setting($field, $default = '')
-{
-	return get_option('store-settings_' . $field, $default);
+function get_store_setting( $field, $default = '' ) {
+	return get_option( 'store-settings_' . $field, $default );
 }
 
 /**
  * Get post option (added to built-in posts)
  */
-function get_post_option($post_id, $field)
-{
-	return get_post_meta($post_id, $field, true);
+function get_post_option( $post_id, $field ) {
+	return get_post_meta( $post_id, $field, true );
 }
 
 /**
  * Get page setting (added to built-in pages)
  */
-function get_page_setting($post_id, $field)
-{
-	return get_post_meta($post_id, $field, true);
+function get_page_setting( $post_id, $field ) {
+	return get_post_meta( $post_id, $field, true );
 }
 
 /**
  * Get general setting (added to WordPress General Settings)
  */
-function get_general_option($field, $default = '')
-{
-	return get_option('general_' . $field, $default);
+function get_general_option( $field, $default = '' ) {
+	return get_option( 'general_' . $field, $default );
 }
 
 /**
@@ -806,43 +809,48 @@ function get_general_option($field, $default = '')
  */
 add_filter(
 	'the_content',
-	function ($content) {
-		if (! is_singular('product')) {
+	function ( $content ) {
+		if ( ! is_singular( 'product' ) ) {
 			return $content;
 		}
 
 		$post_id = get_the_ID();
 
 		// Get values
-		$sku         = get_product_field($post_id, 'sku');
-		$price       = get_product_field($post_id, 'price');
-		$sale_price  = get_product_field($post_id, 'sale_price');
-		$stock       = get_product_field($post_id, 'stock_status');
-		$featured    = get_product_field($post_id, 'featured');
-		$variations  = get_product_field($post_id, 'variations');
+		$sku        = get_product_field( $post_id, 'sku' );
+		$price      = get_product_field( $post_id, 'price' );
+		$sale_price = get_product_field( $post_id, 'sale_price' );
+		$stock      = get_product_field( $post_id, 'stock_status' );
+		$featured   = get_product_field( $post_id, 'featured' );
+		$variations = get_product_field( $post_id, 'variations' );
 
 		// Format currency
-		$currency = get_store_setting('currency', 'USD');
-		$symbols  = ['USD' => '$', 'EUR' => '€', 'GBP' => '£', 'JPY' => '¥'];
-		$symbol   = $symbols[$currency] ?? '$';
+		$currency = get_store_setting( 'currency', 'USD' );
+		$symbols  = [
+			'USD' => '$',
+			'EUR' => '€',
+			'GBP' => '£',
+			'JPY' => '¥',
+		];
+		$symbol   = $symbols[ $currency ] ?? '$';
 
 		$output = '<div class="product-info">';
 
-		if ($featured) {
+		if ( $featured ) {
 			$output .= '<span class="featured-badge">★ Featured</span>';
 		}
 
-		if ($sku) {
-			$output .= '<p><strong>SKU:</strong> ' . esc_html($sku) . '</p>';
+		if ( $sku ) {
+			$output .= '<p><strong>SKU:</strong> ' . esc_html( $sku ) . '</p>';
 		}
 
-		if ($sale_price && $sale_price < $price) {
+		if ( $sale_price && $sale_price < $price ) {
 			$output .= '<p class="price">';
-			$output .= '<del>' . esc_html($symbol . number_format($price, 2)) . '</del> ';
-			$output .= '<ins>' . esc_html($symbol . number_format($sale_price, 2)) . '</ins>';
+			$output .= '<del>' . esc_html( $symbol . number_format( $price, 2 ) ) . '</del> ';
+			$output .= '<ins>' . esc_html( $symbol . number_format( $sale_price, 2 ) ) . '</ins>';
 			$output .= '</p>';
-		} elseif ($price) {
-			$output .= '<p class="price">' . esc_html($symbol . number_format($price, 2)) . '</p>';
+		} elseif ( $price ) {
+			$output .= '<p class="price">' . esc_html( $symbol . number_format( $price, 2 ) ) . '</p>';
 		}
 
 		$stock_labels = [
@@ -850,20 +858,20 @@ add_filter(
 			'outofstock' => 'Out of Stock',
 			'backorder'  => 'Available on Backorder',
 		];
-		if ($stock) {
-			$output .= '<p class="stock-status ' . esc_attr($stock) . '">';
-			$output .= esc_html($stock_labels[$stock] ?? $stock);
+		if ( $stock ) {
+			$output .= '<p class="stock-status ' . esc_attr( $stock ) . '">';
+			$output .= esc_html( $stock_labels[ $stock ] ?? $stock );
 			$output .= '</p>';
 		}
 
 		// Display variations if present
-		if (! empty($variations) && is_array($variations)) {
+		if ( ! empty( $variations ) && is_array( $variations ) ) {
 			$output .= '<div class="variations"><h4>Available Variations:</h4><ul>';
-			foreach ($variations as $var) {
+			foreach ( $variations as $var ) {
 				$output .= '<li>';
-				$output .= esc_html($var['variant_name'] ?? 'Variant');
-				if (! empty($var['variant_price'])) {
-					$output .= ' - ' . esc_html($symbol . number_format($var['variant_price'], 2));
+				$output .= esc_html( $var['variant_name'] ?? 'Variant' );
+				if ( ! empty( $var['variant_price'] ) ) {
+					$output .= ' - ' . esc_html( $symbol . number_format( $var['variant_price'], 2 ) );
 				}
 				$output .= '</li>';
 			}

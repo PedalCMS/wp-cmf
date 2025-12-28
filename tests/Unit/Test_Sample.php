@@ -56,10 +56,10 @@ class Test_Sample extends WP_UnitTestCase {
 	 */
 	public function test_can_create_post(): void {
 		$post_id = self::factory()->post->create(
-			array(
+			[
 				'post_title'  => 'Test Post',
 				'post_status' => 'publish',
-			)
+			]
 		);
 
 		$this->assertIsInt( $post_id );
@@ -72,10 +72,10 @@ class Test_Sample extends WP_UnitTestCase {
 	 */
 	public function test_can_create_user(): void {
 		$user_id = self::factory()->user->create(
-			array(
+			[
 				'user_login' => 'testuser',
 				'role'       => 'editor',
-			)
+			]
 		);
 
 		$this->assertIsInt( $user_id );

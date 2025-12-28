@@ -46,12 +46,12 @@ function wp_cmf_advanced_json_init() {
 	$manager = Manager::init();
 
 	// Load all JSON configurations
-	$config_files = array(
+	$config_files = [
 		__DIR__ . '/config/cpt-property.json',
 		__DIR__ . '/config/settings-agency.json',
 		__DIR__ . '/config/extend-posts.json',
 		__DIR__ . '/config/extend-settings.json',
-	);
+	];
 
 	foreach ( $config_files as $file ) {
 		if ( file_exists( $file ) ) {
@@ -164,12 +164,12 @@ add_filter(
 		$output = '<div class="property-details">';
 
 		// Status badge
-		$status_labels = array(
+		$status_labels = [
 			'active'  => 'Active',
 			'pending' => 'Pending',
 			'sold'    => 'Sold',
 			'rented'  => 'Rented',
-		);
+		];
 		if ( $status ) {
 			$output .= '<span class="status-badge status-' . esc_attr( $status ) . '">';
 			$output .= esc_html( $status_labels[ $status ] ?? $status );
@@ -200,13 +200,13 @@ add_filter(
 		$output .= '</div>';
 
 		// Property type
-		$type_labels = array(
+		$type_labels = [
 			'house'     => 'House',
 			'condo'     => 'Condo',
 			'townhouse' => 'Townhouse',
 			'apartment' => 'Apartment',
 			'land'      => 'Land',
-		);
+		];
 		if ( $type ) {
 			$output .= '<p><strong>Type:</strong> ' . esc_html( $type_labels[ $type ] ?? $type ) . '</p>';
 		}

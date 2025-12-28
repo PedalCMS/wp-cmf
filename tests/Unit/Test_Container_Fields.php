@@ -7,8 +7,8 @@
  * @package Pedalcms\WpCmf\Tests\Unit
  */
 
-use Pedalcms\WpCmf\Field\FieldFactory;
-use Pedalcms\WpCmf\Field\ContainerFieldInterface;
+use Pedalcms\WpCmf\Field\Field_Factory;
+use Pedalcms\WpCmf\Field\Container_Field_Interface;
 
 /**
  * Class Test_Container_Fields
@@ -18,38 +18,38 @@ use Pedalcms\WpCmf\Field\ContainerFieldInterface;
 class Test_Container_Fields extends WP_UnitTestCase {
 
 	/**
-	 * Reset FieldFactory between tests.
+	 * Reset Field_Factory between tests.
 	 */
 	public function set_up(): void {
 		parent::set_up();
-		FieldFactory::reset();
+		Field_Factory::reset();
 	}
 
 	/**
 	 * Test GroupField creation.
 	 */
 	public function test_group_field_creation(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'   => 'test_group',
 				'type'   => 'group',
 				'label'  => 'Test Group',
-				'fields' => array(
-					array(
+				'fields' => [
+					[
 						'name'  => 'sub_field_1',
 						'type'  => 'text',
 						'label' => 'Sub Field 1',
-					),
-					array(
+					],
+					[
 						'name'  => 'sub_field_2',
 						'type'  => 'textarea',
 						'label' => 'Sub Field 2',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
-		$this->assertInstanceOf( ContainerFieldInterface::class, $field );
+		$this->assertInstanceOf( Container_Field_Interface::class, $field );
 		$this->assertSame( 'group', $field->get_type() );
 		$this->assertTrue( $field->is_container() );
 	}
@@ -58,24 +58,24 @@ class Test_Container_Fields extends WP_UnitTestCase {
 	 * Test GroupField nested fields extraction.
 	 */
 	public function test_group_field_nested_fields(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'   => 'test_group',
 				'type'   => 'group',
 				'label'  => 'Test Group',
-				'fields' => array(
-					array(
+				'fields' => [
+					[
 						'name'  => 'sub_field_1',
 						'type'  => 'text',
 						'label' => 'Sub Field 1',
-					),
-					array(
+					],
+					[
 						'name'  => 'sub_field_2',
 						'type'  => 'textarea',
 						'label' => 'Sub Field 2',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		$nested = $field->get_nested_fields();
@@ -87,24 +87,24 @@ class Test_Container_Fields extends WP_UnitTestCase {
 	 * Test MetaboxField creation.
 	 */
 	public function test_metabox_field_creation(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'     => 'test_metabox',
 				'type'     => 'metabox',
 				'label'    => 'Test Metabox',
 				'context'  => 'side',
 				'priority' => 'high',
-				'fields'   => array(
-					array(
+				'fields'   => [
+					[
 						'name'  => 'meta_field_1',
 						'type'  => 'text',
 						'label' => 'Meta Field 1',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
-		$this->assertInstanceOf( ContainerFieldInterface::class, $field );
+		$this->assertInstanceOf( Container_Field_Interface::class, $field );
 		$this->assertSame( 'metabox', $field->get_type() );
 		$this->assertTrue( $field->is_container() );
 	}
@@ -113,15 +113,15 @@ class Test_Container_Fields extends WP_UnitTestCase {
 	 * Test MetaboxField context and priority.
 	 */
 	public function test_metabox_field_context_priority(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'     => 'test_metabox',
 				'type'     => 'metabox',
 				'label'    => 'Test Metabox',
 				'context'  => 'side',
 				'priority' => 'high',
-				'fields'   => array(),
-			)
+				'fields'   => [],
+			]
 		);
 
 		$this->assertSame( 'side', $field->get_context() );
@@ -132,40 +132,40 @@ class Test_Container_Fields extends WP_UnitTestCase {
 	 * Test TabsField creation.
 	 */
 	public function test_tabs_field_creation(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'        => 'test_tabs',
 				'type'        => 'tabs',
 				'label'       => 'Test Tabs',
 				'orientation' => 'horizontal',
-				'tabs'        => array(
-					array(
+				'tabs'        => [
+					[
 						'id'     => 'tab1',
 						'label'  => 'Tab 1',
-						'fields' => array(
-							array(
+						'fields' => [
+							[
 								'name'  => 'tab1_field',
 								'type'  => 'text',
 								'label' => 'Tab 1 Field',
-							),
-						),
-					),
-					array(
+							],
+						],
+					],
+					[
 						'id'     => 'tab2',
 						'label'  => 'Tab 2',
-						'fields' => array(
-							array(
+						'fields' => [
+							[
 								'name'  => 'tab2_field',
 								'type'  => 'email',
 								'label' => 'Tab 2 Field',
-							),
-						),
-					),
-				),
-			)
+							],
+						],
+					],
+				],
+			]
 		);
 
-		$this->assertInstanceOf( ContainerFieldInterface::class, $field );
+		$this->assertInstanceOf( Container_Field_Interface::class, $field );
 		$this->assertSame( 'tabs', $field->get_type() );
 		$this->assertTrue( $field->is_container() );
 	}
@@ -174,37 +174,37 @@ class Test_Container_Fields extends WP_UnitTestCase {
 	 * Test TabsField nested fields from multiple tabs.
 	 */
 	public function test_tabs_field_nested_fields(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name' => 'test_tabs',
 				'type' => 'tabs',
-				'tabs' => array(
-					array(
+				'tabs' => [
+					[
 						'id'     => 'tab1',
 						'label'  => 'Tab 1',
-						'fields' => array(
-							array(
+						'fields' => [
+							[
 								'name' => 'field1',
 								'type' => 'text',
-							),
-							array(
+							],
+							[
 								'name' => 'field2',
 								'type' => 'text',
-							),
-						),
-					),
-					array(
+							],
+						],
+					],
+					[
 						'id'     => 'tab2',
 						'label'  => 'Tab 2',
-						'fields' => array(
-							array(
+						'fields' => [
+							[
 								'name' => 'field3',
 								'type' => 'text',
-							),
-						),
-					),
-				),
-			)
+							],
+						],
+					],
+				],
+			]
 		);
 
 		$nested = $field->get_nested_fields();
@@ -216,19 +216,19 @@ class Test_Container_Fields extends WP_UnitTestCase {
 	 * Test GroupField renders wrapper.
 	 */
 	public function test_group_field_renders(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'   => 'test_group',
 				'type'   => 'group',
 				'label'  => 'Test Group',
-				'fields' => array(
-					array(
+				'fields' => [
+					[
 						'name'  => 'sub_field',
 						'type'  => 'text',
 						'label' => 'Sub Field',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		$html = $field->render( null );
@@ -240,19 +240,19 @@ class Test_Container_Fields extends WP_UnitTestCase {
 	 * Test MetaboxField renders wrapper.
 	 */
 	public function test_metabox_field_renders(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'   => 'test_metabox',
 				'type'   => 'metabox',
 				'label'  => 'Test Metabox',
-				'fields' => array(
-					array(
+				'fields' => [
+					[
 						'name'  => 'sub_field',
 						'type'  => 'text',
 						'label' => 'Sub Field',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		$html = $field->render( null );

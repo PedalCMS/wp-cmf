@@ -18,14 +18,14 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"autoload": {
-		"psr-4": {
-			"Pedalcms\\WpCmf\\": "src/"
-		}
+		"classmap": [
+			"src/"
+		]
 	},
 	"autoload-dev": {
-		"psr-4": {
-			"Pedalcms\\WpCmf\\": "tests/"
-		}
+		"classmap": [
+			"tests/"
+		]
 	},
 	"authors": [
 		{
@@ -41,17 +41,21 @@
 	"scripts": {
 		"test": "phpunit",
 		"test-install": "bash bin/install-wp-tests.sh wordpress_test root root localhost latest",
-		"cs": "phpcs --standard=WordPress src/",
-		"cs:fix": "phpcbf --standard=WordPress src/",
-		"cs:examples": "phpcs --standard=WordPress examples/",
-		"cs:fix:examples": "phpcbf --standard=WordPress examples/",
+		"cs": "phpcs src/",
+		"cs:fix": "phpcbf src/",
+		"cs:examples": "phpcs examples/",
+		"cs:fix:examples": "phpcbf examples/",
+		"cs:tests": "phpcs tests/",
+		"cs:fix:tests": "phpcbf tests/",
 		"cs:all": [
 			"@cs",
-			"@cs:examples"
+			"@cs:examples",
+			"@cs:tests"
 		],
 		"cs:fix:all": [
 			"@cs:fix",
-			"@cs:fix:examples"
+			"@cs:fix:examples",
+			"@cs:fix:tests"
 		],
 		"analyse": "phpstan analyse src/ --level=5",
 		"ci": [

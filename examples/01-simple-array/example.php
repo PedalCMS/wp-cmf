@@ -32,57 +32,57 @@ use Pedalcms\WpCmf\Core\Manager;
  * =============================================================================
  */
 function wp_cmf_simple_array_init() {
-	$config = array(
+	$config = [
 		// =====================================================================
 		// CUSTOM POST TYPE: Book
 		// =====================================================================
-		'cpts'           => array(
-			array(
+		'cpts'           => [
+			[
 				'id'     => 'book',
-				'args'   => array(
+				'args'   => [
 					'label'        => 'Books',
 					'public'       => true,
 					'has_archive'  => true,
 					'show_in_rest' => true,
-					'supports'     => array( 'title', 'editor', 'thumbnail' ),
+					'supports'     => [ 'title', 'editor', 'thumbnail' ],
 					'menu_icon'    => 'dashicons-book',
-				),
-				'fields' => array(
+				],
+				'fields' => [
 					// Text field - for ISBN
-					array(
+					[
 						'name'        => 'isbn',
 						'type'        => 'text',
 						'label'       => 'ISBN',
 						'description' => 'International Standard Book Number',
 						'placeholder' => '978-3-16-148410-0',
-					),
+					],
 					// Text field - for Author
-					array(
+					[
 						'name'     => 'author_name',
 						'type'     => 'text',
 						'label'    => 'Author',
 						'required' => true,
-					),
+					],
 					// Number field - for Pages
-					array(
+					[
 						'name'  => 'page_count',
 						'type'  => 'number',
 						'label' => 'Number of Pages',
 						'min'   => 1,
 						'max'   => 10000,
-					),
+					],
 					// Date field - for Publication Date
-					array(
+					[
 						'name'  => 'publication_date',
 						'type'  => 'date',
 						'label' => 'Publication Date',
-					),
+					],
 					// Select field - for Genre
-					array(
+					[
 						'name'    => 'genre',
 						'type'    => 'select',
 						'label'   => 'Genre',
-						'options' => array(
+						'options' => [
 							''           => '-- Select Genre --',
 							'fiction'    => 'Fiction',
 							'nonfiction' => 'Non-Fiction',
@@ -90,97 +90,97 @@ function wp_cmf_simple_array_init() {
 							'romance'    => 'Romance',
 							'scifi'      => 'Science Fiction',
 							'fantasy'    => 'Fantasy',
-						),
-					),
+						],
+					],
 					// Checkbox - for Availability
-					array(
+					[
 						'name'        => 'in_stock',
 						'type'        => 'checkbox',
 						'label'       => 'In Stock',
 						'description' => 'Check if this book is currently in stock',
-					),
+					],
 					// Textarea - for Synopsis
-					array(
+					[
 						'name'        => 'synopsis',
 						'type'        => 'textarea',
 						'label'       => 'Synopsis',
 						'description' => 'Brief description of the book',
 						'rows'        => 4,
-					),
-				),
-			),
-		),
+					],
+				],
+			],
+		],
 
 		// =====================================================================
 		// SETTINGS PAGE: Library Settings
 		// =====================================================================
-		'settings_pages' => array(
-			array(
+		'settings_pages' => [
+			[
 				'id'         => 'library-settings',
 				'title'      => 'Library Settings',
 				'menu_title' => 'Library',
 				'capability' => 'manage_options',
 				'icon'       => 'dashicons-book-alt',
 				'position'   => 80,
-				'fields'     => array(
+				'fields'     => [
 					// Text - Library Name
-					array(
+					[
 						'name'        => 'library_name',
 						'type'        => 'text',
 						'label'       => 'Library Name',
 						'placeholder' => 'My Library',
-					),
+					],
 					// Email - Contact Email
-					array(
+					[
 						'name'  => 'contact_email',
 						'type'  => 'email',
 						'label' => 'Contact Email',
-					),
+					],
 					// URL - Website
-					array(
+					[
 						'name'  => 'website_url',
 						'type'  => 'url',
 						'label' => 'Website URL',
-					),
+					],
 					// Number - Max Borrowing Days
-					array(
+					[
 						'name'    => 'max_borrow_days',
 						'type'    => 'number',
 						'label'   => 'Max Borrowing Days',
 						'default' => 14,
 						'min'     => 1,
 						'max'     => 90,
-					),
+					],
 					// Checkbox - Enable Notifications
-					array(
+					[
 						'name'        => 'enable_notifications',
 						'type'        => 'checkbox',
 						'label'       => 'Enable Email Notifications',
 						'description' => 'Send email reminders for due books',
-					),
+					],
 					// Radio - Theme
-					array(
+					[
 						'name'    => 'display_theme',
 						'type'    => 'radio',
 						'label'   => 'Display Theme',
-						'options' => array(
+						'options' => [
 							'light' => 'Light',
 							'dark'  => 'Dark',
 							'auto'  => 'Auto (System)',
-						),
+						],
 						'default' => 'auto',
-					),
+					],
 					// Color - Accent Color
-					array(
+					[
 						'name'    => 'accent_color',
 						'type'    => 'color',
 						'label'   => 'Accent Color',
 						'default' => '#2271b1',
-					),
-				),
-			),
-		),
-	);
+					],
+				],
+			],
+		],
+	];
 
 	Manager::init()->register_from_array( $config );
 }

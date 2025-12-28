@@ -8,7 +8,7 @@
  */
 
 use Pedalcms\WpCmf\Core\Manager;
-use Pedalcms\WpCmf\Settings\SettingsPage;
+use Pedalcms\WpCmf\Settings\Settings_Page;
 
 /**
  * Class Test_Settings_Page
@@ -25,30 +25,30 @@ class Test_Settings_Page extends WP_UnitTestCase {
 
 		// Reset the Manager singleton.
 		$reflection = new ReflectionClass( Manager::class );
-		$instance = $reflection->getProperty( 'instance' );
+		$instance   = $reflection->getProperty( 'instance' );
 		$instance->setAccessible( true );
 		$instance->setValue( null, null );
 
 		// Set current user as admin for capability checks.
-		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$admin_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $admin_id );
 	}
 
 	/**
-	 * Test creating a SettingsPage instance.
+	 * Test creating a Settings_Page instance.
 	 */
 	public function test_settings_page_creation(): void {
-		$page = new SettingsPage( 'test_settings' );
+		$page = new Settings_Page( 'test_settings' );
 
-		$this->assertInstanceOf( SettingsPage::class, $page );
+		$this->assertInstanceOf( Settings_Page::class, $page );
 		$this->assertSame( 'test_settings', $page->get_config( 'menu_slug', 'test_settings' ) );
 	}
 
 	/**
-	 * Test SettingsPage with custom title.
+	 * Test Settings_Page with custom title.
 	 */
 	public function test_settings_page_with_title(): void {
-		$page = new SettingsPage( 'test_settings' );
+		$page = new Settings_Page( 'test_settings' );
 		$page->set_page_title( 'Test Settings' );
 		$page->set_menu_title( 'Test' );
 
@@ -62,7 +62,7 @@ class Test_Settings_Page extends WP_UnitTestCase {
 	public function test_register_settings_page_via_manager(): void {
 		$manager = Manager::init();
 
-		$page = new SettingsPage( 'test_settings' );
+		$page = new Settings_Page( 'test_settings' );
 		$page->set_page_title( 'Test Settings' );
 		$page->set_menu_title( 'Test' );
 		$page->set_capability( 'manage_options' );
@@ -84,16 +84,16 @@ class Test_Settings_Page extends WP_UnitTestCase {
 		$manager = Manager::init();
 
 		$manager->register_from_array(
-			array(
-				'settings_pages' => array(
-					array(
+			[
+				'settings_pages' => [
+					[
 						'id'         => 'test_settings',
 						'page_title' => 'Test Settings',
 						'menu_title' => 'Test',
 						'capability' => 'manage_options',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		$handler = $manager->get_new_settings_handler();
@@ -107,32 +107,32 @@ class Test_Settings_Page extends WP_UnitTestCase {
 		$manager = Manager::init();
 
 		$manager->register_from_array(
-			array(
-				'settings_pages' => array(
-					array(
+			[
+				'settings_pages' => [
+					[
 						'id'         => 'test_settings',
 						'page_title' => 'Test Settings',
 						'menu_title' => 'Test',
 						'capability' => 'manage_options',
-						'fields'     => array(
-							array(
+						'fields'     => [
+							[
 								'name'  => 'test_field',
 								'type'  => 'text',
 								'label' => 'Test Field',
-							),
-							array(
+							],
+							[
 								'name'  => 'test_email',
 								'type'  => 'email',
 								'label' => 'Test Email',
-							),
-						),
-					),
-				),
-			)
+							],
+						],
+					],
+				],
+			]
 		);
 
 		$handler = $manager->get_new_settings_handler();
-		$fields = $handler->get_fields( 'test_settings' );
+		$fields  = $handler->get_fields( 'test_settings' );
 
 		$this->assertCount( 2, $fields );
 	}
@@ -148,13 +148,13 @@ class Test_Settings_Page extends WP_UnitTestCase {
 		// Add a field to the General settings page.
 		$handler->add_fields(
 			'options-general.php',
-			array(
-				array(
+			[
+				[
 					'name'  => 'custom_site_tagline',
 					'type'  => 'text',
 					'label' => 'Custom Tagline',
-				),
-			)
+				],
+			]
 		);
 
 		$fields = $handler->get_fields( 'options-general.php' );
@@ -224,5 +224,132 @@ class Test_Settings_Page extends WP_UnitTestCase {
 		$handler = Manager::init()->get_existing_settings_handler();
 
 		$this->assertFalse( $handler->is_wordpress_page( 'my-custom-page' ) );
+	}
+
+	/**
+	 * Test Settings_Page from_array factory method.
+	 */
+	public function test_settings_page_from_array(): void {
+		$page = Settings_Page::from_array(
+			'my_settings',
+			[
+				'page_title' => 'My Settings',
+				'menu_title' => 'My Settings',
+				'capability' => 'manage_options',
+			]
+		);
+
+		$this->assertInstanceOf( Settings_Page::class, $page );
+		$this->assertSame( 'My Settings', $page->get_config( 'page_title' ) );
+	}
+
+	/**
+	 * Test Settings_Page set_parent for submenu.
+	 */
+	public function test_settings_page_submenu(): void {
+		$page = new Settings_Page( 'sub_settings' );
+		$page->set_page_title( 'Submenu Settings' );
+		$page->set_menu_title( 'Submenu' );
+		$page->set_parent( 'options-general.php' );
+
+		// set_parent stores in parent_slug config key
+		$this->assertSame( 'options-general.php', $page->get_config( 'parent_slug' ) );
+	}
+
+	/**
+	 * Test Settings_Page is not submenu by default.
+	 */
+	public function test_settings_page_not_submenu_by_default(): void {
+		$page = new Settings_Page( 'top_level' );
+
+		// No parent_slug means not a submenu
+		$this->assertNull( $page->get_config( 'parent_slug' ) );
+	}
+
+	/**
+	 * Test Settings_Page fluent interface.
+	 */
+	public function test_settings_page_fluent_interface(): void {
+		$page = ( new Settings_Page( 'fluent_test' ) )
+			->set_page_title( 'Fluent Test' )
+			->set_menu_title( 'Fluent' )
+			->set_capability( 'manage_options' );
+
+		$this->assertInstanceOf( Settings_Page::class, $page );
+		$this->assertSame( 'Fluent Test', $page->get_config( 'page_title' ) );
+		$this->assertSame( 'Fluent', $page->get_config( 'menu_title' ) );
+		$this->assertSame( 'manage_options', $page->get_config( 'capability' ) );
+	}
+
+	/**
+	 * Test Settings_Page get_page_id.
+	 */
+	public function test_settings_page_get_page_id(): void {
+		$page = new Settings_Page( 'unique_id' );
+
+		$this->assertSame( 'unique_id', $page->get_page_id() );
+	}
+
+	/**
+	 * Test Settings_Page configure method.
+	 */
+	public function test_settings_page_configure(): void {
+		$page = new Settings_Page( 'configured' );
+		$page->configure(
+			[
+				'page_title' => 'Configured Page',
+				'menu_title' => 'Configured',
+				'capability' => 'edit_posts',
+			]
+		);
+
+		$this->assertSame( 'Configured Page', $page->get_config( 'page_title' ) );
+		$this->assertSame( 'edit_posts', $page->get_config( 'capability' ) );
+	}
+
+	/**
+	 * Test Settings_Page get_all_config.
+	 */
+	public function test_settings_page_get_all_config(): void {
+		$page = new Settings_Page( 'test_all' );
+		$page->set_page_title( 'Test All' );
+
+		$config = $page->get_all_config();
+
+		$this->assertIsArray( $config );
+		$this->assertArrayHasKey( 'page_title', $config );
+		$this->assertSame( 'Test All', $config['page_title'] );
+	}
+
+	/**
+	 * Test multiple settings pages registration.
+	 */
+	public function test_multiple_settings_pages(): void {
+		$manager = Manager::init();
+
+		$manager->register_from_array(
+			[
+				'settings_pages' => [
+					[
+						'id'         => 'page_one',
+						'page_title' => 'Page One',
+					],
+					[
+						'id'         => 'page_two',
+						'page_title' => 'Page Two',
+					],
+					[
+						'id'         => 'page_three',
+						'page_title' => 'Page Three',
+					],
+				],
+			]
+		);
+
+		$handler = $manager->get_new_settings_handler();
+
+		$this->assertTrue( $handler->has_page( 'page_one' ) );
+		$this->assertTrue( $handler->has_page( 'page_two' ) );
+		$this->assertTrue( $handler->has_page( 'page_three' ) );
 	}
 }

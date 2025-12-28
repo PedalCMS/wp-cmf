@@ -7,7 +7,7 @@
  * @package Pedalcms\WpCmf\Tests\Unit
  */
 
-use Pedalcms\WpCmf\Field\FieldFactory;
+use Pedalcms\WpCmf\Field\Field_Factory;
 
 /**
  * Class Test_Field_Types
@@ -17,23 +17,23 @@ use Pedalcms\WpCmf\Field\FieldFactory;
 class Test_Field_Types extends WP_UnitTestCase {
 
 	/**
-	 * Reset FieldFactory between tests.
+	 * Reset Field_Factory between tests.
 	 */
 	public function set_up(): void {
 		parent::set_up();
-		FieldFactory::reset();
+		Field_Factory::reset();
 	}
 
 	/**
 	 * Test TextField renders correctly.
 	 */
 	public function test_text_field_render(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'  => 'test_text',
 				'type'  => 'text',
 				'label' => 'Test Text',
-			)
+			]
 		);
 
 		$html = $field->render( 'test value' );
@@ -47,13 +47,13 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test TextField with placeholder.
 	 */
 	public function test_text_field_with_placeholder(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'        => 'test_text',
 				'type'        => 'text',
 				'label'       => 'Test Text',
 				'placeholder' => 'Enter text here',
-			)
+			]
 		);
 
 		$html = $field->render( '' );
@@ -65,12 +65,12 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test TextField sanitization strips tags.
 	 */
 	public function test_text_field_sanitize(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'  => 'test_text',
 				'type'  => 'text',
 				'label' => 'Test Text',
-			)
+			]
 		);
 
 		// WordPress sanitize_text_field trims whitespace
@@ -85,13 +85,13 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test TextareaField renders correctly.
 	 */
 	public function test_textarea_field_render(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'  => 'test_textarea',
 				'type'  => 'textarea',
 				'label' => 'Test Textarea',
 				'rows'  => 5,
-			)
+			]
 		);
 
 		$html = $field->render( 'test content' );
@@ -105,16 +105,16 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test SelectField renders correctly.
 	 */
 	public function test_select_field_render(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'    => 'test_select',
 				'type'    => 'select',
 				'label'   => 'Test Select',
-				'options' => array(
+				'options' => [
 					'a' => 'Option A',
 					'b' => 'Option B',
-				),
-			)
+				],
+			]
 		);
 
 		$html = $field->render( 'b' );
@@ -128,16 +128,16 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test SelectField validates against options.
 	 */
 	public function test_select_field_validate(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'    => 'test_select',
 				'type'    => 'select',
 				'label'   => 'Test Select',
-				'options' => array(
+				'options' => [
 					'a' => 'Option A',
 					'b' => 'Option B',
-				),
-			)
+				],
+			]
 		);
 
 		$valid_result = $field->validate( 'a' );
@@ -151,12 +151,12 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test CheckboxField single checkbox.
 	 */
 	public function test_checkbox_field_single(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'  => 'test_checkbox',
 				'type'  => 'checkbox',
 				'label' => 'Test Checkbox',
-			)
+			]
 		);
 
 		$html = $field->render( '1' );
@@ -169,19 +169,19 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test CheckboxField multiple options.
 	 */
 	public function test_checkbox_field_multiple(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'    => 'test_checkbox',
 				'type'    => 'checkbox',
 				'label'   => 'Test Checkbox',
-				'options' => array(
+				'options' => [
 					'a' => 'Option A',
 					'b' => 'Option B',
-				),
-			)
+				],
+			]
 		);
 
-		$html = $field->render( array( 'a' ) );
+		$html = $field->render( [ 'a' ] );
 
 		$this->assertStringContainsString( 'value="a"', $html );
 		$this->assertStringContainsString( 'value="b"', $html );
@@ -191,16 +191,16 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test RadioField renders correctly.
 	 */
 	public function test_radio_field_render(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'    => 'test_radio',
 				'type'    => 'radio',
 				'label'   => 'Test Radio',
-				'options' => array(
+				'options' => [
 					'a' => 'Option A',
 					'b' => 'Option B',
-				),
-			)
+				],
+			]
 		);
 
 		$html = $field->render( 'a' );
@@ -213,14 +213,14 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test NumberField renders correctly.
 	 */
 	public function test_number_field_render(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'  => 'test_number',
 				'type'  => 'number',
 				'label' => 'Test Number',
 				'min'   => 0,
 				'max'   => 100,
-			)
+			]
 		);
 
 		$html = $field->render( 50 );
@@ -235,12 +235,12 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test NumberField sanitizes to numeric.
 	 */
 	public function test_number_field_sanitize(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'  => 'test_number',
 				'type'  => 'number',
 				'label' => 'Test Number',
-			)
+			]
 		);
 
 		$this->assertSame( 42, $field->sanitize( '42' ) );
@@ -251,12 +251,12 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test EmailField renders correctly.
 	 */
 	public function test_email_field_render(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'  => 'test_email',
 				'type'  => 'email',
 				'label' => 'Test Email',
-			)
+			]
 		);
 
 		$html = $field->render( 'test@example.com' );
@@ -269,12 +269,12 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test EmailField validates email format.
 	 */
 	public function test_email_field_validate(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'  => 'test_email',
 				'type'  => 'email',
 				'label' => 'Test Email',
-			)
+			]
 		);
 
 		$valid_result = $field->validate( 'valid@email.com' );
@@ -288,12 +288,12 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test URLField renders correctly.
 	 */
 	public function test_url_field_render(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'  => 'test_url',
 				'type'  => 'url',
 				'label' => 'Test URL',
-			)
+			]
 		);
 
 		$html = $field->render( 'https://example.com' );
@@ -306,12 +306,12 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test DateField renders correctly.
 	 */
 	public function test_date_field_render(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'  => 'test_date',
 				'type'  => 'date',
 				'label' => 'Test Date',
-			)
+			]
 		);
 
 		$html = $field->render( '2025-01-15' );
@@ -324,12 +324,12 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test DateField validates date format.
 	 */
 	public function test_date_field_validate(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'  => 'test_date',
 				'type'  => 'date',
 				'label' => 'Test Date',
-			)
+			]
 		);
 
 		$valid_result = $field->validate( '2025-01-15' );
@@ -343,12 +343,12 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test PasswordField renders without value.
 	 */
 	public function test_password_field_render(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'  => 'test_password',
 				'type'  => 'password',
 				'label' => 'Test Password',
-			)
+			]
 		);
 
 		$html = $field->render( 'secret' );
@@ -362,12 +362,12 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test ColorField renders correctly.
 	 */
 	public function test_color_field_render(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'  => 'test_color',
 				'type'  => 'color',
 				'label' => 'Test Color',
-			)
+			]
 		);
 
 		$html = $field->render( '#ff0000' );
@@ -380,12 +380,12 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test ColorField validates hex format.
 	 */
 	public function test_color_field_validate(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'  => 'test_color',
 				'type'  => 'color',
 				'label' => 'Test Color',
-			)
+			]
 		);
 
 		$valid_result = $field->validate( '#ff0000' );
@@ -399,12 +399,12 @@ class Test_Field_Types extends WP_UnitTestCase {
 	 * Test ColorField sanitizes to valid hex.
 	 */
 	public function test_color_field_sanitize(): void {
-		$field = FieldFactory::create(
-			array(
+		$field = Field_Factory::create(
+			[
 				'name'  => 'test_color',
 				'type'  => 'color',
 				'label' => 'Test Color',
-			)
+			]
 		);
 
 		// ColorField preserves case but ensures # prefix

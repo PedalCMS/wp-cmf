@@ -29,13 +29,13 @@ $_tests_dir = getenv( 'WP_TESTS_DIR' );
 
 if ( ! $_tests_dir ) {
 	// Try common locations.
-	$_possible_dirs = array(
+	$_possible_dirs = [
 		// Composer wp-phpunit package (preferred for Composer-based projects).
 		dirname( __DIR__ ) . '/vendor/wp-phpunit/wp-phpunit',
 		// Standard temp locations.
 		rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib',
 		'/tmp/wordpress-tests-lib',
-	);
+	];
 
 	foreach ( $_possible_dirs as $_dir ) {
 		if ( file_exists( $_dir . '/includes/functions.php' ) ) {
@@ -64,13 +64,13 @@ if ( ! defined( 'WP_CORE_DIR' ) ) {
 
 	if ( ! $_wp_core_dir ) {
 		// Try to find WordPress in common locations.
-		$_possible_wp_dirs = array(
+		$_possible_wp_dirs = [
 			// Parent of plugin directory (typical wp-content/plugins/plugin structure).
 			dirname( dirname( dirname( TESTS_PLUGIN_DIR ) ) ),
 			// Temp directory.
 			rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress',
 			'/tmp/wordpress',
-		);
+		];
 
 		foreach ( $_possible_wp_dirs as $_dir ) {
 			if ( file_exists( $_dir . '/wp-includes/version.php' ) ) {

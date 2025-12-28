@@ -8,7 +8,7 @@
  */
 
 use Pedalcms\WpCmf\Core\Manager;
-use Pedalcms\WpCmf\Field\FieldFactory;
+use Pedalcms\WpCmf\Field\Field_Factory;
 
 /**
  * Class Test_Integration
@@ -25,15 +25,15 @@ class Test_Integration extends WP_UnitTestCase {
 
 		// Reset the Manager singleton.
 		$reflection = new ReflectionClass( Manager::class );
-		$instance = $reflection->getProperty( 'instance' );
+		$instance   = $reflection->getProperty( 'instance' );
 		$instance->setAccessible( true );
 		$instance->setValue( null, null );
 
-		// Reset FieldFactory.
-		FieldFactory::reset();
+		// Reset Field_Factory.
+		Field_Factory::reset();
 
 		// Set current user as admin.
-		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$admin_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $admin_id );
 	}
 
@@ -55,50 +55,50 @@ class Test_Integration extends WP_UnitTestCase {
 		$manager = Manager::init();
 
 		$manager->register_from_array(
-			array(
-				'cpts' => array(
-					array(
+			[
+				'cpts' => [
+					[
 						'id'     => 'test_product',
-						'args'   => array(
+						'args'   => [
 							'label'        => 'Products',
 							'public'       => true,
 							'show_ui'      => true,
-							'supports'     => array( 'title', 'editor', 'thumbnail' ),
+							'supports'     => [ 'title', 'editor', 'thumbnail' ],
 							'show_in_rest' => true,
-						),
-						'fields' => array(
-							array(
+						],
+						'fields' => [
+							[
 								'name'   => 'product_details',
 								'type'   => 'metabox',
 								'label'  => 'Product Details',
-								'fields' => array(
-									array(
+								'fields' => [
+									[
 										'name'  => 'sku',
 										'type'  => 'text',
 										'label' => 'SKU',
-									),
-									array(
+									],
+									[
 										'name'  => 'price',
 										'type'  => 'number',
 										'label' => 'Price',
 										'min'   => 0,
 										'step'  => '0.01',
-									),
-									array(
+									],
+									[
 										'name'    => 'status',
 										'type'    => 'select',
 										'label'   => 'Status',
-										'options' => array(
+										'options' => [
 											'in_stock'     => 'In Stock',
 											'out_of_stock' => 'Out of Stock',
-										),
-									),
-								),
-							),
-						),
-					),
-				),
-			)
+										],
+									],
+								],
+							],
+						],
+					],
+				],
+			]
 		);
 
 		do_action( 'init' );
@@ -108,7 +108,7 @@ class Test_Integration extends WP_UnitTestCase {
 
 		// Verify fields are registered.
 		$handler = $manager->get_new_cpt_handler();
-		$fields = $handler->get_fields( 'test_product' );
+		$fields  = $handler->get_fields( 'test_product' );
 
 		$this->assertArrayHasKey( 'product_details', $fields );
 	}
@@ -120,38 +120,38 @@ class Test_Integration extends WP_UnitTestCase {
 		$manager = Manager::init();
 
 		$manager->register_from_array(
-			array(
-				'settings_pages' => array(
-					array(
+			[
+				'settings_pages' => [
+					[
 						'id'         => 'test_shop_settings',
 						'page_title' => 'Shop Settings',
 						'menu_title' => 'Shop',
 						'capability' => 'manage_options',
-						'fields'     => array(
-							array(
+						'fields'     => [
+							[
 								'name'  => 'store_name',
 								'type'  => 'text',
 								'label' => 'Store Name',
-							),
-							array(
+							],
+							[
 								'name'  => 'store_email',
 								'type'  => 'email',
 								'label' => 'Store Email',
-							),
-							array(
+							],
+							[
 								'name'    => 'currency',
 								'type'    => 'select',
 								'label'   => 'Currency',
-								'options' => array(
+								'options' => [
 									'USD' => 'US Dollar',
 									'EUR' => 'Euro',
 									'GBP' => 'British Pound',
-								),
-							),
-						),
-					),
-				),
-			)
+								],
+							],
+						],
+					],
+				],
+			]
 		);
 
 		// Verify settings page is registered.
@@ -173,25 +173,25 @@ class Test_Integration extends WP_UnitTestCase {
 		$manager = Manager::init();
 
 		$manager->register_from_array(
-			array(
-				'cpts'           => array(
-					array(
+			[
+				'cpts'           => [
+					[
 						'id'   => 'test_product',
-						'args' => array(
+						'args' => [
 							'label'  => 'Products',
 							'public' => true,
-						),
-					),
-				),
-				'settings_pages' => array(
-					array(
+						],
+					],
+				],
+				'settings_pages' => [
+					[
 						'id'         => 'test_settings',
 						'page_title' => 'Test Settings',
 						'menu_title' => 'Test',
 						'capability' => 'manage_options',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		do_action( 'init' );
@@ -213,41 +213,41 @@ class Test_Integration extends WP_UnitTestCase {
 		$manager = Manager::init();
 
 		$manager->register_from_array(
-			array(
-				'cpts' => array(
-					array(
+			[
+				'cpts' => [
+					[
 						'id'     => 'test_product',
-						'args'   => array(
+						'args'   => [
 							'label'  => 'Products',
 							'public' => true,
-						),
-						'fields' => array(
-							array(
-								'name'  => 'simple_meta',
-								'type'  => 'metabox',
-								'label' => 'Simple Metabox',
-								'fields' => array(
-									array(
+						],
+						'fields' => [
+							[
+								'name'   => 'simple_meta',
+								'type'   => 'metabox',
+								'label'  => 'Simple Metabox',
+								'fields' => [
+									[
 										'name'  => 'product_sku',
 										'type'  => 'text',
 										'label' => 'SKU',
-									),
-								),
-							),
-						),
-					),
-				),
-			)
+									],
+								],
+							],
+						],
+					],
+				],
+			]
 		);
 
 		do_action( 'init' );
 
 		// Create a product.
 		$post_id = self::factory()->post->create(
-			array(
+			[
 				'post_type'  => 'test_product',
 				'post_title' => 'Test Product',
-			)
+			]
 		);
 
 		// Save meta manually.
@@ -279,12 +279,12 @@ class Test_Integration extends WP_UnitTestCase {
 	 * Test field validation in workflow.
 	 */
 	public function test_field_validation_in_workflow(): void {
-		$email_field = FieldFactory::create(
-			array(
+		$email_field = Field_Factory::create(
+			[
 				'name'  => 'store_email',
 				'type'  => 'email',
 				'label' => 'Store Email',
-			)
+			]
 		);
 
 		// Valid email.
@@ -300,12 +300,12 @@ class Test_Integration extends WP_UnitTestCase {
 	 * Test field sanitization in workflow.
 	 */
 	public function test_field_sanitization_in_workflow(): void {
-		$text_field = FieldFactory::create(
-			array(
+		$text_field = Field_Factory::create(
+			[
 				'name'  => 'store_name',
 				'type'  => 'text',
 				'label' => 'Store Name',
-			)
+			]
 		);
 
 		// Test sanitization strips tags.

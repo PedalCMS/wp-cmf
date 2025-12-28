@@ -64,7 +64,7 @@ tests/
 └── Unit/                   # Unit tests
     ├── Test_Sample.php           # Sample/sanity tests
     ├── Test_Manager.php          # Manager class tests
-    ├── Test_Field_Factory.php    # FieldFactory tests
+    ├── Test_Field_Factory.php    # Field_Factory tests
     ├── Test_Field_Types.php      # Core field types tests
     ├── Test_Container_Fields.php # Container field tests
     ├── Test_Custom_Post_Type.php # CPT registration tests

@@ -23,7 +23,7 @@ class Test_Manager extends WP_UnitTestCase {
 		parent::set_up();
 		// Reset the Manager singleton for each test.
 		$reflection = new ReflectionClass( Manager::class );
-		$instance = $reflection->getProperty( 'instance' );
+		$instance   = $reflection->getProperty( 'instance' );
 		$instance->setAccessible( true );
 		$instance->setValue( null, null );
 	}
@@ -55,7 +55,7 @@ class Test_Manager extends WP_UnitTestCase {
 		$handler = $manager->get_new_settings_handler();
 
 		$this->assertInstanceOf(
-			\Pedalcms\WpCmf\Core\Handlers\NewSettingsPageHandler::class,
+			\Pedalcms\WpCmf\Core\Handlers\New_Settings_Page_Handler::class,
 			$handler
 		);
 	}
@@ -68,7 +68,7 @@ class Test_Manager extends WP_UnitTestCase {
 		$handler = $manager->get_existing_settings_handler();
 
 		$this->assertInstanceOf(
-			\Pedalcms\WpCmf\Core\Handlers\ExistingSettingsPageHandler::class,
+			\Pedalcms\WpCmf\Core\Handlers\Existing_Settings_Page_Handler::class,
 			$handler
 		);
 	}
@@ -81,7 +81,7 @@ class Test_Manager extends WP_UnitTestCase {
 		$handler = $manager->get_new_cpt_handler();
 
 		$this->assertInstanceOf(
-			\Pedalcms\WpCmf\Core\Handlers\NewPostTypeHandler::class,
+			\Pedalcms\WpCmf\Core\Handlers\New_Post_Type_Handler::class,
 			$handler
 		);
 	}
@@ -94,7 +94,7 @@ class Test_Manager extends WP_UnitTestCase {
 		$handler = $manager->get_existing_cpt_handler();
 
 		$this->assertInstanceOf(
-			\Pedalcms\WpCmf\Core\Handlers\ExistingPostTypeHandler::class,
+			\Pedalcms\WpCmf\Core\Handlers\Existing_Post_Type_Handler::class,
 			$handler
 		);
 	}

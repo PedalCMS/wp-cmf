@@ -784,50 +784,93 @@ print_r($types);
 
 ```php
 use Pedalcms\WpCmf\Core\Manager;
-use Pedalcms\WpCmf\Field\FieldFactory;
 
 $manager = Manager::init();
-$registrar = $manager->get_registrar();
 
-// Create fields
-$fields = FieldFactory::create_multiple([
-    'author_name' => [
-        'type'  => 'text',
-        'label' => 'Author Name',
-    ],
-    'isbn' => [
-        'type'  => 'text',
-        'label' => 'ISBN',
-    ],
-    'publish_date' => [
-        'type'  => 'date',
-        'label' => 'Publish Date',
+// Register CPT with fields using array configuration
+$manager->register_from_array([
+    'cpts' => [
+        [
+            'id'   => 'book',
+            'args' => [
+                'label'  => 'Books',
+                'public' => true,
+            ],
+            'fields' => [
+                [
+                    'name'  => 'author_name',
+                    'type'  => 'text',
+                    'label' => 'Author Name',
+                ],
+                [
+                    'name'  => 'isbn',
+                    'type'  => 'text',
+                    'label' => 'ISBN',
+                ],
+                [
+                    'name'  => 'publish_date',
+                    'type'  => 'date',
+                    'label' => 'Publish Date',
+                ],
+            ],
+        ],
     ],
 ]);
 
-// Add fields to CPT metabox
-$registrar->add_fields('book', $fields, 'normal', 'default');
+// Or add fields to an existing post type
+$handler = $manager->get_existing_cpt_handler();
+$handler->add_fields('post', [
+    [
+        'name'  => 'subtitle',
+        'type'  => 'text',
+        'label' => 'Subtitle',
+    ],
+]);
 ```
 
 ### Adding Fields to Settings Pages
 
 ```php
-$fields = FieldFactory::create_multiple([
-    'site_name' => [
-        'type'  => 'text',
-        'label' => 'Site Name',
-    ],
-    'contact_email' => [
-        'type'  => 'email',
-        'label' => 'Contact Email',
-    ],
-    'theme_color' => [
-        'type'  => 'color',
-        'label' => 'Theme Color',
+$manager = Manager::init();
+
+// Register settings page with fields
+$manager->register_from_array([
+    'settings_pages' => [
+        [
+            'id'         => 'my_settings',
+            'page_title' => 'My Settings',
+            'menu_title' => 'My Settings',
+            'capability' => 'manage_options',
+            'fields' => [
+                [
+                    'name'  => 'site_name',
+                    'type'  => 'text',
+                    'label' => 'Site Name',
+                ],
+                [
+                    'name'  => 'contact_email',
+                    'type'  => 'email',
+                    'label' => 'Contact Email',
+                ],
+                [
+                    'name'  => 'theme_color',
+                    'type'  => 'color',
+                    'label' => 'Theme Color',
+                ],
+            ],
+        ],
     ],
 ]);
 
-$registrar->add_fields('my-settings-page', $fields);
+// Or add fields to existing WordPress settings pages
+$handler = $manager->get_existing_settings_handler();
+$handler->add_fields('general', [
+    [
+        'name'  => 'custom_option',
+        'type'  => 'text',
+        'label' => 'Custom Option',
+    ],
+]);
 ```
 
 ---
