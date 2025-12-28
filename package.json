@@ -1,0 +1,15 @@
+{
+	"name": "wp-cmf",
+	"version": "1.0.0",
+	"description": "WP Content Modeling Framework",
+	"private": true,
+	"scripts": {
+		"scss": "npx sass src/assets/scss/wp-cmf.scss:src/assets/css/wp-cmf.css --style=expanded",
+		"scss:min": "npx sass src/assets/scss/wp-cmf.scss:src/assets/css/wp-cmf.css --style=compressed",
+		"watch": "npx sass --watch src/assets/scss/wp-cmf.scss:src/assets/css/wp-cmf.css",
+		"build": "npm run scss:min"
+	},
+	"devDependencies": {
+		"sass": "^1.97.1"
+	}
+}

@@ -1,0 +1,235 @@
+{
+  "cpts": [
+    {
+      "id": "post",
+      "fields": [
+        {
+          "name": "article_settings",
+          "type": "metabox",
+          "label": "Article Settings",
+          "context": "side",
+          "priority": "high",
+          "fields": [
+            {
+              "name": "is_featured",
+              "type": "checkbox",
+              "label": "Featured Article",
+              "description": "Display in featured section"
+            },
+            {
+              "name": "reading_time",
+              "type": "number",
+              "label": "Reading Time (min)",
+              "min": 1,
+              "max": 60
+            },
+            {
+              "name": "article_type",
+              "type": "select",
+              "label": "Article Type",
+              "options": {
+                "": "-- Select --",
+                "news": "News",
+                "tutorial": "Tutorial",
+                "opinion": "Opinion",
+                "review": "Review",
+                "interview": "Interview"
+              }
+            }
+          ]
+        },
+        {
+          "name": "seo_settings",
+          "type": "metabox",
+          "label": "SEO Settings",
+          "context": "normal",
+          "priority": "low",
+          "fields": [
+            {
+              "name": "meta_title",
+              "type": "text",
+              "label": "Meta Title",
+              "description": "Leave empty to use post title",
+              "maxlength": 60
+            },
+            {
+              "name": "meta_description",
+              "type": "textarea",
+              "label": "Meta Description",
+              "rows": 2,
+              "maxlength": 160
+            },
+            {
+              "name": "focus_keyword",
+              "type": "text",
+              "label": "Focus Keyword"
+            },
+            {
+              "name": "noindex",
+              "type": "checkbox",
+              "label": "No Index",
+              "description": "Prevent search engines from indexing this post"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "page",
+      "fields": [
+        {
+          "name": "page_options",
+          "type": "metabox",
+          "label": "Page Options",
+          "context": "normal",
+          "priority": "high",
+          "fields": [
+            {
+              "name": "page_settings",
+              "type": "tabs",
+              "orientation": "horizontal",
+              "tabs": [
+                {
+                  "id": "layout_tab",
+                  "label": "Layout",
+                  "fields": [
+                    {
+                      "name": "page_layout",
+                      "type": "radio",
+                      "label": "Page Layout",
+                      "options": {
+                        "default": "Default",
+                        "full-width": "Full Width",
+                        "boxed": "Boxed",
+                        "landing": "Landing Page"
+                      },
+                      "default": "default"
+                    },
+                    {
+                      "name": "sidebar_position",
+                      "type": "select",
+                      "label": "Sidebar Position",
+                      "options": {
+                        "none": "No Sidebar",
+                        "left": "Left Sidebar",
+                        "right": "Right Sidebar"
+                      },
+                      "default": "none"
+                    },
+                    {
+                      "name": "content_width",
+                      "type": "number",
+                      "label": "Content Width (px)",
+                      "min": 600,
+                      "max": 1920,
+                      "step": 10
+                    }
+                  ]
+                },
+                {
+                  "id": "header_tab",
+                  "label": "Header",
+                  "fields": [
+                    {
+                      "name": "hide_title",
+                      "type": "checkbox",
+                      "label": "Hide Page Title"
+                    },
+                    {
+                      "name": "header_style",
+                      "type": "select",
+                      "label": "Header Style",
+                      "options": {
+                        "default": "Default",
+                        "transparent": "Transparent",
+                        "dark": "Dark",
+                        "minimal": "Minimal"
+                      }
+                    },
+                    {
+                      "name": "header_bg_color",
+                      "type": "color",
+                      "label": "Header Background Color"
+                    }
+                  ]
+                },
+                {
+                  "id": "footer_tab",
+                  "label": "Footer",
+                  "fields": [
+                    {
+                      "name": "hide_footer",
+                      "type": "checkbox",
+                      "label": "Hide Footer"
+                    },
+                    {
+                      "name": "footer_style",
+                      "type": "select",
+                      "label": "Footer Style",
+                      "options": {
+                        "default": "Default",
+                        "minimal": "Minimal",
+                        "dark": "Dark",
+                        "none": "None"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "cta_section",
+          "type": "metabox",
+          "label": "Call to Action",
+          "context": "normal",
+          "priority": "default",
+          "fields": [
+            {
+              "name": "cta_group",
+              "type": "group",
+              "label": "CTA Banner",
+              "description": "Add a call-to-action banner to this page",
+              "fields": [
+                {
+                  "name": "cta_enabled",
+                  "type": "checkbox",
+                  "label": "Enable CTA Banner"
+                },
+                {
+                  "name": "cta_title",
+                  "type": "text",
+                  "label": "CTA Title"
+                },
+                {
+                  "name": "cta_text",
+                  "type": "textarea",
+                  "label": "CTA Text",
+                  "rows": 2
+                },
+                {
+                  "name": "cta_button_text",
+                  "type": "text",
+                  "label": "Button Text",
+                  "default": "Learn More"
+                },
+                {
+                  "name": "cta_button_url",
+                  "type": "url",
+                  "label": "Button URL"
+                },
+                {
+                  "name": "cta_bg_color",
+                  "type": "color",
+                  "label": "Background Color",
+                  "default": "#0073aa"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

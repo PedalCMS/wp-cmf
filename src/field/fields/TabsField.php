@@ -40,11 +40,12 @@ class TabsField extends AbstractField implements ContainerFieldInterface {
 		$defaults = parent::get_defaults();
 		return array_merge(
 			$defaults,
-			[
+			array(
+				'label'       => '', // Hide label by default for tabs field
 				'orientation' => 'horizontal',
-				'tabs'        => [],
+				'tabs'        => array(),
 				'default_tab' => '',
-			]
+			)
 		);
 	}
 
@@ -66,8 +67,8 @@ class TabsField extends AbstractField implements ContainerFieldInterface {
 	 * @return array<array<string, mixed>>
 	 */
 	public function get_nested_fields(): array {
-		$nested_fields = [];
-		$tabs          = $this->config['tabs'] ?? [];
+		$nested_fields = array();
+		$tabs          = $this->config['tabs'] ?? array();
 
 		foreach ( $tabs as $tab ) {
 			if ( isset( $tab['fields'] ) && is_array( $tab['fields'] ) ) {
@@ -90,7 +91,7 @@ class TabsField extends AbstractField implements ContainerFieldInterface {
 		global $post;
 
 		$orientation = $this->config['orientation'] ?? 'horizontal';
-		$tabs        = $this->config['tabs'] ?? [];
+		$tabs        = $this->config['tabs'] ?? array();
 		$default_tab = $this->config['default_tab'] ?? ( ! empty( $tabs ) ? $tabs[0]['id'] : '' );
 		$field_id    = $this->get_field_id();
 
@@ -110,6 +111,7 @@ class TabsField extends AbstractField implements ContainerFieldInterface {
 		} else {
 			$context = null;
 		}
+
 
 		$output  = $this->render_wrapper_start();
 		$output .= $this->render_label();
@@ -168,7 +170,7 @@ class TabsField extends AbstractField implements ContainerFieldInterface {
 				$output .= '<p class="description">' . $this->esc_html( $tab['description'] ) . '</p>';
 			}
 
-			$output .= $this->render_tab_fields( $tab['fields'] ?? [], $context );
+			$output .= $this->render_tab_fields( $tab['fields'] ?? array(), $context );
 
 			$output .= '</div>';
 		}
@@ -222,7 +224,7 @@ class TabsField extends AbstractField implements ContainerFieldInterface {
 				$output .= '<p class="description">' . $this->esc_html( $tab['description'] ) . '</p>';
 			}
 
-			$output .= $this->render_tab_fields( $tab['fields'] ?? [], $context );
+			$output .= $this->render_tab_fields( $tab['fields'] ?? array(), $context );
 
 			$output .= '</div>';
 		}
@@ -264,6 +266,9 @@ class TabsField extends AbstractField implements ContainerFieldInterface {
 
 					// Render the field
 					$field_html = $field->render( $field_value );
+
+					// Remove label tags since we're rendering labels in the table <th> tag
+					$field_html = preg_replace( '/<label[^>]*>.*?<\/label>/s', '', $field_html );
 
 					// For settings pages (when context is a string page_id), fix the name attribute
 					if ( is_string( $context ) && ! empty( $context ) ) {
@@ -346,7 +351,7 @@ class TabsField extends AbstractField implements ContainerFieldInterface {
 	 * @return array Empty array.
 	 */
 	public function sanitize( $value ) {
-		return [];
+		return array();
 	}
 
 	/**
@@ -359,10 +364,10 @@ class TabsField extends AbstractField implements ContainerFieldInterface {
 	 * @return array Validation result.
 	 */
 	public function validate( $input ): array {
-		return [
+		return array(
 			'valid'  => true,
-			'errors' => [],
-		];
+			'errors' => array(),
+		);
 	}
 
 	/**
@@ -382,7 +387,7 @@ class TabsField extends AbstractField implements ContainerFieldInterface {
 		// Add inline script directly to page footer
 		add_action(
 			'admin_footer',
-			function() {
+			function () {
 				?>
 				<script type="text/javascript">
 				jQuery(document).ready(function($) {
@@ -543,27 +548,27 @@ class TabsField extends AbstractField implements ContainerFieldInterface {
 	 * @return array<string, mixed>
 	 */
 	public function get_schema(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'orientation' => [
+			'properties' => array(
+				'orientation' => array(
 					'type' => 'string',
-					'enum' => [ 'horizontal', 'vertical' ],
-				],
-				'tabs'        => [
+					'enum' => array( 'horizontal', 'vertical' ),
+				),
+				'tabs'        => array(
 					'type'  => 'array',
-					'items' => [
+					'items' => array(
 						'type'       => 'object',
-						'properties' => [
-							'id'          => [ 'type' => 'string' ],
-							'label'       => [ 'type' => 'string' ],
-							'icon'        => [ 'type' => 'string' ],
-							'description' => [ 'type' => 'string' ],
-							'fields'      => [ 'type' => 'array' ],
-						],
-					],
-				],
-			],
-		];
+						'properties' => array(
+							'id'          => array( 'type' => 'string' ),
+							'label'       => array( 'type' => 'string' ),
+							'icon'        => array( 'type' => 'string' ),
+							'description' => array( 'type' => 'string' ),
+							'fields'      => array( 'type' => 'array' ),
+						),
+					),
+				),
+			),
+		);
 	}
 }

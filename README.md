@@ -6,18 +6,17 @@ A powerful, flexible Composer library for building WordPress plugins with custom
 
 - **Custom Post Types**: Easy registration with fluent interface and array configuration
 - **Settings Pages**: Top-level and submenu pages with automatic rendering
-- **Dynamic Fields**: 11 core field types with extensibility via custom field types
-- **Array Configuration**: Register CPTs, settings, and fields from a single array ✨ NEW
-- **Asset System**: Automatic CSS/JS loading for field styling and validation ✨ NEW
-- **Configuration-Driven**: Create fields from PHP arrays or JSON files
-- **JSON Configuration**: Load configurations from JSON files with schema validation ✨ NEW
-- **Advanced Validation**: Enhanced schema with boundary checks and type-specific rules ✨ NEW
+- **16 Field Types**: Complete set including containers (tabs, metabox, group, repeater)
+- **Container Fields**: Organize fields with tabs, metaboxes, groups, and repeaters
+- **Array Configuration**: Register CPTs, settings, and fields from a single array
+- **JSON Configuration**: Load configurations from JSON files with schema validation
+- **Before-Save Filters**: Modify or validate field values before saving
 - **Validation & Sanitization**: Built-in security with customizable rules
 - **Asset Management**: Context-aware CSS/JS enqueuing for fields
 - **Type-Safe**: PSR-4 autoloading with full interface contracts
-- **Well-Tested**: 229 PHPUnit tests with 691 assertions ✨ UPDATED
+- **Well-Tested**: 298 PHPUnit tests with 877 assertions
 - **Security**: Nonces, capability checks, output escaping, and input sanitization
-- **i18n Ready**: Full internationalization support with translation infrastructure ✨ NEW
+- **i18n Ready**: Full internationalization support with translation infrastructure
 
 ## Installation
 
@@ -198,58 +197,177 @@ function extend_general_settings() {
 add_action( 'init', 'extend_general_settings' );
 ```
 
+## Field Value Filters (Before Save Hooks)
+
+WP-CMF provides a powerful filter system that allows you to modify, validate, or reject field values just before they are saved to the database. This works for both CPT metaboxes and settings pages.
+
+### Available Filters
+
+#### 1. Global Filter: `wp_cmf_before_save_field`
+
+Runs for **all fields** just before saving. Receives three parameters:
+
+```php
+add_filter( 'wp_cmf_before_save_field', function( $value, $field_name, $page_id ) {
+    // $value     - The sanitized field value
+    // $field_name - The field name/key
+    // $page_id   - The context (CPT slug or settings page ID)
+    
+    return $value; // Return modified value, or null to skip saving
+}, 10, 3 );
+```
+
+#### 2. Field-Specific Filter: `wp_cmf_before_save_field_{field_name}`
+
+Runs only for a specific field. Receives just the value:
+
+```php
+add_filter( 'wp_cmf_before_save_field_my_field', function( $value ) {
+    // Modify value for 'my_field' only
+    return $value;
+} );
+```
+
+### Filter Examples
+
+**Auto-calculate reading time:**
+```php
+add_filter( 'wp_cmf_before_save_field', function( $value, $field_name, $page_id ) {
+    if ( 'reading_time' === $field_name && 'post' === $page_id && empty( $value ) ) {
+        if ( isset( $_POST['content'] ) ) {
+            $content = wp_unslash( $_POST['content'] );
+            $word_count = str_word_count( wp_strip_all_tags( $content ) );
+            return max( 1, ceil( $word_count / 200 ) );
+        }
+    }
+    return $value;
+}, 10, 3 );
+```
+
+**Sanitize and format a subtitle:**
+```php
+add_filter( 'wp_cmf_before_save_field_post_subtitle', function( $value ) {
+    return ucwords( strtolower( sanitize_text_field( $value ) ) );
+} );
+```
+
+**Prevent saving based on user role:**
+```php
+add_filter( 'wp_cmf_before_save_field_featured_content', function( $value ) {
+    if ( ! current_user_can( 'edit_others_posts' ) ) {
+        return null; // Skip saving - only editors can feature content
+    }
+    return $value;
+} );
+```
+
+**Block URLs from specific domains:**
+```php
+add_filter( 'wp_cmf_before_save_field_external_source', function( $value ) {
+    $blocked = [ 'spam-site.com', 'malware.net' ];
+    $host = wp_parse_url( $value, PHP_URL_HOST );
+    
+    foreach ( $blocked as $domain ) {
+        if ( stripos( $host, $domain ) !== false ) {
+            return null; // Don't save blocked URLs
+        }
+    }
+    return $value;
+} );
+```
+
+**Log field changes for auditing:**
+```php
+add_filter( 'wp_cmf_before_save_field', function( $value, $field_name, $page_id ) {
+    $post_id = isset( $_POST['post_ID'] ) ? absint( $_POST['post_ID'] ) : 0;
+    if ( $post_id ) {
+        $old_value = get_post_meta( $post_id, $field_name, true );
+        if ( $old_value !== $value ) {
+            error_log( sprintf( '[Audit] %s changed on post %d', $field_name, $post_id ) );
+        }
+    }
+    return $value;
+}, 20, 3 );
+```
+
+> **Note:** Return `null` from any filter to prevent the field from being saved. The existing value will be preserved.
+
+See [examples 7-10](examples/) for complete filter implementations.
+
 ## Core Field Types
 
-WP-CMF includes 11 ready-to-use field types:
+WP-CMF includes 16 ready-to-use field types:
+
+### Basic Fields
 
 | Type       | Description                    | Features                          |
 |------------|--------------------------------|-----------------------------------|
 | `text`     | Single-line text input         | Placeholder, maxlength, pattern   |
 | `textarea` | Multi-line text input          | Rows, cols, maxlength             |
-| `select`   | Dropdown select                | Single/multiple, options          |
-| `checkbox` | Single or multiple checkboxes  | Inline/stacked layout             |
-| `radio`    | Radio button group             | Inline/stacked layout             |
 | `number`   | Numeric input                  | Min, max, step, validation        |
 | `email`    | Email input                    | Automatic validation              |
 | `url`      | URL input                      | Automatic validation              |
-| `date`     | Date picker                    | Min/max date, format validation   |
 | `password` | Password input                 | Masked, security-focused          |
+| `date`     | Date picker                    | Min/max date, format validation   |
 | `color`    | Color picker                   | WordPress color picker integration|
+
+### Choice Fields
+
+| Type       | Description                    | Features                          |
+|------------|--------------------------------|-----------------------------------|
+| `select`   | Dropdown select                | Single/multiple, options          |
+| `checkbox` | Single or multiple checkboxes  | Inline/stacked layout             |
+| `radio`    | Radio button group             | Inline/stacked layout             |
+
+### Rich Content
+
+| Type       | Description                    | Features                          |
+|------------|--------------------------------|-----------------------------------|
+| `wysiwyg`  | WordPress visual editor        | Full TinyMCE with media buttons   |
+
+### Container Fields
+
+| Type       | Description                    | Features                          |
+|------------|--------------------------------|-----------------------------------|
+| `tabs`     | Tabbed container               | Horizontal/vertical, icons        |
+| `metabox`  | Metabox container              | Context, priority, nested fields  |
+| `group`    | Grouped fields section         | Label, description, visual group  |
+| `repeater` | Repeatable field set           | Min/max rows, dynamic add/remove  |
 
 ## Documentation
 
 - **[Field API](docs/field-api.md)** - Complete field system documentation
 - **[Usage Guide](docs/usage.md)** - Comprehensive usage examples
-- **[Examples](examples/)** - 13 working examples covering all features
+- **[Examples](examples/)** - 4 focused examples covering all features
 
 ## Examples
 
-WP-CMF includes 13 complete, working examples demonstrating all major features:
+WP-CMF includes 4 comprehensive examples organized by complexity and configuration style:
 
-### Basic Examples
-1. **[Basic CPT (Array)](examples/01-basic-cpt-array/)** - Simple custom post type with array configuration
-2. **[Basic CPT (JSON)](examples/02-basic-cpt-json/)** - Simple custom post type with JSON configuration
-3. **[Settings Page (Array)](examples/03-settings-page-array/)** - Basic settings page with array config
-4. **[Settings Page (JSON)](examples/04-settings-page-json/)** - Basic settings page with JSON config
+### Simple Examples
+Basic usage demonstrating core features with minimal configuration:
 
-### Complete Integration Examples
-5. **[Complete Array Example](examples/05-complete-array-example/)** - Multiple CPTs and settings pages with all field types (array)
-6. **[Complete JSON Example](examples/06-complete-json-example/)** - Multiple CPTs and settings pages with all field types (JSON)
+1. **[Simple Array](examples/01-simple-array/)** - Book CPT + Library Settings using PHP arrays
+2. **[Simple JSON](examples/02-simple-json/)** - Event CPT + Events Settings using JSON configuration
 
-### Advanced Features
-7. **[Existing Post Type (Array)](examples/07-existing-post-type-array/)** - Add fields to WordPress core post types (array)
-8. **[Existing Post Type (JSON)](examples/08-existing-post-type-json/)** - Add fields to WordPress core post types (JSON)
-9. **[Existing Settings Page (Array)](examples/09-existing-settings-page-array/)** - Add fields to WordPress General Settings (array)
-10. **[Existing Settings Page (JSON)](examples/10-existing-settings-page-json/)** - Add fields to WordPress General Settings (JSON)
+### Advanced Examples ⭐
+Comprehensive examples demonstrating **all 16 field types** and advanced features:
 
-### Advanced Integration Examples
-11. **[CPT with Submenu Settings (Array)](examples/11-cpt-with-submenu-settings/)** ⭐ - Product CPT with settings submenu (13 fields + 19 settings, array config)
-12. **[CPT with Submenu Settings (JSON)](examples/12-cpt-with-submenu-settings-json/)** ⭐ - Product CPT with settings submenu (13 fields + 19 settings, JSON config)
+3. **[Advanced Array](examples/03-advanced-array/)** - Complete demonstration with PHP arrays:
+   - Product CPT with multiple metaboxes
+   - Store Settings page with vertical tabs
+   - Adding fields to existing post types (`post`, `page`)
+   - Adding fields to existing settings (General)
+   - Container nesting, repeaters, groups
+   - Before-save filters
 
-### Custom Field Types
-13. **[Custom Field Type](examples/13-custom-field-type/)** ⭐ - Create custom SliderField and use in settings
+4. **[Advanced JSON](examples/04-advanced-json/)** - Complete demonstration with JSON files:
+   - Property CPT with tabs, groups, repeaters
+   - Agency Settings page with all field types
+   - Extensions for posts, pages, and settings
+   - Multi-file JSON organization
 
-**⭐ = Recommended starting points for complex projects**
+**⭐ Advanced examples are recommended starting points for complex projects**
 
 ## Requirements
 
@@ -264,11 +382,13 @@ WP-CMF includes 13 complete, working examples demonstrating all major features:
 **Core Framework**
 - ✅ Custom Post Types with full WordPress integration
 - ✅ Settings Pages (top-level and submenu)
-- ✅ 11 production-ready field types
+- ✅ 16 production-ready field types (including containers)
+- ✅ Container fields: tabs, metabox, group, repeater
 - ✅ Custom field type extensibility via `AbstractField`
 - ✅ FieldFactory for dynamic field creation
 - ✅ Array-based configuration system
 - ✅ JSON configuration with schema validation
+- ✅ Before-save filters for field value modification
 - ✅ Context-aware asset enqueuing (CSS/JS)
 
 **Security & Standards**
@@ -284,9 +404,9 @@ WP-CMF includes 13 complete, working examples demonstrating all major features:
 - ✅ WordPress and non-WordPress fallbacks
 
 **Quality Assurance**
-- ✅ 229 PHPUnit tests (691 assertions)
+- ✅ 298 PHPUnit tests (877 assertions)
 - ✅ Edge case and integration testing
-- ✅ 13 complete working examples
+- ✅ 4 comprehensive working examples
 
 ### 🎯 Roadmap
 - 📋 Milestone 6: Documentation expansion
@@ -294,7 +414,7 @@ WP-CMF includes 13 complete, working examples demonstrating all major features:
 
 ## Testing
 
-**Current Status: 229/229 tests passing (691 assertions)** ✅
+**Current Status: 321/321 tests passing (974 assertions)** ✅
 
 Run the test suite:
 

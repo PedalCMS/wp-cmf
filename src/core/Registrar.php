@@ -53,6 +53,13 @@ class Registrar {
 	private array $nested_field_names = array();
 
 	/**
+	 * Invalid container fields found on settings pages (for admin notice)
+	 *
+	 * @var array<string, array<string>>
+	 */
+	private array $invalid_settings_containers = array();
+
+	/**
 	 * Whether hooks have been initialized
 	 *
 	 * @var bool
@@ -228,8 +235,8 @@ class Registrar {
 			}
 
 			try {
-				$nested_field = FieldFactory::create( $nested_config );
-				$nested_name  = $nested_field->get_name();
+				$nested_field                             = FieldFactory::create( $nested_config );
+				$nested_name                              = $nested_field->get_name();
 				$this->fields[ $context ][ $nested_name ] = $nested_field;
 
 				// Track this as a nested field so we don't render it separately
@@ -272,6 +279,13 @@ class Registrar {
 	public function register_admin_pages(): void {
 		foreach ( $this->settings_pages as $page ) {
 			$page->register();
+
+			// Hook into the page load to register metaboxes and handle saves
+			$hook_suffix = $page->get_hook_suffix();
+			if ( $hook_suffix ) {
+				add_action( 'load-' . $hook_suffix, array( $this, 'register_meta_boxes' ) );
+				add_action( 'load-' . $hook_suffix, array( $this, 'save_settings_page_fields' ) );
+			}
 		}
 	}
 
@@ -298,14 +312,9 @@ class Registrar {
 				continue;
 			}
 
-			// Add a default section for the fields
-			$section_id = $page_id . '_section';
-			add_settings_section(
-				$section_id,
-				__( 'Settings', 'wp-cmf' ),
-				'__return_empty_string',
-				$page->get_menu_slug()
-			);
+			// Add a default section for non-grouped fields
+			$default_section_id    = $page_id . '_section';
+			$default_section_added = false;
 
 			// Register each field
 			foreach ( $this->fields[ $page_id ] as $field ) {
@@ -313,31 +322,136 @@ class Registrar {
 					continue;
 				}
 
-				$field_name  = $field->get_name();
-				$option_name = $field->get_option_name( $page_id );
-				$is_nested   = isset( $this->nested_field_names[ $page_id ] ) && in_array( $field_name, $this->nested_field_names[ $page_id ], true );
+				$field_name   = $field->get_name();
+				$field_type   = $field->get_type();
+				$option_name  = $field->get_option_name( $page_id );
+				$is_nested    = isset( $this->nested_field_names[ $page_id ] ) && in_array( $field_name, $this->nested_field_names[ $page_id ], true );
+				$is_container = $field instanceof \Pedalcms\WpCmf\Field\ContainerFieldInterface;
+				$is_group     = $field_type === 'group';
+				$is_metabox   = $field_type === 'metabox';
 
-				// Always register settings with WordPress (even nested fields need to be registered to save)
-				register_setting(
-					$page->get_menu_slug(),
-					$option_name,
-					array(
-						'sanitize_callback' => array( $field, 'sanitize' ),
-					)
-				);
+				// Check for invalid container fields at root level (not nested)
+				// Only Group and Metabox are allowed at root. Tabs/Repeater must be inside a Metabox
+				if ( ! $is_nested && $is_container && ! $is_group && ! $is_metabox ) {
+					// Store for admin notice
+					if ( ! isset( $this->invalid_settings_containers[ $page_id ] ) ) {
+						$this->invalid_settings_containers[ $page_id ] = array();
+					}
+					$this->invalid_settings_containers[ $page_id ][] = sprintf(
+						'%s (%s)',
+						$field->get_label() ?: $field_name,
+						$field_type
+					);
+					// Skip rendering this field
+					continue;
+				}
+
+				// Don't register settings for container fields (they don't store data)
+				if ( ! $is_container ) {
+					register_setting(
+						$page->get_menu_slug(),
+						$option_name,
+						array(
+							'sanitize_callback' => array( $field, 'sanitize' ),
+						)
+					);
+
+					add_filter(
+						'pre_update_option_' . $option_name,
+						function ( $new_value, $old_value = '', $option_name = '' ) use ( $page_id, $field_name ) {
+							// Apply global filter
+							$new_value = apply_filters( 'wp_cmf_before_save_field', $new_value, $field_name, $page_id );
+
+							// Apply field-specific filter
+							$new_value = apply_filters( 'wp_cmf_before_save_field_' . $field_name, $new_value );
+
+							return $new_value;
+						},
+						10,
+						3
+					);
+				}
 
 				// Skip rendering nested fields as separate fields - they're rendered inside their container
 				if ( $is_nested ) {
 					continue;
 				}
 
-				// Add settings field (only for non-nested fields)
+				// Handle Group fields as WordPress Settings API sections
+				if ( $is_group ) {
+					$group_section_id = $page_id . '_' . $field_name;
+
+					// Add section for this group
+					add_settings_section(
+						$group_section_id,
+						$field->get_label(),
+						function () use ( $field ) {
+							$description = $field->get_config( 'description', '' );
+							if ( ! empty( $description ) ) {
+								echo '<p class="description">' . esc_html( $description ) . '</p>';
+							}
+						},
+						$page->get_menu_slug()
+					);
+
+					// Register nested fields in this group's section
+					$nested_fields = $field->get_nested_fields();
+					foreach ( $nested_fields as $nested_config ) {
+						if ( empty( $nested_config['name'] ) ) {
+							continue;
+						}
+
+						try {
+							$nested_field  = FieldFactory::create( $nested_config );
+							$nested_name   = $nested_field->get_name();
+							$nested_option = $nested_field->get_option_name( $page_id );
+
+							// Add the nested field to the group's section
+							add_settings_field(
+								$nested_name,
+								$nested_field->get_label(),
+								array( $this, 'render_settings_field' ),
+								$page->get_menu_slug(),
+								$group_section_id,
+								array(
+									'field'       => $nested_field,
+									'option_name' => $nested_option,
+									'page_id'     => $page_id,
+								)
+							);
+						} catch ( \InvalidArgumentException $e ) {
+							// Skip invalid nested fields
+							continue;
+						}
+					}
+
+					continue; // Don't render the group field itself
+				}
+
+				// Handle Metabox fields - render with their own metabox on settings pages
+				if ( $is_metabox ) {
+					// Metabox fields are handled separately
+					continue;
+				}
+
+				// Add default section if we haven't yet (for non-grouped, non-metabox fields)
+				if ( ! $default_section_added ) {
+					add_settings_section(
+						$default_section_id,
+						__( 'Settings', 'wp-cmf' ),
+						'__return_empty_string',
+						$page->get_menu_slug()
+					);
+					$default_section_added = true;
+				}
+
+				// Add settings field (only for non-nested, non-group fields)
 				add_settings_field(
 					$field_name,
 					$field->get_label(),
 					array( $this, 'render_settings_field' ),
 					$page->get_menu_slug(),
-					$section_id,
+					$default_section_id,
 					array(
 						'field'       => $field,
 						'option_name' => $option_name,
@@ -345,6 +459,11 @@ class Registrar {
 					)
 				);
 			}
+		}
+
+		// Register admin notice for invalid container fields
+		if ( ! empty( $this->invalid_settings_containers ) ) {
+			add_action( 'admin_notices', array( $this, 'show_invalid_container_notice' ) );
 		}
 
 		// Register fields for existing settings pages (any registered settings page we didn't create)
@@ -372,6 +491,98 @@ class Registrar {
 				}
 
 				$field_name  = $field->get_name();
+				$is_group    = $field instanceof \Pedalcms\WpCmf\Field\fields\GroupField;
+				$is_metabox  = $field instanceof \Pedalcms\WpCmf\Field\fields\MetaboxField;
+
+				// Skip nested fields - they're handled by their parent container
+				if ( isset( $this->nested_field_names[ $page_id ] ) && in_array( $field_name, $this->nested_field_names[ $page_id ], true ) ) {
+					continue;
+				}
+
+				// Handle Group fields as WordPress Settings API sections
+				if ( $is_group ) {
+					$group_section_id = $page_id . '_' . $field_name;
+
+					// Add section for this group
+					add_settings_section(
+						$group_section_id,
+						$field->get_label(),
+						function () use ( $field ) {
+							$description = $field->get_config( 'description', '' );
+							if ( ! empty( $description ) ) {
+								echo '<p class="description">' . esc_html( $description ) . '</p>';
+							}
+						},
+						$page_id
+					);
+
+					// Register nested fields in this group's section
+					$nested_fields = $field->get_nested_fields();
+					foreach ( $nested_fields as $nested_config ) {
+						if ( empty( $nested_config['name'] ) ) {
+							continue;
+						}
+
+						try {
+							$nested_field  = FieldFactory::create( $nested_config );
+							$nested_name   = $nested_field->get_name();
+							$nested_option = $nested_field->get_option_name( $page_id );
+
+							// Register the nested field setting
+							register_setting(
+								$page_id,
+								$nested_option,
+								array(
+									'type'              => 'string',
+									'sanitize_callback' => array( $nested_field, 'sanitize' ),
+									'show_in_rest'      => false,
+								)
+							);
+							error_log( sprintf( 'WP-CMF: Registered setting "%s" on page "%s"', $nested_option, $page_id ) );
+
+							// Add before-save filters for nested field
+							add_filter(
+								'pre_update_option_' . $nested_option,
+								function ( $new_value, $old_value = '', $option_name = '' ) use ( $page_id, $nested_name ) {
+									// Apply global filter
+									$new_value = apply_filters( 'wp_cmf_before_save_field', $new_value, $nested_name, $page_id );
+
+									// Apply field-specific filter
+									$new_value = apply_filters( 'wp_cmf_before_save_field_' . $nested_name, $new_value );
+
+									return $new_value;
+								},
+								10,
+								3
+							);
+
+							// Add the nested field to the group's section
+							add_settings_field(
+								$nested_name,
+								$nested_field->get_label(),
+								array( $this, 'render_settings_field' ),
+								$page_id,
+								$group_section_id,
+								array(
+									'field'       => $nested_field,
+									'option_name' => $nested_option,
+									'page_id'     => $page_id,
+								)
+							);
+						} catch ( \InvalidArgumentException $e ) {
+							// Skip invalid nested fields
+							continue;
+						}
+					}
+
+					continue; // Don't render the group field itself
+				}
+
+				// Skip metabox fields on existing settings pages
+				if ( $is_metabox ) {
+					continue;
+				}
+
 				$option_name = $field->get_option_name( $page_id );
 
 				// Register setting with the built-in settings group
@@ -379,8 +590,40 @@ class Registrar {
 					$page_id,
 					$option_name,
 					array(
+						'type'              => 'string',
 						'sanitize_callback' => array( $field, 'sanitize' ),
+						'show_in_rest'      => false,
 					)
+				);
+
+				// Explicitly add to allowed options for this page
+				add_filter(
+					'allowed_options',
+					function ( $allowed_options ) use ( $page_id, $option_name ) {
+						if ( ! isset( $allowed_options[ $page_id ] ) ) {
+							$allowed_options[ $page_id ] = array();
+						}
+						if ( ! in_array( $option_name, $allowed_options[ $page_id ], true ) ) {
+							$allowed_options[ $page_id ][] = $option_name;
+							error_log( sprintf( 'WP-CMF: Added "%s" to allowed_options for page "%s"', $option_name, $page_id ) );
+						}
+						return $allowed_options;
+					}
+				);
+
+				add_filter(
+					'pre_update_option_' . $option_name,
+					function ( $new_value, $old_value = '', $option_name = '' ) use ( $page_id, $field_name ) {
+						// Apply global filter
+						$new_value = apply_filters( 'wp_cmf_before_save_field', $new_value, $field_name, $page_id );
+
+						// Apply field-specific filter
+						$new_value = apply_filters( 'wp_cmf_before_save_field_' . $field_name, $new_value );
+
+						return $new_value;
+					},
+					10,
+					3
 				);
 
 				// Add settings field to the existing page's default section
@@ -393,6 +636,7 @@ class Registrar {
 					array(
 						'field'       => $field,
 						'option_name' => $option_name,
+						'page_id'     => $page_id,
 					)
 				);
 			}
@@ -412,12 +656,19 @@ class Registrar {
 
 		$field       = $args['field'];
 		$option_name = $args['option_name'] ?? $field->get_name();
+		$page_id     = $args['page_id'] ?? null;
+
+		error_log( sprintf( 'WP-CMF render_settings_field: field=%s, option_name=%s, page_id=%s, is_container=%s',
+			$field->get_name(),
+			$option_name,
+			var_export( $page_id, true ),
+			$field instanceof \Pedalcms\WpCmf\Field\ContainerFieldInterface ? 'yes' : 'no'
+		) );
 
 		// Container fields don't have their own values - they only render UI
 		// Their nested fields handle their own value loading
 		if ( $field instanceof \Pedalcms\WpCmf\Field\ContainerFieldInterface ) {
 			// Pass page_id as context so container can construct correct option names
-			$page_id = $args['page_id'] ?? null;
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Field's render method handles escaping
 			echo $field->render( $page_id );
 			return;
@@ -425,9 +676,13 @@ class Registrar {
 
 		// Get current value
 		$value = function_exists( 'get_option' ) ? get_option( $option_name, '' ) : '';
+		error_log( sprintf( 'WP-CMF render_settings_field: Loading value for option "%s" = %s', $option_name, var_export( $value, true ) ) );
 
 		// Get the rendered field HTML
 		$field_html = $field->render( $value );
+
+		// Remove label tags since WordPress Settings API renders labels in table structure
+		$field_html = preg_replace( '/<label[^>]*>.*?<\/label>/s', '', $field_html );
 
 		// Replace the field's name attribute with the option name
 		// This ensures WordPress Settings API can save the value correctly
@@ -437,6 +692,8 @@ class Registrar {
 			'name="' . $option_name . '"',
 			$field_html
 		);
+
+		error_log( sprintf( 'WP-CMF render_settings_field: Replaced name="%s" with name="%s"', $original_name, $option_name ) );
 
 		// Also handle array names for checkboxes/multi-select
 		$field_html = str_replace(
@@ -456,6 +713,189 @@ class Registrar {
 		// Render field with correct name
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Field's render method handles escaping
 		echo $field_html;
+	}
+
+	/**
+	 * Save settings page fields
+	 *
+	 * Handles form submission for settings pages with metaboxes.
+	 * Called on the load-{$page} hook.
+	 *
+	 * @return void
+	 */
+	public function save_settings_page_fields(): void {
+		// Check if this is a save request
+		if ( empty( $_POST['action'] ) || $_POST['action'] !== 'wp_cmf_save_settings' ) {
+			error_log( sprintf( 'WP-CMF: Not a save request. action = %s', $_POST['action'] ?? 'not set' ) );
+			return;
+		}
+
+		error_log( 'WP-CMF: This IS a save request!' );
+
+		// Get page ID
+		if ( empty( $_POST['page_id'] ) ) {
+			error_log( 'WP-CMF: No page_id in $_POST' );
+			return;
+		}
+
+		$page_id = sanitize_text_field( wp_unslash( $_POST['page_id'] ) );
+		error_log( sprintf( 'WP-CMF: Saving page_id: %s', $page_id ) );
+
+		// Verify nonce
+		if ( ! isset( $_POST['wp_cmf_settings_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wp_cmf_settings_nonce'] ) ), 'wp_cmf_save_settings_' . $page_id ) ) {
+			wp_die( esc_html__( 'Security check failed', 'wp-cmf' ) );
+		}
+
+		// Check user capabilities
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have sufficient permissions to save these settings.', 'wp-cmf' ) );
+		}
+
+		// Get fields for this page
+		if ( empty( $this->fields[ $page_id ] ) ) {
+			// No fields registered - add error and redirect
+			add_settings_error(
+				$page_id,
+				'no_fields',
+				__( 'No fields registered for this page.', 'wp-cmf' ),
+				'error'
+			);
+			set_transient( 'settings_errors', get_settings_errors(), 30 );
+
+			$redirect_url = add_query_arg(
+				array(
+					'page'          => $page_id,
+					'settings-updated' => 'false',
+				),
+				admin_url( 'admin.php' )
+			);
+			wp_safe_redirect( $redirect_url );
+			exit;
+		}
+
+		// Process and save all fields (including nested ones)
+		$this->process_settings_fields( $this->fields[ $page_id ], $page_id );
+
+		// Set success message
+		add_settings_error(
+			$page_id,
+			'settings_updated',
+			__( 'Settings saved.', 'wp-cmf' ),
+			'success'
+		);
+		set_transient( 'settings_errors', get_settings_errors(), 30 );
+
+		// Redirect back to settings page with success message
+		$redirect_url = add_query_arg(
+			array(
+				'page'          => $page_id,
+				'settings-updated' => 'true',
+			),
+			admin_url( 'admin.php' )
+		);
+
+		wp_safe_redirect( $redirect_url );
+		exit;
+	}
+
+	/**
+	 * Process and save settings fields recursively
+	 *
+	 * @param array  $fields  Array of field instances.
+	 * @param string $page_id Page identifier.
+	 * @return void
+	 */
+	protected function process_settings_fields( array $fields, string $page_id ): void {
+		foreach ( $fields as $field ) {
+			if ( ! $field instanceof FieldInterface ) {
+				continue;
+			}
+
+			$field_name = $field->get_name();
+
+			// Container fields: recursively process their nested fields
+			if ( $field instanceof \Pedalcms\WpCmf\Field\ContainerFieldInterface ) {
+				$nested_fields = $field->get_nested_fields();
+				if ( ! empty( $nested_fields ) ) {
+					// Create field instances for nested configs and process them
+					foreach ( $nested_fields as $nested_config ) {
+						if ( empty( $nested_config['name'] ) ) {
+							continue;
+						}
+
+						try {
+							$nested_field = FieldFactory::create( $nested_config );
+
+							// If nested field is also a container, recurse
+							if ( $nested_field instanceof \Pedalcms\WpCmf\Field\ContainerFieldInterface ) {
+								// Recursively process nested containers
+								$this->process_settings_fields( array( $nested_field ), $page_id );
+							} else {
+								// Regular field - save it
+								$this->save_single_settings_field( $nested_field, $page_id );
+							}
+						} catch ( \InvalidArgumentException $e ) {
+							// Skip invalid field configs
+							continue;
+						}
+					}
+				}
+			} else {
+				// Regular non-container field - save it
+				$this->save_single_settings_field( $field, $page_id );
+			}
+		}
+	}
+
+	/**
+	 * Save a single settings field
+	 *
+	 * @param FieldInterface $field   Field instance.
+	 * @param string         $page_id Page identifier.
+	 * @return void
+	 */
+	protected function save_single_settings_field( FieldInterface $field, string $page_id ): void {
+		$field_name  = $field->get_name();
+		$option_name = $field->get_option_name( $page_id );
+
+		// Get submitted value using the option_name (which is what appears in the HTML)
+		// Check both option_name and field_name for backward compatibility
+		if ( isset( $_POST[ $option_name ] ) ) {
+			$value = wp_unslash( $_POST[ $option_name ] );
+		} elseif ( isset( $_POST[ $field_name ] ) ) {
+			$value = wp_unslash( $_POST[ $field_name ] );
+		} else {
+			$value = '';
+		}
+
+		// Apply before-save filters
+		$value = apply_filters( 'wp_cmf_before_save_field', $value, $field_name, $page_id );
+		$value = apply_filters( 'wp_cmf_before_save_field_' . $field_name, $value );
+
+		// Sanitize
+		$value = $field->sanitize( $value );
+
+		// Validate
+		$validation = $field->validate( $value );
+		if ( ! $validation['valid'] ) {
+			// Add error notice (will be shown after redirect)
+			add_settings_error(
+				$option_name,
+				$option_name . '_error',
+				sprintf(
+					/* translators: 1: field label, 2: error messages */
+					__( '%1$s: %2$s', 'wp-cmf' ),
+					$field->get_label(),
+					implode( ', ', $validation['errors'] )
+				),
+				'error'
+			);
+			return;
+		}
+
+		// Update option
+		$result = update_option( $option_name, $value );
+		error_log( sprintf( 'WP-CMF: update_option("%s", value) result: %s', $option_name, $result ? 'true' : 'false' ) );
 	}
 
 	/**
@@ -610,11 +1050,11 @@ class Registrar {
 	}
 
 	/**
-	 * Register meta boxes for custom post types
+	 * Register meta boxes for custom post types and settings pages
 	 *
-	 * Creates meta boxes for fields associated with custom post types.
+	 * Creates meta boxes for fields associated with custom post types and settings pages.
 	 * Also handles fields added to existing WordPress post types.
-	 * Supports multiple meta boxes per post type using MetaboxField containers.
+	 * Supports multiple meta boxes per post type/page using MetaboxField containers.
 	 *
 	 * @return void
 	 */
@@ -635,18 +1075,76 @@ class Registrar {
 
 		// Register meta boxes for existing post types that have fields
 		// but aren't in our custom_post_types array
-		foreach ( $this->fields as $post_type => $fields ) {
-			// Skip if already handled above or if it's a settings page
-			if ( isset( $this->custom_post_types[ $post_type ] ) || isset( $this->settings_pages[ $post_type ] ) ) {
+		foreach ( $this->fields as $context => $fields ) {
+			// Skip if already handled above
+			if ( isset( $this->custom_post_types[ $context ] ) ) {
+				continue;
+			}
+
+			// Check if this is a settings page
+			if ( isset( $this->settings_pages[ $context ] ) ) {
+				$this->register_settings_page_meta_boxes( $context );
 				continue;
 			}
 
 			// Check if this is a valid post type
-			if ( ! function_exists( 'post_type_exists' ) || ! post_type_exists( $post_type ) ) {
+			if ( ! function_exists( 'post_type_exists' ) || ! post_type_exists( $context ) ) {
 				continue;
 			}
 
-			$this->register_post_type_meta_boxes( $post_type );
+			$this->register_post_type_meta_boxes( $context );
+		}
+	}
+
+	/**
+	 * Register meta boxes for a specific settings page
+	 *
+	 * @param string $page_id Settings page identifier.
+	 * @return void
+	 */
+	protected function register_settings_page_meta_boxes( string $page_id ): void {
+		if ( empty( $this->fields[ $page_id ] ) ) {
+			return;
+		}
+
+		if ( ! isset( $this->settings_pages[ $page_id ] ) ) {
+			return;
+		}
+
+		$page = $this->settings_pages[ $page_id ];
+		$hook_suffix = $page->get_hook_suffix();
+
+		if ( ! $hook_suffix ) {
+			return;
+		}
+
+		// Register MetaboxField containers as actual meta boxes
+		foreach ( $this->fields[ $page_id ] as $field ) {
+			if ( ! $field instanceof FieldInterface ) {
+				continue;
+			}
+
+			// Skip nested fields
+			$field_name = $field->get_name();
+			if ( isset( $this->nested_field_names[ $page_id ] ) && in_array( $field_name, $this->nested_field_names[ $page_id ], true ) ) {
+				continue;
+			}
+
+			// Only register MetaboxField containers
+			if ( $field instanceof \Pedalcms\WpCmf\Field\fields\MetaboxField ) {
+				add_meta_box(
+					$field->get_metabox_id(),
+					$field->get_metabox_title(),
+					array( $this, 'render_settings_metabox' ),
+					$hook_suffix,
+					$field->get_context(),
+					$field->get_priority(),
+					array(
+						'metabox_field' => $field,
+						'page_id'       => $page_id,
+					)
+				);
+			}
 		}
 	}
 
@@ -664,9 +1162,9 @@ class Registrar {
 			return;
 		}
 
-		$metabox_fields  = [];
-		$regular_fields  = [];
-		$registered_metaboxes = [];
+		$metabox_fields       = array();
+		$regular_fields       = array();
+		$registered_metaboxes = array();
 
 		// Separate MetaboxField containers from regular fields
 		foreach ( $this->fields[ $post_type ] as $field ) {
@@ -729,6 +1227,30 @@ class Registrar {
 	}
 
 	/**
+	 * Render a metabox on a settings page
+	 *
+	 * @param mixed $object Context object (not used for settings pages).
+	 * @param array $args   Additional arguments including the metabox_field and page_id.
+	 * @return void
+	 */
+	public function render_settings_metabox( $object, $args ): void {
+		if ( ! isset( $args['args']['metabox_field'] ) || ! isset( $args['args']['page_id'] ) ) {
+			return;
+		}
+
+		$metabox_field = $args['args']['metabox_field'];
+		$page_id       = $args['args']['page_id'];
+
+		if ( ! $metabox_field instanceof \Pedalcms\WpCmf\Field\fields\MetaboxField ) {
+			return;
+		}
+
+		// Render the metabox field for settings page
+		// Pass page_id as the value parameter so nested fields know the context
+		echo $metabox_field->render( $page_id );
+	}
+
+	/**
 	 * Render a MetaboxField container
 	 *
 	 * This is called by WordPress for meta boxes created from MetaboxField definitions.
@@ -752,7 +1274,7 @@ class Registrar {
 		$post_type  = $post->post_type;
 		$nonce_name = $post_type . '_fields_nonce';
 
-		static $nonce_rendered = [];
+		static $nonce_rendered = array();
 		if ( ! isset( $nonce_rendered[ $post_type ] ) ) {
 			if ( function_exists( 'wp_nonce_field' ) ) {
 				wp_nonce_field( 'save_' . $post_type . '_fields', $nonce_name );
@@ -900,6 +1422,20 @@ class Registrar {
 			// Sanitize using field's sanitize method
 			$sanitized_value = $field->sanitize( $raw_value );
 
+			// Apply filters before saving
+			if ( function_exists( 'apply_filters' ) ) {
+				// Apply global filter
+				$sanitized_value = apply_filters( 'wp_cmf_before_save_field', $sanitized_value, $field_name, $post_type );
+
+				// Apply field-specific filter
+				$sanitized_value = apply_filters( 'wp_cmf_before_save_field_' . $field_name, $sanitized_value );
+			}
+
+			// If filter returned null, skip saving this field
+			if ( null === $sanitized_value ) {
+				continue;
+			}
+
 			// Validate using field's validate method
 			$validation_result = $field->validate( $sanitized_value );
 
@@ -910,6 +1446,36 @@ class Registrar {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Apply filters before saving a field value
+	 *
+	 * This method applies both global and field-specific filters to a value before saving.
+	 * If any filter returns null, the field will not be saved.
+	 *
+	 * @param mixed  $value      The value to filter.
+	 * @param string $field_name The field name.
+	 * @param string $page_id    The page/context ID (CPT or settings page).
+	 * @return mixed The filtered value, or null to skip saving.
+	 */
+	public function apply_before_save_filters( $value, string $field_name, string $page_id ) {
+		if ( ! function_exists( 'apply_filters' ) ) {
+			return $value;
+		}
+
+		// Apply global filter
+		$value = apply_filters( 'wp_cmf_before_save_field', $value, $field_name, $page_id );
+
+		// If global filter returned null, stop processing
+		if ( null === $value ) {
+			return null;
+		}
+
+		// Apply field-specific filter
+		$value = apply_filters( 'wp_cmf_before_save_field_' . $field_name, $value );
+
+		return $value;
 	}
 
 	/**
@@ -957,5 +1523,55 @@ class Registrar {
 	 */
 	public function are_hooks_initialized(): bool {
 		return $this->hooks_initialized;
+	}
+
+	/**
+	 * Show admin notice for invalid container fields on settings pages
+	 *
+	 * @return void
+	 */
+	public function show_invalid_container_notice(): void {
+		if ( empty( $this->invalid_settings_containers ) ) {
+			return;
+		}
+
+		foreach ( $this->invalid_settings_containers as $page_id => $fields ) {
+			?>
+			<div class="notice notice-error">
+				<p>
+					<strong>WP-CMF Configuration Error:</strong>
+					The following container fields cannot be used directly on settings page "<?php echo esc_html( $page_id ); ?>":
+				</p>
+				<ul style="list-style: disc; margin-left: 20px;">
+					<?php foreach ( $fields as $field_info ) : ?>
+						<li><?php echo esc_html( $field_info ); ?></li>
+					<?php endforeach; ?>
+				</ul>
+				<p>
+					<strong>Solution:</strong> Container fields like <code>tabs</code>, <code>repeater</code>, etc. must be wrapped inside a <code>metabox</code> field on settings pages.
+					<br>
+					Only <code>group</code> fields can be used directly (they render as sections).
+				</p>
+				<p>
+					<strong>Example:</strong>
+				</p>
+				<pre style="background: #f5f5f5; padding: 10px; overflow-x: auto;">// Correct approach for tabs on settings pages
+'fields' => [
+	[
+		'name' => 'my_metabox',
+		'type' => 'metabox',
+		'label' => 'Advanced Settings',
+		'fields' => [
+			[
+				'name' => 'my_tabs',
+				'type' => 'tabs',
+				'tabs' => [...]
+			]
+		]
+	]
+]</pre>
+			</div>
+			<?php
+		}
 	}
 }

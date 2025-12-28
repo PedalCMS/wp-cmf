@@ -3,15 +3,14 @@
 	"description": "WP Content Modeling Framework",
 	"type": "library",
 	"require-dev": {
-		"phpunit/phpunit": "^11.5",
+		"phpunit/phpunit": "9.6",
 		"wp-phpunit/wp-phpunit": "^6.8",
 		"squizlabs/php_codesniffer": "^3.13.0",
 		"wp-coding-standards/wpcs": "^3.2",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.1",
 		"phpstan/phpstan": "^2.1",
 		"szepeviktor/phpstan-wordpress": "^2.0",
-		"yoast/phpunit-polyfills": "^4.0",
-		"scssphp/scssphp": "^2.0",
+		"yoast/phpunit-polyfills": "3.0",
 		"wp-cli/wp-cli-bundle": "^2.12"
 	},
 	"require": {
@@ -41,39 +40,24 @@
 	},
 	"scripts": {
 		"test": "phpunit",
-		"test:unit": "phpunit --testsuite=wp-cmf",
-		"test:coverage": "phpunit --coverage-html=coverage",
-		"test:debug": "phpunit --debug",
-		"test:manager": "phpunit tests/Core/ManagerTest.php",
-		"test:registrar": "phpunit tests/Core/RegistrarTest.php",
-		"cs:check": "phpcs --standard=WordPress src/",
+		"test-install": "bash bin/install-wp-tests.sh wordpress_test root root localhost latest",
+		"cs": "phpcs --standard=WordPress src/",
 		"cs:fix": "phpcbf --standard=WordPress src/",
+		"cs:examples": "phpcs --standard=WordPress examples/",
+		"cs:fix:examples": "phpcbf --standard=WordPress examples/",
+		"cs:all": [
+			"@cs",
+			"@cs:examples"
+		],
+		"cs:fix:all": [
+			"@cs:fix",
+			"@cs:fix:examples"
+		],
 		"analyse": "phpstan analyse src/ --level=5",
-		"compile:scss": "php build/compile-scss.php",
-		"compile:scss:compressed": "php build/compile-scss.php --compressed",
-		"watch:scss": "php build/compile-scss.php --watch",
-		"build:assets": "@compile:scss",
 		"ci": [
-			"@compile:scss:compressed",
-			"@cs:check",
+			"@cs:all",
 			"@analyse",
 			"@test"
 		]
-	},
-	"scripts-descriptions": {
-		"test": "Run all PHPUnit tests using WordPress-style test framework",
-		"test:unit": "Run unit tests with WordPress conventions",
-		"test:coverage": "Run tests and generate HTML coverage report",
-		"test:debug": "Run tests with debug output for troubleshooting",
-		"test:manager": "Run Manager class tests specifically",
-		"test:registrar": "Run Registrar class tests specifically",
-		"cs:check": "Check code style against WordPress coding standards",
-		"cs:fix": "Auto-fix code style issues",
-		"analyse": "Run static analysis with PHPStan",
-		"compile:scss": "Compile SCSS to CSS (expanded format)",
-		"compile:scss:compressed": "Compile SCSS to CSS (compressed/minified format)",
-		"watch:scss": "Watch SCSS files and auto-compile on changes",
-		"build:assets": "Build all front-end assets (currently just SCSS compilation)",
-		"ci": "Run continuous integration tasks (code style, analysis, tests)"
 	}
 }

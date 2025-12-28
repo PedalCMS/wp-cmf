@@ -26,14 +26,14 @@ class WysiwygField extends AbstractField {
 	protected function get_defaults(): array {
 		return array_merge(
 			parent::get_defaults(),
-			[
+			array(
 				'media_buttons' => true,
 				'teeny'         => false,
 				'textarea_rows' => 10,
 				'editor_class'  => '',
 				'wpautop'       => true,
 				'quicktags'     => true,
-			]
+			)
 		);
 	}
 
@@ -49,7 +49,7 @@ class WysiwygField extends AbstractField {
 
 		// Get editor settings
 		$editor_id = $this->get_field_id();
-		$settings  = [
+		$settings  = array(
 			'media_buttons' => $this->config['media_buttons'] ?? true,
 			'teeny'         => $this->config['teeny'] ?? false,
 			'textarea_rows' => $this->config['textarea_rows'] ?? 10,
@@ -57,7 +57,7 @@ class WysiwygField extends AbstractField {
 			'editor_class'  => $this->config['editor_class'] ?? '',
 			'wpautop'       => $this->config['wpautop'] ?? true,
 			'quicktags'     => $this->config['quicktags'] ?? true,
-		];
+		);
 
 		// Get the content value
 		$content = $value ?? $this->config['default'] ?? '';
@@ -114,7 +114,7 @@ class WysiwygField extends AbstractField {
 	 * @return array Validation result.
 	 */
 	public function validate( $input ): array {
-		$errors = [];
+		$errors = array();
 
 		// Check required
 		if ( ! empty( $this->config['required'] ) && empty( $input ) ) {
@@ -137,10 +137,10 @@ class WysiwygField extends AbstractField {
 			);
 		}
 
-		return [
+		return array(
 			'valid'  => empty( $errors ),
 			'errors' => $errors,
-		];
+		);
 	}
 
 	/**
@@ -149,18 +149,28 @@ class WysiwygField extends AbstractField {
 	 * @return array<string, mixed>
 	 */
 	public function get_schema(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'media_buttons' => [ 'type' => 'boolean' ],
-				'teeny'         => [ 'type' => 'boolean' ],
-				'textarea_rows' => [ 'type' => 'integer', 'minimum' => 1, 'maximum' => 50 ],
-				'editor_class'  => [ 'type' => 'string' ],
-				'wpautop'       => [ 'type' => 'boolean' ],
-				'quicktags'     => [ 'type' => 'boolean' ],
-				'min'           => [ 'type' => 'integer', 'minimum' => 0 ],
-				'max'           => [ 'type' => 'integer', 'minimum' => 1 ],
-			],
-		];
+			'properties' => array(
+				'media_buttons' => array( 'type' => 'boolean' ),
+				'teeny'         => array( 'type' => 'boolean' ),
+				'textarea_rows' => array(
+					'type'    => 'integer',
+					'minimum' => 1,
+					'maximum' => 50,
+				),
+				'editor_class'  => array( 'type' => 'string' ),
+				'wpautop'       => array( 'type' => 'boolean' ),
+				'quicktags'     => array( 'type' => 'boolean' ),
+				'min'           => array(
+					'type'    => 'integer',
+					'minimum' => 0,
+				),
+				'max'           => array(
+					'type'    => 'integer',
+					'minimum' => 1,
+				),
+			),
+		);
 	}
 }

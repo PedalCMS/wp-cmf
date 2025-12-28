@@ -298,11 +298,301 @@
 	};
 
 	/**
+	 * WP-CMF Settings Page Save Handler
+	 *
+	 * Provides visual feedback during save operations on settings pages.
+	 * Disables and dims input fields when a save operation is in progress.
+	 */
+	const WpCmfSettingsSave = {
+
+		/**
+		 * Initialize settings page save handling
+		 */
+		init: function () {
+			this.$form = $( 'form[action="options.php"]' );
+
+			if ( ! this.$form.length ) {
+				return;
+			}
+
+			this.$fields       = this.$form.find( '.wp-cmf-field' );
+			this.$submitButton = this.$form.find( 'input[type="submit"], button[type="submit"]' );
+
+			this.bindEvents();
+		},
+
+		/**
+		 * Bind form submit events
+		 */
+		bindEvents: function () {
+			const self = this;
+
+			this.$form.on(
+				'submit',
+				function () {
+					self.onSaveStart();
+				}
+			);
+		},
+
+		/**
+		 * Handle save start - disable and dim fields
+		 */
+		onSaveStart: function () {
+			// Add saving class to form
+			this.$form.addClass( 'wp-cmf-saving' );
+
+			// Disable all inputs within WP-CMF fields
+			this.$fields.find( 'input, select, textarea, button' ).prop( 'disabled', true );
+			this.$fields.addClass( 'wp-cmf-field-saving' );
+
+			// Update submit button
+			this.$submitButton.prop( 'disabled', true );
+			this.$submitButton.addClass( 'wp-cmf-button-saving' );
+		},
+
+		/**
+		 * Handle save complete - re-enable fields (called if staying on same page)
+		 */
+		onSaveComplete: function () {
+			// Remove saving class
+			this.$form.removeClass( 'wp-cmf-saving' );
+
+			// Re-enable all inputs
+			this.$fields.find( 'input, select, textarea, button' ).prop( 'disabled', false );
+			this.$fields.removeClass( 'wp-cmf-field-saving' );
+
+			// Re-enable submit button
+			this.$submitButton.prop( 'disabled', false );
+			this.$submitButton.removeClass( 'wp-cmf-button-saving' );
+		}
+	};
+
+	/**
+	 * WP-CMF Post Edit Page Save Handler
+	 *
+	 * Provides visual feedback during save operations on post edit pages.
+	 * Uses Heartbeat API to sync field values after save.
+	 */
+	const WpCmfPostSave = {
+
+		/**
+		 * Field names registered on this page
+		 */
+		fieldNames: [],
+
+		/**
+		 * Post ID
+		 */
+		postId: 0,
+
+		/**
+		 * Whether a save is in progress
+		 */
+		isSaving: false,
+
+		/**
+		 * Initialize post edit page save handling
+		 */
+		init: function () {
+			// Only run on post edit pages
+			if ( typeof pagenow === 'undefined' || pagenow !== 'post' ) {
+				return;
+			}
+
+			// Get post ID from the form
+			const $postForm = $( '#post' );
+			if ( ! $postForm.length ) {
+				return;
+			}
+
+			this.postId = parseInt( $( '#post_ID' ).val(), 10 ) || 0;
+			if ( ! this.postId ) {
+				return;
+			}
+
+			this.$form      = $postForm;
+			this.$metaboxes = $( '.wp-cmf-metabox, .wp-cmf-field' ).closest( '.postbox' );
+
+			// Collect all WP-CMF field names on the page
+			this.collectFieldNames();
+
+			if ( ! this.fieldNames.length ) {
+				return;
+			}
+
+			this.bindEvents();
+			this.initHeartbeat();
+		},
+
+		/**
+		 * Collect all WP-CMF field names from the page
+		 */
+		collectFieldNames: function () {
+			const self = this;
+
+			$( '.wp-cmf-field' ).each(
+				function () {
+					const fieldName = $( this ).data( 'field-name' );
+					if ( fieldName && self.fieldNames.indexOf( fieldName ) === -1 ) {
+							self.fieldNames.push( fieldName );
+					}
+				}
+			);
+		},
+
+		/**
+		 * Bind form submit events
+		 */
+		bindEvents: function () {
+			const self = this;
+
+			// Hook into post save (both publish and update)
+			this.$form.on(
+				'submit',
+				function () {
+					self.onSaveStart();
+				}
+			);
+
+			// Also hook into AJAX saves (Gutenberg)
+			$( document ).on(
+				'heartbeat-send',
+				function ( e, data ) {
+					if ( self.isSaving && self.fieldNames.length ) {
+						data.wp_cmf_check_fields = {
+							post_id: self.postId,
+							field_names: self.fieldNames
+						};
+					}
+				}
+			);
+		},
+
+		/**
+		 * Initialize Heartbeat API integration
+		 */
+		initHeartbeat: function () {
+			const self = this;
+
+			// Listen for heartbeat responses
+			$( document ).on(
+				'heartbeat-tick',
+				function ( e, data ) {
+					if ( data.wp_cmf_field_values ) {
+						self.updateFieldValues( data.wp_cmf_field_values );
+						self.onSaveComplete();
+					}
+				}
+			);
+		},
+
+		/**
+		 * Handle save start - disable and dim fields
+		 */
+		onSaveStart: function () {
+			this.isSaving = true;
+
+			// Add saving class to metaboxes
+			this.$metaboxes.addClass( 'wp-cmf-metabox-saving' );
+
+			// Disable all inputs within WP-CMF fields
+			$( '.wp-cmf-field' ).each(
+				function () {
+					$( this ).find( 'input, select, textarea, button' ).prop( 'disabled', true );
+					$( this ).addClass( 'wp-cmf-field-saving' );
+				}
+			);
+		},
+
+		/**
+		 * Handle save complete - re-enable fields
+		 */
+		onSaveComplete: function () {
+			this.isSaving = false;
+
+			// Remove saving class from metaboxes
+			this.$metaboxes.removeClass( 'wp-cmf-metabox-saving' );
+
+			// Re-enable all inputs within WP-CMF fields
+			$( '.wp-cmf-field' ).each(
+				function () {
+					$( this ).find( 'input, select, textarea, button' ).prop( 'disabled', false );
+					$( this ).removeClass( 'wp-cmf-field-saving' );
+				}
+			);
+		},
+
+		/**
+		 * Update field values from server response
+		 *
+		 * @param {Object} fieldValues Key-value pairs of field names and their values
+		 */
+		updateFieldValues: function ( fieldValues ) {
+			$.each(
+				fieldValues,
+				function ( fieldName, value ) {
+					const $field = $( '.wp-cmf-field[data-field-name="' + fieldName + '"]' );
+
+					if ( ! $field.length ) {
+						return;
+					}
+
+					const $input = $field.find( 'input, select, textarea' ).first();
+
+					if ( ! $input.length ) {
+						return;
+					}
+
+					const inputType = $input.attr( 'type' );
+					const tagName   = $input.prop( 'tagName' ).toLowerCase();
+
+					// Handle different input types
+					if ( inputType === 'checkbox' ) {
+						if ( Array.isArray( value ) ) {
+							// Multiple checkboxes
+							$field.find( 'input[type="checkbox"]' ).each(
+								function () {
+									const checkboxValue = $( this ).val();
+									$( this ).prop( 'checked', value.indexOf( checkboxValue ) !== -1 );
+								}
+							);
+						} else {
+							// Single checkbox
+							$input.prop( 'checked', value === '1' || value === true );
+						}
+					} else if ( inputType === 'radio' ) {
+						$field.find( 'input[type="radio"][value="' + value + '"]' ).prop( 'checked', true );
+					} else if ( tagName === 'select' ) {
+						$input.val( value );
+					} else {
+						$input.val( value );
+					}
+
+					// Trigger change event for any dependent functionality
+					$input.trigger( 'change' );
+
+					// Add visual indication that value was updated
+					$field.addClass( 'wp-cmf-field-updated' );
+					setTimeout(
+						function () {
+							$field.removeClass( 'wp-cmf-field-updated' );
+						},
+						2000
+					);
+				}
+			);
+		}
+	};
+
+	/**
 	 * Initialize on document ready
 	 */
 	$( document ).ready(
 		function () {
 			WpCmfFields.init();
+			WpCmfSettingsSave.init();
+			WpCmfPostSave.init();
 		}
 	);
 
@@ -317,6 +607,8 @@
 	);
 
 	// Expose to global scope for external access
-	window.WpCmfFields = WpCmfFields;
+	window.WpCmfFields       = WpCmfFields;
+	window.WpCmfSettingsSave = WpCmfSettingsSave;
+	window.WpCmfPostSave     = WpCmfPostSave;
 
 })( jQuery );

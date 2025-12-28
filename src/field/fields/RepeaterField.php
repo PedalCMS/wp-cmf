@@ -46,8 +46,8 @@ class RepeaterField extends AbstractField {
 		$defaults = parent::get_defaults();
 		return array_merge(
 			$defaults,
-			[
-				'fields'       => [],
+			array(
+				'fields'       => array(),
 				'min_rows'     => 0,
 				'max_rows'     => 0, // 0 = unlimited
 				'button_label' => 'Add Row',
@@ -55,7 +55,7 @@ class RepeaterField extends AbstractField {
 				'collapsible'  => true,
 				'collapsed'    => false,
 				'sortable'     => true,
-			]
+			)
 		);
 	}
 
@@ -65,7 +65,7 @@ class RepeaterField extends AbstractField {
 	 * @return array<array<string, mixed>>
 	 */
 	public function get_sub_fields(): array {
-		return $this->config['fields'] ?? [];
+		return $this->config['fields'] ?? array();
 	}
 
 	/**
@@ -87,11 +87,11 @@ class RepeaterField extends AbstractField {
 		$sortable     = $this->config['sortable'] ?? true;
 
 		// Ensure value is an array
-		$rows = is_array( $value ) ? $value : [];
+		$rows = is_array( $value ) ? $value : array();
 
 		// Add minimum rows if needed
 		while ( count( $rows ) < $min_rows ) {
-			$rows[] = [];
+			$rows[] = array();
 		}
 
 		$output  = $this->render_wrapper_start();
@@ -127,7 +127,7 @@ class RepeaterField extends AbstractField {
 
 		// Hidden template for new rows (used by JavaScript)
 		$output .= '<script type="text/template" class="wp-cmf-repeater-template">';
-		$output .= $this->render_row( '{{INDEX}}', [], $sub_fields, $field_name, $row_label, $collapsible, false );
+		$output .= $this->render_row( '{{INDEX}}', array(), $sub_fields, $field_name, $row_label, $collapsible, false );
 		$output .= '</script>';
 
 		$output .= '</div>'; // .wp-cmf-repeater
@@ -209,8 +209,8 @@ class RepeaterField extends AbstractField {
 				// Render the sub-field
 				$sub_html = $sub_field->render( $sub_value );
 
-				// Update the name attribute to use array notation for the repeater
-				// From: name="sub_field_name"
+				// Remove label tags since we're rendering labels in the table <th> tag
+				$sub_html = preg_replace( '/<label[^>]*>.*?<\/label>/s', '', $sub_html );
 				// To: name="repeater_name[row_index][sub_field_name]"
 				$original_name = $sub_field_name;
 				$new_name      = $field_name . '[' . $row_index . '][' . $original_name . ']';
@@ -263,18 +263,18 @@ class RepeaterField extends AbstractField {
 	 */
 	public function sanitize( $value ) {
 		if ( ! is_array( $value ) ) {
-			return [];
+			return array();
 		}
 
 		$sub_fields     = $this->get_sub_fields();
-		$sanitized_rows = [];
+		$sanitized_rows = array();
 
 		foreach ( $value as $row_index => $row_data ) {
 			if ( ! is_array( $row_data ) ) {
 				continue;
 			}
 
-			$sanitized_row = [];
+			$sanitized_row = array();
 
 			foreach ( $sub_fields as $sub_field_config ) {
 				$sub_field_name = $sub_field_config['name'] ?? '';
@@ -311,13 +311,13 @@ class RepeaterField extends AbstractField {
 	 * @return array Validation result.
 	 */
 	public function validate( $input ): array {
-		$errors     = [];
+		$errors     = array();
 		$sub_fields = $this->get_sub_fields();
 		$min_rows   = (int) ( $this->config['min_rows'] ?? 0 );
 		$max_rows   = (int) ( $this->config['max_rows'] ?? 0 );
 
 		if ( ! is_array( $input ) ) {
-			$input = [];
+			$input = array();
 		}
 
 		$row_count = count( $input );
@@ -362,10 +362,10 @@ class RepeaterField extends AbstractField {
 			}
 		}
 
-		return [
+		return array(
 			'valid'  => empty( $errors ),
 			'errors' => $errors,
-		];
+		);
 	}
 
 	/**
@@ -676,7 +676,7 @@ class RepeaterField extends AbstractField {
 
 		return array_merge(
 			$base_schema,
-			[
+			array(
 				'fields'       => $this->get_sub_fields(),
 				'min_rows'     => $this->config['min_rows'] ?? 0,
 				'max_rows'     => $this->config['max_rows'] ?? 0,
@@ -685,7 +685,7 @@ class RepeaterField extends AbstractField {
 				'collapsible'  => $this->config['collapsible'] ?? true,
 				'collapsed'    => $this->config['collapsed'] ?? false,
 				'sortable'     => $this->config['sortable'] ?? true,
-			]
+			)
 		);
 	}
 }

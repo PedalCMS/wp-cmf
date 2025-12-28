@@ -347,6 +347,30 @@
           "then": {
             "required": ["options"]
           }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "tabs"
+              }
+            }
+          },
+          "then": {
+            "required": ["tabs"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": ["metabox", "group", "repeater"]
+              }
+            }
+          },
+          "then": {
+            "required": ["fields"]
+          }
         }
       ]
     },
@@ -364,7 +388,7 @@
         "type": {
           "type": "string",
           "description": "Field type",
-          "enum": ["text", "textarea", "select", "checkbox", "radio", "number", "email", "url", "date", "password", "color"]
+          "enum": ["text", "textarea", "select", "checkbox", "radio", "number", "email", "url", "date", "password", "color", "wysiwyg", "tabs", "metabox", "group", "repeater"]
         },
         "label": {
           "type": "string",
@@ -504,6 +528,86 @@
             "custom_callback": {
               "type": "string"
             }
+          }
+        },
+        "tabs": {
+          "type": "array",
+          "description": "Tab definitions for tabs field type",
+          "items": {
+            "$ref": "#/definitions/tabDefinition"
+          },
+          "minItems": 1
+        },
+        "orientation": {
+          "type": "string",
+          "description": "Tab orientation (horizontal or vertical)",
+          "enum": ["horizontal", "vertical"],
+          "default": "horizontal"
+        },
+        "fields": {
+          "type": "array",
+          "description": "Nested field definitions for container fields (metabox, group, repeater)",
+          "items": {
+            "$ref": "#/definitions/field"
+          }
+        },
+        "button_label": {
+          "type": "string",
+          "description": "Label for add button in repeater fields",
+          "default": "Add Item"
+        },
+        "row_label": {
+          "type": "string",
+          "description": "Label template for repeater rows (use {{index}} for row number)",
+          "default": "Item {{index}}"
+        },
+        "min_rows": {
+          "type": "integer",
+          "description": "Minimum number of rows in repeater",
+          "minimum": 0,
+          "default": 0
+        },
+        "max_rows": {
+          "type": "integer",
+          "description": "Maximum number of rows in repeater",
+          "minimum": 1
+        }
+      }
+    },
+    "tabDefinition": {
+      "type": "object",
+      "required": ["id", "label"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique tab identifier",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "label": {
+          "type": "string",
+          "description": "Tab label shown to users",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "icon": {
+          "type": "string",
+          "description": "Dashicon class for the tab",
+          "pattern": "^dashicons-",
+          "examples": ["dashicons-admin-settings", "dashicons-edit"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description shown in tab content",
+          "maxLength": 255
+        },
+        "fields": {
+          "type": "array",
+          "description": "Fields within this tab",
+          "items": {
+            "$ref": "#/definitions/field"
           }
         }
       }

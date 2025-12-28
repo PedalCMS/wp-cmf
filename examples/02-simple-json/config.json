@@ -1,0 +1,146 @@
+{
+  "cpts": [
+    {
+      "id": "event",
+      "args": {
+        "label": "Events",
+        "public": true,
+        "has_archive": true,
+        "show_in_rest": true,
+        "supports": ["title", "editor", "thumbnail"],
+        "menu_icon": "dashicons-calendar"
+      },
+      "fields": [
+        {
+          "name": "event_date",
+          "type": "date",
+          "label": "Event Date",
+          "required": true
+        },
+        {
+          "name": "location",
+          "type": "text",
+          "label": "Location",
+          "placeholder": "Enter venue name or address"
+        },
+        {
+          "name": "capacity",
+          "type": "number",
+          "label": "Capacity",
+          "description": "Maximum number of attendees",
+          "min": 1,
+          "max": 100000
+        },
+        {
+          "name": "event_type",
+          "type": "select",
+          "label": "Event Type",
+          "options": {
+            "": "-- Select Type --",
+            "conference": "Conference",
+            "workshop": "Workshop",
+            "webinar": "Webinar",
+            "meetup": "Meetup",
+            "concert": "Concert"
+          }
+        },
+        {
+          "name": "is_free",
+          "type": "checkbox",
+          "label": "Free Event",
+          "description": "Check if this is a free event"
+        },
+        {
+          "name": "ticket_price",
+          "type": "number",
+          "label": "Ticket Price",
+          "description": "Price in dollars (leave empty if free)",
+          "min": 0,
+          "step": 0.01
+        },
+        {
+          "name": "registration_url",
+          "type": "url",
+          "label": "Registration URL",
+          "placeholder": "https://example.com/register"
+        },
+        {
+          "name": "contact_email",
+          "type": "email",
+          "label": "Contact Email"
+        },
+        {
+          "name": "event_description",
+          "type": "textarea",
+          "label": "Short Description",
+          "rows": 3
+        }
+      ]
+    }
+  ],
+  "settings_pages": [
+    {
+      "id": "events-settings",
+      "title": "Events Settings",
+      "menu_title": "Events",
+      "capability": "manage_options",
+      "icon": "dashicons-calendar-alt",
+      "position": 81,
+      "fields": [
+        {
+          "name": "company_name",
+          "type": "text",
+          "label": "Organization Name"
+        },
+        {
+          "name": "default_location",
+          "type": "text",
+          "label": "Default Location",
+          "description": "Pre-fill location for new events"
+        },
+        {
+          "name": "default_capacity",
+          "type": "number",
+          "label": "Default Capacity",
+          "default": 100,
+          "min": 1
+        },
+        {
+          "name": "currency_symbol",
+          "type": "text",
+          "label": "Currency Symbol",
+          "default": "$"
+        },
+        {
+          "name": "enable_registration",
+          "type": "checkbox",
+          "label": "Enable Online Registration",
+          "description": "Allow visitors to register for events"
+        },
+        {
+          "name": "notification_email",
+          "type": "email",
+          "label": "Notification Email",
+          "description": "Email to receive registration notifications"
+        },
+        {
+          "name": "date_format",
+          "type": "radio",
+          "label": "Date Display Format",
+          "options": {
+            "us": "MM/DD/YYYY",
+            "eu": "DD/MM/YYYY",
+            "iso": "YYYY-MM-DD"
+          },
+          "default": "us"
+        },
+        {
+          "name": "primary_color",
+          "type": "color",
+          "label": "Primary Color",
+          "default": "#0073aa"
+        }
+      ]
+    }
+  ]
+}

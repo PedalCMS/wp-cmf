@@ -281,26 +281,54 @@ class SettingsPage {
 			<h1><?php echo esc_html( $page_title ); ?></h1>
 
 			<?php
-			// Check if there are any settings sections registered for this page
-			global $wp_settings_sections;
-			$has_sections = ! empty( $wp_settings_sections[ $menu_slug ] );
+			// Show success message if updated
+			if ( ! empty( $_GET['settings-updated'] ) ) {
+				?>
+				<div class="notice notice-success is-dismissible">
+					<p><?php echo esc_html__( 'Settings saved.', 'wp-cmf' ); ?></p>
+				</div>
+				<?php
+			}
 
-			if ( $has_sections ) {
-				// Display settings errors
+			// Check if there are any settings sections or meta boxes registered
+			global $wp_settings_sections, $wp_meta_boxes;
+			$has_sections = ! empty( $wp_settings_sections[ $menu_slug ] );
+			$has_metaboxes = ! empty( $wp_meta_boxes[ $this->hook_suffix ] );
+
+			if ( $has_sections || $has_metaboxes ) {
+				// Display settings errors/notices
 				if ( function_exists( 'settings_errors' ) ) {
 					settings_errors();
 				}
+
+				// Use current page as action if metaboxes exist (can't use options.php)
+				$form_action = $has_metaboxes ? '' : 'options.php';
 				?>
-				<form method="post" action="options.php">
+				<form method="post" action="<?php echo esc_attr( $form_action ); ?>">
 					<?php
-					// Output security fields for the registered setting
-					if ( function_exists( 'settings_fields' ) ) {
+					// Output security fields
+					if ( $has_metaboxes ) {
+						// Nonce for metabox-based settings page
+						wp_nonce_field( 'wp_cmf_save_settings_' . $this->page_id, 'wp_cmf_settings_nonce' );
+						echo '<input type="hidden" name="action" value="wp_cmf_save_settings" />';
+						echo '<input type="hidden" name="page_id" value="' . esc_attr( $this->page_id ) . '" />';
+					} elseif ( function_exists( 'settings_fields' ) && $has_sections ) {
+						// Standard WordPress settings fields
 						settings_fields( $menu_slug );
 					}
 
 					// Output setting sections and their fields
-					if ( function_exists( 'do_settings_sections' ) ) {
+					if ( function_exists( 'do_settings_sections' ) && $has_sections ) {
 						do_settings_sections( $menu_slug );
+					}
+
+					// Output meta boxes
+					if ( function_exists( 'do_meta_boxes' ) && $has_metaboxes ) {
+						echo '<div id="poststuff">';
+						do_meta_boxes( $this->hook_suffix, 'normal', null );
+						do_meta_boxes( $this->hook_suffix, 'side', null );
+						do_meta_boxes( $this->hook_suffix, 'advanced', null );
+						echo '</div>';
 					}
 
 					// Output save button

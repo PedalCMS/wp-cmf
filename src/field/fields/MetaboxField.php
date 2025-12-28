@@ -40,13 +40,13 @@ class MetaboxField extends AbstractField implements ContainerFieldInterface {
 		$defaults = parent::get_defaults();
 		return array_merge(
 			$defaults,
-			[
+			array(
 				'metabox_id'    => '',
 				'metabox_title' => '',
 				'context'       => 'normal',
 				'priority'      => 'default',
-				'fields'        => [],
-			]
+				'fields'        => array(),
+			)
 		);
 	}
 
@@ -68,7 +68,7 @@ class MetaboxField extends AbstractField implements ContainerFieldInterface {
 	 * @return array<array<string, mixed>>
 	 */
 	public function get_nested_fields(): array {
-		return $this->config['fields'] ?? [];
+		return $this->config['fields'] ?? array();
 	}
 
 	/**
@@ -77,7 +77,10 @@ class MetaboxField extends AbstractField implements ContainerFieldInterface {
 	 * @return string
 	 */
 	public function get_metabox_id(): string {
-		return $this->config['metabox_id'] ?? $this->config['name'];
+		if ( ! empty( $this->config['metabox_id'] ) ) {
+			return $this->config['metabox_id'];
+		}
+		return $this->get_name();
 	}
 
 	/**
@@ -92,7 +95,7 @@ class MetaboxField extends AbstractField implements ContainerFieldInterface {
 		if ( ! empty( $this->config['label'] ) ) {
 			return $this->config['label'];
 		}
-		return ucfirst( str_replace( '_', ' ', $this->get_metabox_id() ) );
+		return ucwords( str_replace( '_', ' ', $this->get_metabox_id() ) );
 	}
 
 	/**
@@ -125,7 +128,7 @@ class MetaboxField extends AbstractField implements ContainerFieldInterface {
 	public function render( $value = null ): string {
 		global $post;
 
-		$fields = $this->config['fields'] ?? [];
+		$fields = $this->config['fields'] ?? array();
 
 		if ( empty( $fields ) ) {
 			return '<p class="description">No fields configured for this metabox.</p>';
@@ -143,7 +146,8 @@ class MetaboxField extends AbstractField implements ContainerFieldInterface {
 			$context = null;
 		}
 
-		$output = '<div class="wp-cmf-metabox-fields">';
+
+		$output  = '<div class="wp-cmf-metabox-fields">';
 		$output .= $this->render_metabox_fields( $fields, $context );
 		$output .= '</div>';
 
@@ -165,7 +169,7 @@ class MetaboxField extends AbstractField implements ContainerFieldInterface {
 			return '<p class="description">No fields configured for this metabox.</p>';
 		}
 
-		$output = '<table class="form-table" role="presentation">';
+		$output = '';
 
 		foreach ( $fields as $field_config ) {
 			$field_name = $field_config['name'] ?? '';
@@ -174,11 +178,16 @@ class MetaboxField extends AbstractField implements ContainerFieldInterface {
 				try {
 					$field = FieldFactory::create( $field_config );
 
-					// Load the field value using standard WordPress functions
-					$field_value = $this->load_field_value( $field_name, $context );
-
-					// Render the field
-					$field_html = $field->render( $field_value );
+					// For container fields (tabs, etc), pass context directly
+					// For regular fields, load and pass the field value
+					if ( $field instanceof \Pedalcms\WpCmf\Field\ContainerFieldInterface ) {
+						// Container fields need context to pass to nested fields
+						$field_html = $field->render( $context );
+					} else {
+						// Regular fields: load value and render
+						$field_value = $this->load_field_value( $field_name, $context );
+						$field_html  = $field->render( $field_value );
+					}
 
 					// For settings pages (when context is a string page_id), fix the name attribute
 					if ( is_string( $context ) && ! empty( $context ) ) {
@@ -196,17 +205,12 @@ class MetaboxField extends AbstractField implements ContainerFieldInterface {
 						);
 					}
 
-					$output .= '<tr>';
-					$output .= '<th scope="row">' . $this->esc_html( $field->get_label() ) . '</th>';
-					$output .= '<td>' . $field_html . '</td>';
-					$output .= '</tr>';
+					$output .= $field_html;
 				} catch ( \Exception $e ) {
-					$output .= '<tr><td colspan="2">Error rendering field: ' . $this->esc_html( $e->getMessage() ) . '</td></tr>';
+					$output .= '<div class="error"><p>Error rendering field: ' . $this->esc_html( $e->getMessage() ) . '</p></div>';
 				}
 			}
 		}
-
-		$output .= '</table>';
 
 		return $output;
 	}
@@ -252,7 +256,7 @@ class MetaboxField extends AbstractField implements ContainerFieldInterface {
 	 * @return array Empty array.
 	 */
 	public function sanitize( $value ) {
-		return [];
+		return array();
 	}
 
 	/**
@@ -265,10 +269,10 @@ class MetaboxField extends AbstractField implements ContainerFieldInterface {
 	 * @return array Validation result.
 	 */
 	public function validate( $input ): array {
-		return [
+		return array(
 			'valid'  => true,
-			'errors' => [],
-		];
+			'errors' => array(),
+		);
 	}
 
 	/**
@@ -304,21 +308,21 @@ class MetaboxField extends AbstractField implements ContainerFieldInterface {
 	 * @return array<string, mixed>
 	 */
 	public function get_schema(): array {
-		return [
+		return array(
 			'type'       => 'object',
-			'properties' => [
-				'metabox_id'    => [ 'type' => 'string' ],
-				'metabox_title' => [ 'type' => 'string' ],
-				'context'       => [
+			'properties' => array(
+				'metabox_id'    => array( 'type' => 'string' ),
+				'metabox_title' => array( 'type' => 'string' ),
+				'context'       => array(
 					'type' => 'string',
-					'enum' => [ 'normal', 'side', 'advanced' ],
-				],
-				'priority'      => [
+					'enum' => array( 'normal', 'side', 'advanced' ),
+				),
+				'priority'      => array(
 					'type' => 'string',
-					'enum' => [ 'high', 'core', 'default', 'low' ],
-				],
-				'fields'        => [ 'type' => 'array' ],
-			],
-		];
+					'enum' => array( 'high', 'core', 'default', 'low' ),
+				),
+				'fields'        => array( 'type' => 'array' ),
+			),
+		);
 	}
 }

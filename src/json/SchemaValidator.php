@@ -160,7 +160,24 @@ class SchemaValidator {
 		} elseif ( ! is_string( $field['type'] ) ) {
 			$this->errors[] = "{$path}.type must be a string";
 		} else {
-			$valid_types = array( 'text', 'textarea', 'select', 'checkbox', 'radio', 'number', 'email', 'url', 'date', 'password', 'color' );
+			$valid_types = array(
+				'text',
+				'textarea',
+				'select',
+				'checkbox',
+				'radio',
+				'number',
+				'email',
+				'url',
+				'date',
+				'password',
+				'color',
+				'wysiwyg',
+				'tabs',
+				'metabox',
+				'group',
+				'repeater',
+			);
 			if ( ! in_array( $field['type'], $valid_types, true ) ) {
 				$this->errors[] = "{$path}.type must be one of: " . implode( ', ', $valid_types );
 			}
@@ -258,6 +275,161 @@ class SchemaValidator {
 			if ( isset( $field['default'] ) && ! $this->is_valid_hex_color( $field['default'] ) ) {
 				$this->errors[] = "{$path}.default must be valid hex color (#RRGGBB) for color field";
 			}
+		}
+
+		// Tabs field validation - requires tabs array with nested fields
+		if ( 'tabs' === $type ) {
+			if ( ! isset( $field['tabs'] ) ) {
+				$this->errors[] = "{$path} field type 'tabs' requires 'tabs' property";
+			} elseif ( ! is_array( $field['tabs'] ) ) {
+				$this->errors[] = "{$path}.tabs must be an array";
+			} elseif ( count( $field['tabs'] ) === 0 ) {
+				$this->errors[] = "{$path}.tabs must contain at least one tab";
+			} else {
+				foreach ( $field['tabs'] as $tab_index => $tab ) {
+					$this->validate_tab_definition( $tab, "{$path}.tabs[{$tab_index}]" );
+				}
+			}
+
+			// Validate orientation if present
+			if ( isset( $field['orientation'] ) ) {
+				$valid_orientations = array( 'horizontal', 'vertical' );
+				if ( ! in_array( $field['orientation'], $valid_orientations, true ) ) {
+					$this->errors[] = "{$path}.orientation must be one of: " . implode( ', ', $valid_orientations );
+				}
+			}
+		}
+
+		// Metabox field validation - requires fields array
+		if ( 'metabox' === $type ) {
+			if ( ! isset( $field['fields'] ) ) {
+				$this->errors[] = "{$path} field type 'metabox' requires 'fields' property";
+			} elseif ( ! is_array( $field['fields'] ) ) {
+				$this->errors[] = "{$path}.fields must be an array";
+			} else {
+				foreach ( $field['fields'] as $nested_index => $nested_field ) {
+					$this->validate_field( $nested_field, "{$path}.fields[{$nested_index}]" );
+				}
+			}
+
+			// Validate context if present
+			if ( isset( $field['context'] ) ) {
+				$valid_contexts = array( 'normal', 'side', 'advanced' );
+				if ( ! in_array( $field['context'], $valid_contexts, true ) ) {
+					$this->errors[] = "{$path}.context must be one of: " . implode( ', ', $valid_contexts );
+				}
+			}
+
+			// Validate priority if present
+			if ( isset( $field['priority'] ) ) {
+				$valid_priorities = array( 'high', 'default', 'low' );
+				if ( ! in_array( $field['priority'], $valid_priorities, true ) ) {
+					$this->errors[] = "{$path}.priority must be one of: " . implode( ', ', $valid_priorities );
+				}
+			}
+		}
+
+		// Group field validation - requires fields array
+		if ( 'group' === $type ) {
+			if ( ! isset( $field['fields'] ) ) {
+				$this->errors[] = "{$path} field type 'group' requires 'fields' property";
+			} elseif ( ! is_array( $field['fields'] ) ) {
+				$this->errors[] = "{$path}.fields must be an array";
+			} else {
+				foreach ( $field['fields'] as $nested_index => $nested_field ) {
+					$this->validate_field( $nested_field, "{$path}.fields[{$nested_index}]" );
+				}
+			}
+		}
+
+		// Repeater field validation - requires fields array
+		if ( 'repeater' === $type ) {
+			if ( ! isset( $field['fields'] ) ) {
+				$this->errors[] = "{$path} field type 'repeater' requires 'fields' property";
+			} elseif ( ! is_array( $field['fields'] ) ) {
+				$this->errors[] = "{$path}.fields must be an array";
+			} elseif ( count( $field['fields'] ) === 0 ) {
+				$this->errors[] = "{$path}.fields must contain at least one field";
+			} else {
+				foreach ( $field['fields'] as $nested_index => $nested_field ) {
+					$this->validate_field( $nested_field, "{$path}.fields[{$nested_index}]" );
+				}
+			}
+
+			// Validate min/max if present
+			if ( isset( $field['min'] ) && ( ! is_int( $field['min'] ) || $field['min'] < 0 ) ) {
+				$this->errors[] = "{$path}.min must be a non-negative integer for repeater field";
+			}
+			if ( isset( $field['max'] ) && ( ! is_int( $field['max'] ) || $field['max'] < 1 ) ) {
+				$this->errors[] = "{$path}.max must be a positive integer for repeater field";
+			}
+		}
+
+		// WYSIWYG field validation
+		if ( 'wysiwyg' === $type ) {
+			if ( isset( $field['media_buttons'] ) && ! is_bool( $field['media_buttons'] ) ) {
+				$this->errors[] = "{$path}.media_buttons must be a boolean for wysiwyg field";
+			}
+			if ( isset( $field['teeny'] ) && ! is_bool( $field['teeny'] ) ) {
+				$this->errors[] = "{$path}.teeny must be a boolean for wysiwyg field";
+			}
+			if ( isset( $field['textarea_rows'] ) ) {
+				$rows = $field['textarea_rows'];
+				if ( ! is_int( $rows ) && ! is_numeric( $rows ) ) {
+					$this->errors[] = "{$path}.textarea_rows must be an integer for wysiwyg field";
+				} elseif ( $rows < 1 || $rows > 50 ) {
+					$this->errors[] = "{$path}.textarea_rows must be between 1 and 50";
+				}
+			}
+		}
+	}
+
+	/**
+	 * Validate a tab definition within a tabs field
+	 *
+	 * @param mixed  $tab  Tab definition.
+	 * @param string $path Path for error reporting.
+	 * @return void
+	 */
+	private function validate_tab_definition( $tab, string $path ): void {
+		if ( ! is_array( $tab ) ) {
+			$this->errors[] = "{$path} must be an object/array";
+			return;
+		}
+
+		// Required: id
+		if ( empty( $tab['id'] ) ) {
+			$this->errors[] = "{$path} missing required field 'id'";
+		} elseif ( ! is_string( $tab['id'] ) ) {
+			$this->errors[] = "{$path}.id must be a string";
+		}
+
+		// Required: label
+		if ( empty( $tab['label'] ) ) {
+			$this->errors[] = "{$path} missing required field 'label'";
+		} elseif ( ! is_string( $tab['label'] ) ) {
+			$this->errors[] = "{$path}.label must be a string";
+		}
+
+		// Required: fields
+		if ( ! isset( $tab['fields'] ) ) {
+			$this->errors[] = "{$path} missing required field 'fields'";
+		} elseif ( ! is_array( $tab['fields'] ) ) {
+			$this->errors[] = "{$path}.fields must be an array";
+		} else {
+			foreach ( $tab['fields'] as $field_index => $field ) {
+				$this->validate_field( $field, "{$path}.fields[{$field_index}]" );
+			}
+		}
+
+		// Optional: icon
+		if ( isset( $tab['icon'] ) && ! is_string( $tab['icon'] ) ) {
+			$this->errors[] = "{$path}.icon must be a string";
+		}
+
+		// Optional: description
+		if ( isset( $tab['description'] ) && ! is_string( $tab['description'] ) ) {
+			$this->errors[] = "{$path}.description must be a string";
 		}
 	}
 

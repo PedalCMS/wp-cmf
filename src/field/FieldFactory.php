@@ -26,6 +26,7 @@ use Pedalcms\WpCmf\Field\Fields\TabsField;
 use Pedalcms\WpCmf\Field\Fields\MetaboxField;
 use Pedalcms\WpCmf\Field\Fields\RepeaterField;
 use Pedalcms\WpCmf\Field\Fields\WysiwygField;
+use Pedalcms\WpCmf\Field\Fields\GroupField;
 
 /**
  * FieldFactory class
@@ -106,6 +107,7 @@ class FieldFactory {
 			'metabox'  => MetaboxField::class,
 			'repeater' => RepeaterField::class,
 			'wysiwyg'  => WysiwygField::class,
+			'group'    => GroupField::class,
 		);
 
 		// Merge back any custom types

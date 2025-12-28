@@ -84,7 +84,9 @@ class CheckboxField extends AbstractField {
 			$attributes['disabled'] = true;
 		}
 
-		$output  = '<label>';
+		// Add hidden field with value '0' so unchecked state is submitted
+		$output  = '<input type="hidden" name="' . $this->esc_attr( $this->name ) . '" value="0" />';
+		$output .= '<label>';
 		$output .= '<input' . $this->build_attributes( $attributes ) . ' />';
 		$output .= ' ' . $this->esc_html( $this->get_label() );
 		$output .= '</label>';

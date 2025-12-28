@@ -1,0 +1,280 @@
+{
+  "settings_pages": [
+    {
+      "id": "agency-settings",
+      "title": "Agency Settings",
+      "menu_title": "Agency",
+      "capability": "manage_options",
+      "icon": "dashicons-admin-multisite",
+      "position": 26,
+      "fields": [
+        {
+          "name": "agency_settings_metabox",
+          "type": "metabox",
+          "label": "Agency Configuration",
+          "context": "normal",
+          "priority": "high",
+          "fields": [
+            {
+              "name": "agency_tabs",
+              "type": "tabs",
+              "orientation": "vertical",
+              "tabs": [
+            {
+              "id": "company_tab",
+              "label": "Company Info",
+              "icon": "dashicons-building",
+              "fields": [
+                {
+                  "name": "agency_name",
+                  "type": "text",
+                  "label": "Agency Name",
+                  "required": true
+                },
+                {
+                  "name": "agency_tagline",
+                  "type": "text",
+                  "label": "Tagline"
+                },
+                {
+                  "name": "agency_email",
+                  "type": "email",
+                  "label": "Main Email"
+                },
+                {
+                  "name": "agency_phone",
+                  "type": "text",
+                  "label": "Main Phone"
+                },
+                {
+                  "name": "agency_address",
+                  "type": "textarea",
+                  "label": "Office Address",
+                  "rows": 3
+                },
+                {
+                  "name": "agency_license",
+                  "type": "text",
+                  "label": "License Number"
+                }
+              ]
+            },
+            {
+              "id": "listings_tab",
+              "label": "Listings",
+              "icon": "dashicons-list-view",
+              "fields": [
+                {
+                  "name": "listings_per_page",
+                  "type": "number",
+                  "label": "Listings Per Page",
+                  "min": 1,
+                  "max": 100,
+                  "default": 12
+                },
+                {
+                  "name": "default_sort",
+                  "type": "select",
+                  "label": "Default Sort Order",
+                  "options": {
+                    "date": "Newest First",
+                    "price_asc": "Price: Low to High",
+                    "price_desc": "Price: High to Low",
+                    "title": "Alphabetical"
+                  },
+                  "default": "date"
+                },
+                {
+                  "name": "show_sold",
+                  "type": "checkbox",
+                  "label": "Show Sold Properties",
+                  "description": "Display sold properties in listings"
+                },
+                {
+                  "name": "enable_favorites",
+                  "type": "checkbox",
+                  "label": "Enable Favorites",
+                  "description": "Allow users to save favorite properties"
+                },
+                {
+                  "name": "enable_compare",
+                  "type": "checkbox",
+                  "label": "Enable Compare",
+                  "description": "Allow users to compare properties"
+                }
+              ]
+            },
+            {
+              "id": "map_tab",
+              "label": "Maps",
+              "icon": "dashicons-location",
+              "fields": [
+                {
+                  "name": "map_api_key",
+                  "type": "password",
+                  "label": "Google Maps API Key"
+                },
+                {
+                  "name": "default_latitude",
+                  "type": "text",
+                  "label": "Default Latitude",
+                  "default": "40.7128"
+                },
+                {
+                  "name": "default_longitude",
+                  "type": "text",
+                  "label": "Default Longitude",
+                  "default": "-74.0060"
+                },
+                {
+                  "name": "default_zoom",
+                  "type": "number",
+                  "label": "Default Zoom Level",
+                  "min": 1,
+                  "max": 20,
+                  "default": 12
+                },
+                {
+                  "name": "map_style",
+                  "type": "radio",
+                  "label": "Map Style",
+                  "options": {
+                    "standard": "Standard",
+                    "silver": "Silver",
+                    "dark": "Dark",
+                    "satellite": "Satellite"
+                  },
+                  "default": "standard"
+                }
+              ]
+            },
+            {
+              "id": "contact_tab",
+              "label": "Contact Form",
+              "icon": "dashicons-email",
+              "fields": [
+                {
+                  "name": "contact_settings",
+                  "type": "group",
+                  "label": "Form Settings",
+                  "fields": [
+                    {
+                      "name": "contact_recipient",
+                      "type": "email",
+                      "label": "Send Inquiries To"
+                    },
+                    {
+                      "name": "contact_subject",
+                      "type": "text",
+                      "label": "Email Subject",
+                      "default": "New Property Inquiry"
+                    },
+                    {
+                      "name": "require_phone",
+                      "type": "checkbox",
+                      "label": "Require Phone Number"
+                    }
+                  ]
+                },
+                {
+                  "name": "notification_settings",
+                  "type": "group",
+                  "label": "Notification Settings",
+                  "fields": [
+                    {
+                      "name": "notify_agent",
+                      "type": "checkbox",
+                      "label": "Notify Listing Agent",
+                      "description": "Send copy to the listing agent"
+                    },
+                    {
+                      "name": "auto_reply",
+                      "type": "checkbox",
+                      "label": "Send Auto-Reply",
+                      "description": "Send confirmation to inquirer"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "appearance_tab",
+              "label": "Appearance",
+              "icon": "dashicons-admin-appearance",
+              "fields": [
+                {
+                  "name": "primary_color",
+                  "type": "color",
+                  "label": "Primary Color",
+                  "default": "#2c3e50"
+                },
+                {
+                  "name": "secondary_color",
+                  "type": "color",
+                  "label": "Secondary Color",
+                  "default": "#3498db"
+                },
+                {
+                  "name": "accent_color",
+                  "type": "color",
+                  "label": "Accent Color",
+                  "default": "#e74c3c"
+                },
+                {
+                  "name": "card_layout",
+                  "type": "radio",
+                  "label": "Property Card Layout",
+                  "options": {
+                    "grid": "Grid",
+                    "list": "List",
+                    "masonry": "Masonry"
+                  },
+                  "default": "grid"
+                },
+                {
+                  "name": "custom_css",
+                  "type": "textarea",
+                  "label": "Custom CSS",
+                  "rows": 8
+                }
+              ]
+            },
+            {
+              "id": "advanced_tab",
+              "label": "Advanced",
+              "icon": "dashicons-admin-tools",
+              "fields": [
+                {
+                  "name": "enable_api",
+                  "type": "checkbox",
+                  "label": "Enable REST API",
+                  "description": "Allow external API access to listings"
+                },
+                {
+                  "name": "api_key",
+                  "type": "password",
+                  "label": "API Secret Key"
+                },
+                {
+                  "name": "cache_duration",
+                  "type": "number",
+                  "label": "Cache Duration (hours)",
+                  "min": 0,
+                  "max": 168,
+                  "default": 1
+                },
+                {
+                  "name": "terms_page",
+                  "type": "wysiwyg",
+                  "label": "Terms & Conditions"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+      ]
+    }
+  ]
+}

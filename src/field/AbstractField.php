@@ -185,7 +185,7 @@ abstract class AbstractField implements FieldInterface {
 				return \sanitize_text_field( $input );
 			}
 			// Fallback sanitization if WordPress function not available
-			$sanitized = strip_tags( $input );
+			$sanitized = wp_strip_all_tags( $input );
 			$sanitized = trim( preg_replace( '/\s+/', ' ', $sanitized ) );
 			return $sanitized;
 		}
@@ -379,9 +379,15 @@ abstract class AbstractField implements FieldInterface {
 	/**
 	 * Render field label
 	 *
+	 * @param bool $hide_label Whether to hide the label (for contexts where label is rendered elsewhere).
 	 * @return string
 	 */
-	protected function render_label(): string {
+	protected function render_label( bool $hide_label = false ): string {
+		// Check if label should be hidden
+		if ( $hide_label ) {
+			return '';
+		}
+
 		$label = $this->get_label();
 
 		if ( empty( $label ) ) {
