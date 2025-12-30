@@ -49,8 +49,8 @@ Update the comparison links at the bottom:
 
 ```markdown
 [Unreleased]: https://github.com/PedalCMS/wp-cmf/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/PedalCMS/wp-cmf/compare/v0.1.0...v1.0.0
-[0.1.0]: https://github.com/PedalCMS/wp-cmf/releases/tag/v0.1.0
+[1.0.0]: https://github.com/PedalCMS/wp-cmf/compare/v0.0.2...v1.0.0
+[0.0.2]: https://github.com/PedalCMS/wp-cmf/releases/tag/v0.0.2
 ```
 
 ### 2. Update Version in README.md
