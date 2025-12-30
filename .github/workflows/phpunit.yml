@@ -2,15 +2,19 @@ name: PHPUnit Tests
 
 on:
   push:
-    branches: [ main, develop ]
+    branches:
+      - main
   pull_request:
-    branches: [ main, develop ]
+    branches:
+      - main
 
 jobs:
   test:
+    name: PHP ${{ matrix.php-version }} / WP ${{ matrix.wp-version }}
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         php-version: ['8.1', '8.2', '8.3']
         wp-version: ['latest', '6.7']
@@ -26,36 +30,36 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          tools: composer:v2
-          extensions: mbstring, xml, zip, intl, pdo, mysql, mysqli
+          extensions: mysqli
           coverage: none
-
-      - name: Install SVN
-        run: sudo apt-get update && sudo apt-get install -y subversion
+          tools: composer
 
       - name: Get Composer cache directory
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
+          restore-keys: |
+            ${{ runner.os }}-composer-
 
-      - name: Install Composer dependencies
-        run: composer install --no-progress --prefer-dist --optimize-autoloader
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-scripts
 
       - name: Install WordPress test suite
         run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 ${{ matrix.wp-version }}
 
-      - name: Run PHPUnit tests
-        run: composer test
+      - name: Run PHPUnit
+        env:
+          WP_PHPUNIT__TESTS_CONFIG: ${{ github.workspace }}/tests/wp-tests-config.php
+        run: composer run test

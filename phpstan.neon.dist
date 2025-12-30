@@ -1,0 +1,9 @@
+parameters:
+    level: 5
+    paths:
+        - src/
+    # Treat PHPDoc types as uncertain to allow method_exists() and instanceof checks
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        # Allow WP_CONTENT_URL constant usage (common in plugins)
+        - '#Found usage of constant WP_CONTENT_URL#'

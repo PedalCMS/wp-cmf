@@ -13,7 +13,7 @@ namespace Pedalcms\WpCmf\Core\Handlers;
 use Pedalcms\WpCmf\CPT\Custom_Post_Type;
 use Pedalcms\WpCmf\Field\Field_Interface;
 use Pedalcms\WpCmf\Field\Container_Field_Interface;
-use Pedalcms\WpCmf\Field\fields\Metabox_Field;
+use Pedalcms\WpCmf\Field\Fields\Metabox_Field;
 
 /**
  * Class New_Post_Type_Handler

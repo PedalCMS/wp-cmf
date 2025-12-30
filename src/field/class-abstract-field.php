@@ -72,7 +72,7 @@ abstract class Abstract_Field implements Field_Interface {
 	 */
 	protected function get_defaults(): array {
 		return [
-			'label'           => ucwords( str_replace( [ '_', '-' ], ' ', $this->name ?? '' ) ),
+			'label'           => ucwords( str_replace( [ '_', '-' ], ' ', $this->name ) ),
 			'description'     => '',
 			'placeholder'     => '',
 			'default'         => '',
