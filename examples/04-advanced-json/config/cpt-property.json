@@ -1,0 +1,373 @@
+{
+  "cpts": [
+    {
+      "id": "property",
+      "args": {
+        "label": "Properties",
+        "labels": {
+          "singular_name": "Property",
+          "add_new": "Add Property",
+          "add_new_item": "Add New Property",
+          "edit_item": "Edit Property",
+          "view_item": "View Property",
+          "search_items": "Search Properties",
+          "not_found": "No properties found"
+        },
+        "public": true,
+        "has_archive": true,
+        "show_in_rest": true,
+        "supports": ["title", "editor", "thumbnail", "excerpt"],
+        "menu_icon": "dashicons-building",
+        "menu_position": 25,
+        "rewrite": {
+          "slug": "properties"
+        }
+      },
+      "fields": [
+        {
+          "name": "listing_info",
+          "type": "metabox",
+          "label": "Listing Information",
+          "context": "normal",
+          "priority": "high",
+          "fields": [
+            {
+              "name": "listing_id",
+              "type": "text",
+              "label": "Listing ID",
+              "description": "Leave empty to auto-generate",
+              "placeholder": "PROP-000001"
+            },
+            {
+              "name": "property_price",
+              "type": "number",
+              "label": "Price ($)",
+              "required": true,
+              "min": 0,
+              "step": 0.01
+            },
+            {
+              "name": "property_status",
+              "type": "select",
+              "label": "Status",
+              "options": {
+                "active": "Active",
+                "pending": "Pending",
+                "sold": "Sold",
+                "rented": "Rented"
+              },
+              "default": "active"
+            },
+            {
+              "name": "property_type",
+              "type": "select",
+              "label": "Property Type",
+              "options": {
+                "": "-- Select Type --",
+                "house": "House",
+                "condo": "Condo",
+                "townhouse": "Townhouse",
+                "apartment": "Apartment",
+                "land": "Land"
+              }
+            },
+            {
+              "name": "listing_date",
+              "type": "date",
+              "label": "Listing Date"
+            }
+          ]
+        },
+        {
+          "name": "property_details",
+          "type": "metabox",
+          "label": "Property Details",
+          "context": "normal",
+          "priority": "default",
+          "fields": [
+            {
+              "name": "property_tabs",
+              "type": "tabs",
+              "orientation": "horizontal",
+              "tabs": [
+                {
+                  "id": "basic_tab",
+                  "label": "Basic Info",
+                  "icon": "dashicons-admin-home",
+                  "fields": [
+                    {
+                      "name": "bedrooms",
+                      "type": "number",
+                      "label": "Bedrooms",
+                      "min": 0,
+                      "max": 20
+                    },
+                    {
+                      "name": "bathrooms",
+                      "type": "number",
+                      "label": "Bathrooms",
+                      "min": 0,
+                      "max": 20,
+                      "step": 0.5
+                    },
+                    {
+                      "name": "square_feet",
+                      "type": "number",
+                      "label": "Square Feet",
+                      "min": 0
+                    },
+                    {
+                      "name": "lot_size",
+                      "type": "text",
+                      "label": "Lot Size",
+                      "placeholder": "0.25 acres"
+                    },
+                    {
+                      "name": "year_built",
+                      "type": "number",
+                      "label": "Year Built",
+                      "min": 1800,
+                      "max": 2030
+                    },
+                    {
+                      "name": "garage_spaces",
+                      "type": "number",
+                      "label": "Garage Spaces",
+                      "min": 0,
+                      "max": 10
+                    }
+                  ]
+                },
+                {
+                  "id": "features_tab",
+                  "label": "Features",
+                  "icon": "dashicons-star-filled",
+                  "fields": [
+                    {
+                      "name": "amenities",
+                      "type": "checkbox",
+                      "label": "Amenities",
+                      "multiple": true,
+                      "options": {
+                        "pool": "Swimming Pool",
+                        "gym": "Fitness Center",
+                        "parking": "Covered Parking",
+                        "security": "24/7 Security",
+                        "laundry": "In-Unit Laundry",
+                        "ac": "Central A/C",
+                        "heating": "Central Heating",
+                        "fireplace": "Fireplace",
+                        "patio": "Patio/Balcony",
+                        "storage": "Storage Unit"
+                      }
+                    },
+                    {
+                      "name": "flooring",
+                      "type": "radio",
+                      "label": "Primary Flooring",
+                      "options": {
+                        "hardwood": "Hardwood",
+                        "tile": "Tile",
+                        "carpet": "Carpet",
+                        "laminate": "Laminate",
+                        "mixed": "Mixed"
+                      }
+                    },
+                    {
+                      "name": "hoa_fee",
+                      "type": "number",
+                      "label": "Monthly HOA Fee ($)",
+                      "min": 0
+                    }
+                  ]
+                },
+                {
+                  "id": "description_tab",
+                  "label": "Description",
+                  "icon": "dashicons-edit",
+                  "fields": [
+                    {
+                      "name": "short_description",
+                      "type": "textarea",
+                      "label": "Short Description",
+                      "rows": 3,
+                      "placeholder": "Brief overview of the property..."
+                    },
+                    {
+                      "name": "full_description",
+                      "type": "wysiwyg",
+                      "label": "Full Description"
+                    }
+                  ]
+                },
+                {
+                  "id": "media_tab",
+                  "label": "Media & Links",
+                  "icon": "dashicons-format-gallery",
+                  "fields": [
+                    {
+                      "name": "virtual_tour_url",
+                      "type": "url",
+                      "label": "Virtual Tour URL",
+                      "placeholder": "https://tour.example.com/property"
+                    },
+                    {
+                      "name": "video_url",
+                      "type": "url",
+                      "label": "Video URL",
+                      "placeholder": "https://youtube.com/watch?v=..."
+                    },
+                    {
+                      "name": "floor_plan_url",
+                      "type": "url",
+                      "label": "Floor Plan URL"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "location_info",
+          "type": "metabox",
+          "label": "Location",
+          "context": "normal",
+          "priority": "default",
+          "fields": [
+            {
+              "name": "location_group",
+              "type": "group",
+              "label": "Address Details",
+              "fields": [
+                {
+                  "name": "street_address",
+                  "type": "text",
+                  "label": "Street Address"
+                },
+                {
+                  "name": "city",
+                  "type": "text",
+                  "label": "City"
+                },
+                {
+                  "name": "state",
+                  "type": "text",
+                  "label": "State/Province"
+                },
+                {
+                  "name": "zip_code",
+                  "type": "text",
+                  "label": "ZIP/Postal Code"
+                },
+                {
+                  "name": "country",
+                  "type": "select",
+                  "label": "Country",
+                  "options": {
+                    "US": "United States",
+                    "CA": "Canada",
+                    "UK": "United Kingdom",
+                    "AU": "Australia"
+                  },
+                  "default": "US"
+                }
+              ]
+            },
+            {
+              "name": "coordinates_group",
+              "type": "group",
+              "label": "Map Coordinates",
+              "description": "For map display",
+              "fields": [
+                {
+                  "name": "latitude",
+                  "type": "text",
+                  "label": "Latitude",
+                  "placeholder": "40.7128"
+                },
+                {
+                  "name": "longitude",
+                  "type": "text",
+                  "label": "Longitude",
+                  "placeholder": "-74.0060"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "agent_info",
+          "type": "metabox",
+          "label": "Agent Information",
+          "context": "side",
+          "priority": "high",
+          "fields": [
+            {
+              "name": "agent_name",
+              "type": "text",
+              "label": "Agent Name"
+            },
+            {
+              "name": "agent_email",
+              "type": "email",
+              "label": "Agent Email"
+            },
+            {
+              "name": "agent_phone",
+              "type": "text",
+              "label": "Agent Phone",
+              "placeholder": "(555) 555-5555"
+            },
+            {
+              "name": "featured_listing",
+              "type": "checkbox",
+              "label": "Featured Listing",
+              "description": "Show on homepage"
+            }
+          ]
+        },
+        {
+          "name": "open_houses",
+          "type": "metabox",
+          "label": "Open Houses",
+          "context": "normal",
+          "priority": "low",
+          "fields": [
+            {
+              "name": "open_house_schedule",
+              "type": "repeater",
+              "label": "Scheduled Open Houses",
+              "button_label": "Add Open House",
+              "fields": [
+                {
+                  "name": "oh_date",
+                  "type": "date",
+                  "label": "Date"
+                },
+                {
+                  "name": "oh_start_time",
+                  "type": "text",
+                  "label": "Start Time",
+                  "placeholder": "10:00 AM"
+                },
+                {
+                  "name": "oh_end_time",
+                  "type": "text",
+                  "label": "End Time",
+                  "placeholder": "2:00 PM"
+                },
+                {
+                  "name": "oh_notes",
+                  "type": "textarea",
+                  "label": "Notes",
+                  "rows": 2
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

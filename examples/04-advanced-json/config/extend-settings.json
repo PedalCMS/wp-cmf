@@ -1,0 +1,115 @@
+{
+  "settings_pages": [
+    {
+      "id": "general",
+      "parent": "options-general.php",
+      "fields": [
+        {
+          "name": "social_profiles",
+          "type": "group",
+          "label": "Social Media Profiles",
+          "description": "Enter your social media URLs",
+          "fields": [
+            {
+              "name": "social_facebook",
+              "type": "url",
+              "label": "Facebook",
+              "placeholder": "https://facebook.com/yourpage"
+            },
+            {
+              "name": "social_twitter",
+              "type": "url",
+              "label": "Twitter/X",
+              "placeholder": "https://twitter.com/yourhandle"
+            },
+            {
+              "name": "social_instagram",
+              "type": "url",
+              "label": "Instagram",
+              "placeholder": "https://instagram.com/yourprofile"
+            },
+            {
+              "name": "social_youtube",
+              "type": "url",
+              "label": "YouTube",
+              "placeholder": "https://youtube.com/yourchannel"
+            },
+            {
+              "name": "social_linkedin",
+              "type": "url",
+              "label": "LinkedIn",
+              "placeholder": "https://linkedin.com/company/yourcompany"
+            }
+          ]
+        },
+        {
+          "name": "branding",
+          "type": "group",
+          "label": "Brand Settings",
+          "fields": [
+            {
+              "name": "brand_primary_color",
+              "type": "color",
+              "label": "Primary Brand Color",
+              "default": "#0073aa"
+            },
+            {
+              "name": "brand_secondary_color",
+              "type": "color",
+              "label": "Secondary Brand Color",
+              "default": "#23282d"
+            }
+          ]
+        },
+        {
+          "name": "analytics_id",
+          "type": "text",
+          "label": "Google Analytics ID",
+          "placeholder": "G-XXXXXXXXXX",
+          "description": "Enter your GA4 Measurement ID"
+        }
+      ]
+    },
+    {
+      "id": "reading",
+      "parent": "options-reading.php",
+      "fields": [
+        {
+          "name": "reading_options",
+          "type": "group",
+          "label": "Extended Reading Options",
+          "fields": [
+            {
+              "name": "show_reading_time",
+              "type": "checkbox",
+              "label": "Show Reading Time",
+              "description": "Display estimated reading time on posts"
+            },
+            {
+              "name": "show_author_bio",
+              "type": "checkbox",
+              "label": "Show Author Bio",
+              "description": "Display author biography after posts"
+            },
+            {
+              "name": "related_posts_count",
+              "type": "number",
+              "label": "Related Posts to Show",
+              "min": 0,
+              "max": 10,
+              "default": 3
+            },
+            {
+              "name": "excerpt_length",
+              "type": "number",
+              "label": "Excerpt Length (words)",
+              "min": 10,
+              "max": 200,
+              "default": 55
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

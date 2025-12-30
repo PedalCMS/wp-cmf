@@ -1,46 +1,110 @@
 ﻿<?php
 /**
  * WP-CMF Test Bootstrap
- * WordPress-style test bootstrap following AspirePress patterns
+ *
+ * Bootstrap file for WordPress unit tests following WordPress testing standards.
+ *
+ * @package Pedalcms\WpCmf\Tests
  */
 
-// Set test mode flag
-define( 'WP_CMF_TESTING', true );
+// Define plugin testing directory.
+define( 'TESTS_PLUGIN_DIR', dirname( __DIR__ ) );
+define( 'UNIT_TESTS_DATA_PLUGIN_DIR', TESTS_PLUGIN_DIR . '/tests/Data/' );
 
-// Load Composer autoloader
-require_once dirname( __DIR__ ) . '/vendor/autoload.php';
+// Define test mode flag.
+if ( ! defined( 'WP_CMF_TESTING' ) ) {
+	define( 'WP_CMF_TESTING', true );
+}
 
-// Mock WP_UnitTestCase if not available
-if ( ! class_exists( 'WP_UnitTestCase' ) ) {
-	class WP_UnitTestCase extends \PHPUnit\Framework\TestCase {
-		public function setUp(): void {
-			parent::setUp();
+// Load Composer autoloader.
+$autoloader = dirname( __DIR__ ) . '/vendor/autoload.php';
+if ( ! file_exists( $autoloader ) ) {
+	echo 'Composer autoloader not found. Run `composer install` first.' . PHP_EOL;
+	exit( 1 );
+}
+require_once $autoloader;
+
+// Find the WordPress test library.
+$_tests_dir = getenv( 'WP_TESTS_DIR' );
+
+if ( ! $_tests_dir ) {
+	// Try common locations.
+	$_possible_dirs = [
+		// Composer wp-phpunit package (preferred for Composer-based projects).
+		dirname( __DIR__ ) . '/vendor/wp-phpunit/wp-phpunit',
+		// Standard temp locations.
+		rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib',
+		'/tmp/wordpress-tests-lib',
+	];
+
+	foreach ( $_possible_dirs as $_dir ) {
+		if ( file_exists( $_dir . '/includes/functions.php' ) ) {
+			$_tests_dir = $_dir;
+			break;
 		}
+	}
+}
 
-		public function tearDown(): void {
-			parent::tearDown();
+if ( ! $_tests_dir ) {
+	echo 'WordPress test library not found.' . PHP_EOL;
+	echo 'Option 1: Run bash bin/install-wp-tests.sh wordpress_test root root localhost latest' . PHP_EOL;
+	echo 'Option 2: Set WP_TESTS_DIR environment variable.' . PHP_EOL;
+	exit( 1 );
+}
+
+if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
+	echo "Could not find {$_tests_dir}/includes/functions.php, have you run bin/install-wp-tests.sh?" . PHP_EOL;
+	exit( 1 );
+}
+
+// Define WP_CORE_DIR - WordPress installation path.
+if ( ! defined( 'WP_CORE_DIR' ) ) {
+	// Check for the actual WordPress installation path.
+	$_wp_core_dir = getenv( 'WP_CORE_DIR' );
+
+	if ( ! $_wp_core_dir ) {
+		// Try to find WordPress in common locations.
+		$_possible_wp_dirs = [
+			// Parent of plugin directory (typical wp-content/plugins/plugin structure).
+			dirname( dirname( dirname( TESTS_PLUGIN_DIR ) ) ),
+			// Temp directory.
+			rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress',
+			'/tmp/wordpress',
+		];
+
+		foreach ( $_possible_wp_dirs as $_dir ) {
+			if ( file_exists( $_dir . '/wp-includes/version.php' ) ) {
+				$_wp_core_dir = $_dir;
+				break;
+			}
 		}
 	}
-}
 
-// Mock WordPress functions if needed
-if ( ! function_exists( 'add_action' ) ) {
-	function add_action( $hook, $callback, $priority = 10, $accepted_args = 1 ) {
-		// Mock implementation
-		return true;
+	if ( $_wp_core_dir ) {
+		define( 'WP_CORE_DIR', $_wp_core_dir . '/' );
 	}
 }
 
-if ( ! function_exists( 'add_filter' ) ) {
-	function add_filter( $hook, $callback, $priority = 10, $accepted_args = 1 ) {
-		// Mock implementation
-		return true;
-	}
-}
+// Give access to tests_add_filter() function.
+require_once $_tests_dir . '/includes/functions.php';
 
-// Initialize WP-CMF for testing
-if ( class_exists( 'Pedalcms\WpCmf\Core\Manager' ) ) {
+/**
+ * Manually load the plugin being tested.
+ */
+function _manually_load_plugin() {
+	// Load the main plugin file if it exists.
+	$plugin_file = dirname( TESTS_PLUGIN_DIR ) . '/wp-cmf-example.php';
+	if ( file_exists( $plugin_file ) ) {
+		require_once $plugin_file;
+	}
+
+	// Initialize the WP-CMF manager.
 	\Pedalcms\WpCmf\Core\Manager::init();
 }
 
-echo "WP-CMF test environment initialized\n";
+tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
+
+// Start up the WP testing environment.
+require $_tests_dir . '/includes/bootstrap.php';
+
+echo 'WordPress test environment loaded from: ' . $_tests_dir . PHP_EOL;

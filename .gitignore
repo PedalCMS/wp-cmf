@@ -1,14 +1,12 @@
 # Ignore Composer dependencies
 /vendor/
 
-# Ignore node modules (if using npm/yarn)
+# Ignore node modules
 /node_modules/
 
 # Ignore build artifacts
 /dist/
-
-# Build scripts are tracked, but not other build artifacts
-!/build/*.php
+.cache/
 
 # Ignore logs and temp files
 *.log

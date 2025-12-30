@@ -23,6 +23,7 @@ $wp-bg-disabled: #f6f7f7;
 $input-padding: 6px 8px;
 $input-border-radius: 4px;
 $input-max-width: 500px;
+$select-input-padding: 6px 24px 6px 8px;
 $field-margin-bottom: 20px;
 
 $transition-fast: 0.15s ease-in-out;
@@ -34,6 +35,11 @@ $transition-fast: 0.15s ease-in-out;
 .wp-cmf-field {
 	margin-bottom: $field-margin-bottom;
 	clear: both;
+}
+
+// Remove margin when field is inside a table (form-table structure)
+.form-table .wp-cmf-field {
+	margin-bottom: 0;
 }
 
 .wp-cmf-field-wrapper {
@@ -115,7 +121,7 @@ $transition-fast: 0.15s ease-in-out;
 .wp-cmf-field select {
 	width: 100%;
 	max-width: $input-max-width;
-	padding: $input-padding;
+	padding: $select-input-padding;
 	border: 1px solid $wp-border;
 	border-radius: $input-border-radius;
 	background-color: #fff;
@@ -174,7 +180,6 @@ $transition-fast: 0.15s ease-in-out;
 	background-color: #fff;
 
 	&:checked {
-		background-color: $wp-blue;
 		border-color: $wp-blue;
 	}
 
@@ -222,7 +227,6 @@ $transition-fast: 0.15s ease-in-out;
 	background-color: #fff;
 
 	&:checked {
-		background-color: $wp-blue;
 		border-color: $wp-blue;
 	}
 
@@ -331,6 +335,43 @@ $transition-fast: 0.15s ease-in-out;
 	}
 }
 
+// Metabox field specific styles
+.wp-cmf-metabox-fields {
+	margin: 0;
+
+	.form-table {
+		margin-top: 0;
+
+		th {
+			padding-left: 0;
+		}
+	}
+}
+
+// Group field specific styles
+.wp-cmf-group-fields {
+	margin: 15px 0;
+
+	> .wp-cmf-field {
+		margin-bottom: 15px;
+	}
+}
+
+.wp-cmf-field-group {
+	> .wp-cmf-field-label {
+		font-size: 14px;
+		font-weight: 600;
+		margin-bottom: 10px;
+		display: block;
+	}
+
+	> .wp-cmf-field-description {
+		color: $wp-text-light;
+		font-style: italic;
+		margin-bottom: 15px;
+	}
+}
+
 // ==========================================================================
 // Settings Page Styling
 // ==========================================================================
@@ -346,6 +387,62 @@ $transition-fast: 0.15s ease-in-out;
 		margin-top: 0;
 		padding-bottom: 10px;
 		border-bottom: 1px solid $wp-border-light;
+	}
+}
+
+// ==========================================================================
+// Metabox Context Specific Styles
+// ==========================================================================
+
+// Side metaboxes need vertical layout to prevent overflow
+// WordPress applies .metabox-location-side class to sidebar metaboxes
+.metabox-location-side .wp-cmf-metabox-fields {
+	.form-table {
+		th,
+		td {
+			display: block;
+			width: 100%;
+			padding: 0;
+		}
+
+		th {
+			padding-top: 8px;
+			padding-bottom: 4px;
+			font-weight: 600;
+		}
+
+		td {
+			padding-bottom: 8px;
+		}
+
+		tr {
+			display: block;
+			border-bottom: 1px solid $wp-border-light;
+			margin-bottom: 8px;
+			padding-bottom: 0;
+
+			&:last-child {
+				border-bottom: none;
+				margin-bottom: 0;
+			}
+		}
+
+		.wp-cmf-field {
+			margin-bottom: 0;
+		}
+	}
+
+	// Adjust field widths for narrow sidebar
+	input[type="text"],
+	input[type="email"],
+	input[type="url"],
+	input[type="password"],
+	input[type="number"],
+	input[type="date"],
+	textarea,
+	select {
+		max-width: 100%;
+		box-sizing: border-box;
 	}
 }
 
@@ -370,6 +467,374 @@ $transition-fast: 0.15s ease-in-out;
 	.wp-cmf-field-checkbox-group.inline,
 	.wp-cmf-field-radio-group.inline {
 		flex-direction: column;
+	}
+}
+
+// ==========================================================================
+// Tabs Field Styles
+// ==========================================================================
+
+// Horizontal Tabs (default)
+.wp-cmf-tabs {
+	margin: 15px 0;
+
+	// Horizontal orientation
+	&-horizontal {
+		display: flex;
+		flex-direction: column;
+
+		.wp-cmf-tabs-nav {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 5px;
+			margin-bottom: 0;
+			border-bottom: 1px solid $wp-border-light;
+		}
+
+		.wp-cmf-tab-button {
+			padding: 10px 20px;
+			background: #f0f0f1;
+			border: 1px solid $wp-border-light;
+			border-bottom: none;
+			border-radius: 4px 4px 0 0;
+			cursor: pointer;
+			font-size: 14px;
+			color: $wp-text-medium;
+			text-decoration: none;
+			transition: all $transition-fast;
+			margin-bottom: -1px;
+
+			&:hover {
+				background: #fff;
+			}
+
+			&.active {
+				background: #fff;
+				border-color: $wp-border-light;
+				border-bottom-color: #fff;
+				color: $wp-text-dark;
+				font-weight: 600;
+			}
+
+			.dashicons {
+				font-size: 18px;
+				width: 18px;
+				height: 18px;
+				margin-right: 5px;
+				vertical-align: middle;
+			}
+		}
+
+		.wp-cmf-tabs-content {
+			padding: 20px;
+			background: #fff;
+			border: 1px solid $wp-border-light;
+			border-top: none;
+		}
+	}
+
+	// Vertical orientation
+	&-vertical {
+		display: flex;
+		flex-direction: row;
+
+		.wp-cmf-tabs-nav {
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
+			min-width: 200px;
+			margin-right: 0;
+			padding-right: 0;
+			border-right: 1px solid $wp-border-light;
+		}
+
+		.wp-cmf-tab-button {
+			padding: 10px 15px;
+			background: #f0f0f1;
+			border: 1px solid transparent;
+			border-radius: 0;
+			cursor: pointer;
+			font-size: 14px;
+			color: $wp-text-medium;
+			text-decoration: none;
+			text-align: left;
+			transition: all $transition-fast;
+			border-right: none;
+
+			&:hover {
+				background: #fff;
+			}
+
+			&.active {
+				background: #fff;
+				border-color: $wp-border-light;
+				border-right-color: #fff;
+				color: $wp-text-dark;
+				font-weight: 600;
+				margin-right: -1px;
+			}
+
+			.dashicons {
+				font-size: 18px;
+				width: 18px;
+				height: 18px;
+				margin-right: 5px;
+				vertical-align: middle;
+			}
+		}
+
+		.wp-cmf-tabs-content {
+			flex: 1;
+			padding: 20px;
+			background: #fff;
+			border: 1px solid $wp-border-light;
+			border-left: none;
+		}
+	}
+
+	// Common tab panel styles
+	.wp-cmf-tab-panel {
+		display: none;
+
+		&.active {
+			display: block;
+		}
+
+		> .description {
+			margin-top: 0;
+			margin-bottom: 15px;
+			color: $wp-text-light;
+		}
+	}
+}
+
+// ==========================================================================
+// Repeater Field Styles
+// ==========================================================================
+
+.wp-cmf-repeater {
+	margin: 15px 0;
+	border: 1px solid $wp-border-light;
+	border-radius: $input-border-radius;
+	background: #fff;
+
+	.wp-cmf-repeater-rows {
+		padding: 0;
+		margin: 0;
+		list-style: none;
+	}
+
+	.wp-cmf-repeater-row {
+		position: relative;
+		margin: 0;
+		padding: 0;
+		border-bottom: 1px solid $wp-border-light;
+		background: #fff;
+		transition: background-color $transition-fast;
+
+		&:last-child {
+			border-bottom: none;
+		}
+
+		// Hide template row
+		&.wp-cmf-repeater-template {
+			display: none !important;
+		}
+
+		// Collapsed state
+		&.collapsed {
+			.wp-cmf-repeater-row-content {
+				display: none;
+			}
+
+			.wp-cmf-repeater-toggle .dashicons-arrow-down-alt2 {
+				transform: rotate(-90deg);
+			}
+		}
+
+		// Sortable states
+		&.ui-sortable-helper {
+			opacity: 0.8;
+			background: #f6f7f7;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+		}
+
+		&.ui-sortable-placeholder {
+			visibility: visible !important;
+			background: #e8f3fd;
+			border: 2px dashed $wp-blue;
+			height: 50px !important;
+		}
+	}
+
+	.wp-cmf-repeater-row-header {
+		display: flex;
+		align-items: center;
+		padding: 12px 15px;
+		background: #f6f7f7;
+		cursor: move;
+
+		&:hover {
+			background: #f0f0f1;
+		}
+	}
+
+	.wp-cmf-repeater-drag-handle {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 20px;
+		height: 20px;
+		margin-right: 10px;
+		color: $wp-text-light;
+		cursor: grab;
+		font-size: 16px;
+
+		&:active {
+			cursor: grabbing;
+		}
+
+		.dashicons {
+			width: 20px;
+			height: 20px;
+			font-size: 20px;
+		}
+	}
+
+	.wp-cmf-repeater-row-label {
+		flex: 1;
+		font-weight: 600;
+		color: $wp-text-dark;
+		font-size: 14px;
+	}
+
+	.wp-cmf-repeater-row-actions {
+		display: flex;
+		gap: 5px;
+		margin-left: auto;
+	}
+
+	.wp-cmf-repeater-toggle,
+	.wp-cmf-repeater-remove {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 4px 8px;
+		background: #fff;
+		border: 1px solid $wp-border;
+		border-radius: $input-border-radius;
+		cursor: pointer;
+		font-size: 13px;
+		color: $wp-text-medium;
+		text-decoration: none;
+		transition: all $transition-fast;
+
+		&:hover {
+			background: #f0f0f1;
+			border-color: $wp-text-light;
+			color: $wp-text-dark;
+		}
+
+		.dashicons {
+			width: 16px;
+			height: 16px;
+			font-size: 16px;
+		}
+	}
+
+	.wp-cmf-repeater-toggle {
+		.dashicons {
+			transition: transform $transition-fast;
+		}
+	}
+
+	.wp-cmf-repeater-remove {
+		color: $wp-red;
+
+		&:hover {
+			background: #f9e9e9;
+			border-color: $wp-red;
+			color: darken($wp-red, 10%);
+		}
+
+		&:disabled {
+			opacity: 0.4;
+			cursor: not-allowed;
+			pointer-events: none;
+		}
+	}
+
+	.wp-cmf-repeater-row-content {
+		padding: 15px;
+		background: #fff;
+		border-top: 1px solid $wp-border-light;
+
+		.wp-cmf-field {
+			margin-bottom: 15px;
+
+			&:last-child {
+				margin-bottom: 0;
+			}
+		}
+	}
+
+	.wp-cmf-repeater-footer {
+		padding: 12px 15px;
+		background: #f6f7f7;
+		border-top: 1px solid $wp-border-light;
+		text-align: center;
+	}
+
+	.wp-cmf-repeater-add {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		padding: 6px 12px;
+		background: $wp-blue;
+		border: 1px solid darken($wp-blue, 5%);
+		border-radius: $input-border-radius;
+		color: #fff;
+		cursor: pointer;
+		font-size: 13px;
+		font-weight: 600;
+		text-decoration: none;
+		transition: all $transition-fast;
+
+		&:hover {
+			background: darken($wp-blue, 5%);
+			border-color: darken($wp-blue, 10%);
+			color: #fff;
+		}
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+			pointer-events: none;
+		}
+
+		.dashicons {
+			width: 16px;
+			height: 16px;
+			font-size: 16px;
+		}
+	}
+}
+
+// Responsive adjustments for repeater
+@media screen and (max-width: 782px) {
+	.wp-cmf-repeater {
+		.wp-cmf-repeater-row-header {
+			flex-wrap: wrap;
+		}
+
+		.wp-cmf-repeater-row-label {
+			flex-basis: 100%;
+			margin-bottom: 8px;
+		}
+
+		.wp-cmf-repeater-row-actions {
+			margin-left: 30px;
+		}
 	}
 }
 
