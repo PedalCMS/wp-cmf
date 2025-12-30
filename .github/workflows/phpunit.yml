@@ -64,5 +64,6 @@ jobs:
 
       - name: Run PHPUnit
         env:
-          WP_PHPUNIT__TESTS_CONFIG: ${{ github.workspace }}/tests/wp-tests-config.php
+          WP_TESTS_DIR: /tmp/wordpress-tests-lib
+          WP_CORE_DIR: /tmp/wordpress
         run: composer run test
