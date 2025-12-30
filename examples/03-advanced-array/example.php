@@ -28,15 +28,17 @@ use Pedalcms\WpCmf\Core\Manager;
  *
  * 1. Creating a new Custom Post Type with multiple metaboxes
  * 2. Creating a new Settings Page with tabs and groups
- * 3. Adding fields to existing post types (post, page)
- * 4. Adding fields to existing settings pages (general)
- * 5. All 16 field types:
+ * 3. Creating new Taxonomies with custom fields
+ * 4. Adding fields to existing taxonomies (category)
+ * 5. Adding fields to existing post types (post, page)
+ * 6. Adding fields to existing settings pages (general)
+ * 7. All 16 field types:
  *    - Basic: text, textarea, number, email, url, password, date, color
  *    - Choice: select, checkbox, radio
  *    - Rich: wysiwyg
  *    - Containers: tabs, metabox, group, repeater
- * 6. Before-save filters
- * 7. Field validation and sanitization
+ * 8. Before-save filters
+ * 9. Field validation and sanitization
  * =============================================================================
  */
 function wp_cmf_advanced_array_init() {
@@ -601,7 +603,164 @@ function wp_cmf_advanced_array_init() {
 	);
 
 	// =========================================================================
-	// PART 3: ADD FIELDS TO EXISTING POST TYPE (post)
+	// PART 3: NEW TAXONOMY - Product Category
+	// =========================================================================
+	$manager->register_from_array(
+		[
+			'taxonomies' => [
+				[
+					'id'          => 'product_category',
+					'object_type' => [ 'product' ],
+					'args'        => [
+						'label'             => 'Product Categories',
+						'hierarchical'      => true,
+						'public'            => true,
+						'show_in_rest'      => true,
+						'show_admin_column' => true,
+					],
+					'fields'      => [
+						// Color for category badge
+						[
+							'name'        => 'category_color',
+							'type'        => 'color',
+							'label'       => 'Category Color',
+							'description' => 'Color used for category labels and badges',
+							'default'     => '#0073aa',
+						],
+						// Icon class
+						[
+							'name'        => 'category_icon',
+							'type'        => 'text',
+							'label'       => 'Icon Class',
+							'description' => 'Dashicons class (e.g., dashicons-cart)',
+							'placeholder' => 'dashicons-category',
+						],
+						// Featured image URL
+						[
+							'name'        => 'category_image',
+							'type'        => 'url',
+							'label'       => 'Category Image URL',
+							'description' => 'Image to display for this category',
+						],
+						// Display order
+						[
+							'name'    => 'display_order',
+							'type'    => 'number',
+							'label'   => 'Display Order',
+							'min'     => 0,
+							'default' => 0,
+						],
+						// Featured category
+						[
+							'name'        => 'is_featured',
+							'type'        => 'checkbox',
+							'label'       => 'Featured Category',
+							'description' => 'Show this category prominently on the store',
+						],
+						// Commission rate for this category
+						[
+							'name'        => 'commission_rate',
+							'type'        => 'number',
+							'label'       => 'Commission Rate (%)',
+							'description' => 'Commission percentage for products in this category',
+							'min'         => 0,
+							'max'         => 100,
+							'step'        => 0.1,
+						],
+					],
+				],
+				// Non-hierarchical taxonomy (like tags)
+				[
+					'id'          => 'product_brand',
+					'object_type' => [ 'product' ],
+					'args'        => [
+						'label'             => 'Brands',
+						'hierarchical'      => false,
+						'public'            => true,
+						'show_in_rest'      => true,
+						'show_admin_column' => true,
+					],
+					'fields'      => [
+						// Brand website
+						[
+							'name'        => 'brand_website',
+							'type'        => 'url',
+							'label'       => 'Brand Website',
+							'placeholder' => 'https://brand.com',
+						],
+						// Brand description
+						[
+							'name'  => 'brand_description',
+							'type'  => 'textarea',
+							'label' => 'Brand Description',
+							'rows'  => 3,
+						],
+						// Country of origin
+						[
+							'name'    => 'brand_country',
+							'type'    => 'select',
+							'label'   => 'Country of Origin',
+							'options' => [
+								''   => '-- Select Country --',
+								'us' => 'United States',
+								'uk' => 'United Kingdom',
+								'de' => 'Germany',
+								'jp' => 'Japan',
+								'cn' => 'China',
+								'kr' => 'South Korea',
+							],
+						],
+						// Verified brand
+						[
+							'name'        => 'is_verified',
+							'type'        => 'checkbox',
+							'label'       => 'Verified Brand',
+							'description' => 'Mark as an officially verified brand partner',
+						],
+					],
+				],
+			],
+		]
+	);
+
+	// =========================================================================
+	// PART 4: ADD FIELDS TO EXISTING TAXONOMY (category)
+	// =========================================================================
+	$manager->register_from_array(
+		[
+			'taxonomies' => [
+				[
+					'id'     => 'category', // Built-in taxonomy
+					'fields' => [
+						// Subtitle
+						[
+							'name'        => 'category_subtitle',
+							'type'        => 'text',
+							'label'       => 'Category Subtitle',
+							'description' => 'Short subtitle displayed below the category name',
+						],
+						// Category color
+						[
+							'name'    => 'category_color',
+							'type'    => 'color',
+							'label'   => 'Category Color',
+							'default' => '#333333',
+						],
+						// Featured
+						[
+							'name'        => 'is_featured',
+							'type'        => 'checkbox',
+							'label'       => 'Featured Category',
+							'description' => 'Display this category on the homepage',
+						],
+					],
+				],
+			],
+		]
+	);
+
+	// =========================================================================
+	// PART 5: ADD FIELDS TO EXISTING POST TYPE (post)
 	// =========================================================================
 	$manager->register_from_array(
 		[
@@ -667,7 +826,7 @@ function wp_cmf_advanced_array_init() {
 	);
 
 	// =========================================================================
-	// PART 4: ADD FIELDS TO EXISTING POST TYPE (page)
+	// PART 6: ADD FIELDS TO EXISTING POST TYPE (page)
 	// =========================================================================
 	$manager->register_from_array(
 		[
@@ -724,7 +883,7 @@ function wp_cmf_advanced_array_init() {
 	);
 
 	// =========================================================================
-	// PART 5: ADD FIELDS TO EXISTING SETTINGS PAGE (general)
+	// PART 7: ADD FIELDS TO EXISTING SETTINGS PAGE (general)
 	// =========================================================================
 	$manager->register_from_array(
 		[
@@ -824,9 +983,13 @@ function get_product_field( $post_id, $field ) {
 
 /**
  * Get store setting
+ *
+ * @param string $field         Field name.
+ * @param mixed  $default_value Default value.
+ * @return mixed
  */
-function get_store_setting( $field, $default = '' ) {
-	return get_option( 'store-settings_' . $field, $default );
+function get_store_setting( $field, $default_value = '' ) {
+	return get_option( 'store-settings_' . $field, $default_value );
 }
 
 /**
@@ -845,9 +1008,13 @@ function get_page_setting( $post_id, $field ) {
 
 /**
  * Get general setting (added to WordPress General Settings)
+ *
+ * @param string $field         Field name.
+ * @param mixed  $default_value Default value.
+ * @return mixed
  */
-function get_general_option( $field, $default = '' ) {
-	return get_option( 'general_' . $field, $default );
+function get_general_option( $field, $default_value = '' ) {
+	return get_option( 'general_' . $field, $default_value );
 }
 
 /**

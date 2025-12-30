@@ -16,6 +16,8 @@ use Pedalcms\WpCmf\Core\Handlers\New_Settings_Page_Handler;
 use Pedalcms\WpCmf\Core\Handlers\Existing_Settings_Page_Handler;
 use Pedalcms\WpCmf\Core\Handlers\New_Post_Type_Handler;
 use Pedalcms\WpCmf\Core\Handlers\Existing_Post_Type_Handler;
+use Pedalcms\WpCmf\Core\Handlers\New_Taxonomy_Handler;
+use Pedalcms\WpCmf\Core\Handlers\Existing_Taxonomy_Handler;
 use Pedalcms\WpCmf\Field\Field_Factory;
 use Pedalcms\WpCmf\Json\Schema_Validator;
 
@@ -64,6 +66,20 @@ class Manager {
 	private Existing_Post_Type_Handler $existing_cpt_handler;
 
 	/**
+	 * Handler for new taxonomies
+	 *
+	 * @var New_Taxonomy_Handler
+	 */
+	private New_Taxonomy_Handler $new_taxonomy_handler;
+
+	/**
+	 * Handler for existing taxonomies
+	 *
+	 * @var Existing_Taxonomy_Handler
+	 */
+	private Existing_Taxonomy_Handler $existing_taxonomy_handler;
+
+	/**
 	 * Configuration options
 	 *
 	 * @var array<string, mixed>
@@ -83,6 +99,8 @@ class Manager {
 		$this->existing_settings_handler = new Existing_Settings_Page_Handler();
 		$this->new_cpt_handler           = new New_Post_Type_Handler();
 		$this->existing_cpt_handler      = new Existing_Post_Type_Handler();
+		$this->new_taxonomy_handler      = new New_Taxonomy_Handler();
+		$this->existing_taxonomy_handler = new Existing_Taxonomy_Handler();
 
 		// Initialize hooks if WordPress is available
 		if ( function_exists( 'add_action' ) ) {
@@ -90,6 +108,8 @@ class Manager {
 			$this->existing_settings_handler->init_hooks();
 			$this->new_cpt_handler->init_hooks();
 			$this->existing_cpt_handler->init_hooks();
+			$this->new_taxonomy_handler->init_hooks();
+			$this->existing_taxonomy_handler->init_hooks();
 		}
 
 		$this->load_textdomain();
@@ -170,10 +190,28 @@ class Manager {
 	}
 
 	/**
+	 * Get the new taxonomy handler
+	 *
+	 * @return New_Taxonomy_Handler
+	 */
+	public function get_new_taxonomy_handler(): New_Taxonomy_Handler {
+		return $this->new_taxonomy_handler;
+	}
+
+	/**
+	 * Get the existing taxonomy handler
+	 *
+	 * @return Existing_Taxonomy_Handler
+	 */
+	public function get_existing_taxonomy_handler(): Existing_Taxonomy_Handler {
+		return $this->existing_taxonomy_handler;
+	}
+
+	/**
 	 * Register configuration from array
 	 *
 	 * Accepts a configuration array and registers custom post types,
-	 * settings pages, and their associated fields.
+	 * settings pages, taxonomies, and their associated fields.
 	 *
 	 * @param array<string, mixed> $config Configuration array.
 	 * @return self
@@ -184,6 +222,13 @@ class Manager {
 		if ( ! empty( $config['cpts'] ) && is_array( $config['cpts'] ) ) {
 			foreach ( $config['cpts'] as $cpt_config ) {
 				$this->register_cpt_from_array( $cpt_config );
+			}
+		}
+
+		// Register taxonomies
+		if ( ! empty( $config['taxonomies'] ) && is_array( $config['taxonomies'] ) ) {
+			foreach ( $config['taxonomies'] as $taxonomy_config ) {
+				$this->register_taxonomy_from_array( $taxonomy_config );
 			}
 		}
 
@@ -289,6 +334,49 @@ class Manager {
 	}
 
 	/**
+	 * Register a taxonomy from array configuration
+	 *
+	 * @param array<string, mixed> $config Taxonomy configuration.
+	 * @return void
+	 * @throws \InvalidArgumentException If required fields are missing.
+	 */
+	private function register_taxonomy_from_array( array $config ): void {
+		if ( empty( $config['id'] ) ) {
+			throw new \InvalidArgumentException( 'Taxonomy configuration must include "id".' );
+		}
+
+		$taxonomy    = $config['id'];
+		$args        = $config['args'] ?? [];
+		$object_type = $config['object_type'] ?? [ 'post' ];
+		$fields      = $config['fields'] ?? [];
+
+		// Ensure object_type is an array
+		if ( ! is_array( $object_type ) ) {
+			$object_type = [ $object_type ];
+		}
+
+		// Check if this is an existing taxonomy
+		$is_existing = function_exists( 'taxonomy_exists' ) && taxonomy_exists( $taxonomy );
+
+		if ( $is_existing ) {
+			// Add fields to existing taxonomy
+			if ( ! empty( $fields ) ) {
+				$this->existing_taxonomy_handler->add_fields( $taxonomy, $fields );
+			}
+		} else {
+			// Create new taxonomy
+			if ( ! empty( $args ) ) {
+				$this->new_taxonomy_handler->add_taxonomy( $taxonomy, $args, $object_type );
+			}
+
+			// Add fields
+			if ( ! empty( $fields ) ) {
+				$this->new_taxonomy_handler->add_fields( $taxonomy, $fields );
+			}
+		}
+	}
+
+	/**
 	 * Trigger late registration if hooks have already fired
 	 *
 	 * @return void
@@ -298,9 +386,10 @@ class Manager {
 			return;
 		}
 
-		// Register CPTs if 'init' has already fired
+		// Register CPTs and taxonomies if 'init' has already fired
 		if ( did_action( 'init' ) ) {
 			$this->new_cpt_handler->register_post_types();
+			$this->new_taxonomy_handler->register_taxonomies();
 		}
 
 		// Register admin pages if 'admin_menu' has already fired
@@ -308,10 +397,12 @@ class Manager {
 			$this->new_settings_handler->register_pages();
 		}
 
-		// Register settings fields if 'admin_init' has already fired
+		// Register settings and taxonomy fields if 'admin_init' has already fired
 		if ( did_action( 'admin_init' ) ) {
 			$this->new_settings_handler->register_settings();
 			$this->existing_settings_handler->register_settings();
+			$this->new_taxonomy_handler->register_taxonomy_fields();
+			$this->existing_taxonomy_handler->register_taxonomy_fields();
 		}
 	}
 

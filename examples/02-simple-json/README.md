@@ -10,12 +10,24 @@ An "Events" post type with:
 - **Event Date** (date, required) - When the event occurs
 - **Location** (text) - Venue name/address
 - **Capacity** (number) - Max attendees
-- **Event Type** (select) - Conference/Workshop/Webinar/etc.
 - **Free Event** (checkbox) - Is it free?
 - **Ticket Price** (number) - Cost if not free
 - **Registration URL** (url) - Registration link
 - **Contact Email** (email) - Event contact
 - **Short Description** (textarea) - Brief description
+
+### Taxonomy: Event Type
+A hierarchical taxonomy for categorizing events:
+- **Type Color** (color) - Color for event type badges
+- **Icon Class** (text) - Dashicons class for this event type
+- **Default Capacity** (number) - Default capacity for this type of event
+
+### Taxonomy: Venue
+A non-hierarchical taxonomy for event venues:
+- **Full Address** (textarea) - Complete venue address
+- **Venue Capacity** (number) - Maximum capacity of the venue
+- **Venue Website** (url) - Venue's website
+- **Contact Phone** (text) - Venue contact number
 
 ### Settings Page: Events Settings
 A top-level settings page with:
@@ -48,7 +60,7 @@ use Pedalcms\WpCmf\Core\Manager;
 Manager::init()->register_from_json( __DIR__ . '/config.json' );
 
 // From JSON string (useful for database storage)
-$json = '{"cpts":[...],"settings_pages":[...]}';
+$json = '{"cpts":[...],"taxonomies":[...],"settings_pages":[...]}';
 Manager::init()->register_from_json( $json );
 ```
 
@@ -58,6 +70,10 @@ Manager::init()->register_from_json( $json );
 // Get event meta
 $date     = get_post_meta( $post_id, 'event_date', true );
 $location = get_post_meta( $post_id, 'location', true );
+
+// Get taxonomy term meta
+$type_color = get_term_meta( $term_id, 'type_color', true );
+$venue_capacity = get_term_meta( $term_id, 'venue_capacity', true );
 
 // Get settings (pattern: {page_id}_{field_name})
 $currency = get_option( 'events-settings_currency_symbol', '$' );
@@ -93,4 +109,5 @@ See `advanced-json` example for:
 - All 16 field types
 - Tabs, Metaboxes, Groups, Repeaters
 - Adding to existing post types
+- Adding to existing taxonomies
 - Adding to existing settings pages

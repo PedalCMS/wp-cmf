@@ -28,12 +28,14 @@ use Pedalcms\WpCmf\Core\Manager;
  *
  * Features demonstrated:
  * 1. Creating a new Custom Post Type (Property) with all field types
- * 2. Creating a new Settings Page with tabs and groups
- * 3. Adding fields to existing post types (post, page)
- * 4. Adding fields to existing settings pages
- * 5. All 16 field types in realistic scenarios
- * 6. Multiple JSON configuration files
- * 7. Before-save filters (PHP-only feature)
+ * 2. Creating new Taxonomies with custom fields
+ * 3. Creating a new Settings Page with tabs and groups
+ * 4. Adding fields to existing post types (post, page)
+ * 5. Adding fields to existing taxonomies (category, post_tag)
+ * 6. Adding fields to existing settings pages
+ * 7. All 16 field types in realistic scenarios
+ * 8. Multiple JSON configuration files
+ * 9. Before-save filters (PHP-only feature)
  *
  * JSON Benefits:
  * - Easier for non-developers to modify
@@ -48,8 +50,10 @@ function wp_cmf_advanced_json_init() {
 	// Load all JSON configurations
 	$config_files = [
 		__DIR__ . '/config/cpt-property.json',
+		__DIR__ . '/config/taxonomy-property.json',
 		__DIR__ . '/config/settings-agency.json',
 		__DIR__ . '/config/extend-posts.json',
+		__DIR__ . '/config/extend-taxonomies.json',
 		__DIR__ . '/config/extend-settings.json',
 	];
 
@@ -124,9 +128,13 @@ function get_property_field( $post_id, $field ) {
 
 /**
  * Get agency setting
+ *
+ * @param string $field         Field name.
+ * @param mixed  $default_value Default value.
+ * @return mixed
  */
-function get_agency_setting( $field, $default = '' ) {
-	return get_option( 'agency-settings_' . $field, $default );
+function get_agency_setting( $field, $default_value = '' ) {
+	return get_option( 'agency-settings_' . $field, $default_value );
 }
 
 /**

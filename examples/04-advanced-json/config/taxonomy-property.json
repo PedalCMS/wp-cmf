@@ -1,0 +1,148 @@
+{
+  "taxonomies": [
+    {
+      "id": "property_type",
+      "object_type": ["property"],
+      "args": {
+        "label": "Property Types",
+        "hierarchical": true,
+        "public": true,
+        "show_in_rest": true,
+        "show_admin_column": true,
+        "rewrite": {
+          "slug": "property-type"
+        }
+      },
+      "fields": [
+        {
+          "name": "type_icon",
+          "type": "text",
+          "label": "Icon Class",
+          "description": "Dashicons class for this property type",
+          "placeholder": "dashicons-building"
+        },
+        {
+          "name": "type_color",
+          "type": "color",
+          "label": "Type Color",
+          "description": "Color for badges and labels",
+          "default": "#0073aa"
+        },
+        {
+          "name": "type_description",
+          "type": "textarea",
+          "label": "Type Description",
+          "description": "Detailed description of this property type",
+          "rows": 3
+        },
+        {
+          "name": "avg_price_range",
+          "type": "text",
+          "label": "Average Price Range",
+          "placeholder": "$200,000 - $500,000"
+        },
+        {
+          "name": "is_featured",
+          "type": "checkbox",
+          "label": "Featured Type",
+          "description": "Show prominently on the homepage"
+        }
+      ]
+    },
+    {
+      "id": "property_location",
+      "object_type": ["property"],
+      "args": {
+        "label": "Locations",
+        "hierarchical": true,
+        "public": true,
+        "show_in_rest": true,
+        "show_admin_column": true
+      },
+      "fields": [
+        {
+          "name": "location_address",
+          "type": "textarea",
+          "label": "Area Description",
+          "rows": 3
+        },
+        {
+          "name": "location_image",
+          "type": "url",
+          "label": "Location Image URL",
+          "placeholder": "https://example.com/image.jpg"
+        },
+        {
+          "name": "avg_property_value",
+          "type": "number",
+          "label": "Average Property Value ($)",
+          "min": 0,
+          "step": 1000
+        },
+        {
+          "name": "school_rating",
+          "type": "select",
+          "label": "School District Rating",
+          "options": {
+            "": "-- Select Rating --",
+            "excellent": "Excellent",
+            "good": "Good",
+            "average": "Average",
+            "below_average": "Below Average"
+          }
+        },
+        {
+          "name": "walkability_score",
+          "type": "number",
+          "label": "Walkability Score",
+          "description": "Score from 0-100",
+          "min": 0,
+          "max": 100
+        },
+        {
+          "name": "is_hot_market",
+          "type": "checkbox",
+          "label": "Hot Market",
+          "description": "Mark as a hot real estate market"
+        }
+      ]
+    },
+    {
+      "id": "property_amenity",
+      "object_type": ["property"],
+      "args": {
+        "label": "Amenities",
+        "hierarchical": false,
+        "public": true,
+        "show_in_rest": true
+      },
+      "fields": [
+        {
+          "name": "amenity_icon",
+          "type": "text",
+          "label": "Icon Class",
+          "placeholder": "dashicons-admin-home"
+        },
+        {
+          "name": "amenity_category",
+          "type": "select",
+          "label": "Amenity Category",
+          "options": {
+            "": "-- Select Category --",
+            "interior": "Interior",
+            "exterior": "Exterior",
+            "community": "Community",
+            "security": "Security",
+            "utilities": "Utilities"
+          }
+        },
+        {
+          "name": "adds_value",
+          "type": "checkbox",
+          "label": "Adds Property Value",
+          "description": "This amenity typically increases property value"
+        }
+      ]
+    }
+  ]
+}

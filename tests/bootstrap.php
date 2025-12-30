@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * WP-CMF Test Bootstrap
  *
@@ -53,6 +53,7 @@ if ( ! $_tests_dir ) {
 }
 
 if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CLI output only.
 	echo "Could not find {$_tests_dir}/includes/functions.php, have you run bin/install-wp-tests.sh?" . PHP_EOL;
 	exit( 1 );
 }
@@ -107,4 +108,5 @@ tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
 
+// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CLI output only.
 echo 'WordPress test environment loaded from: ' . $_tests_dir . PHP_EOL;

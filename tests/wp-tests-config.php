@@ -23,10 +23,10 @@ define( 'ABSPATH', $abspath );
 // Test database settings.
 // IMPORTANT: Use a SEPARATE database from your development database!
 // All tables will be dropped and recreated during testing.
-define( 'DB_NAME', getenv( 'WP_TESTS_DB_NAME' ) ?: 'wordpress_test' );
-define( 'DB_USER', getenv( 'WP_TESTS_DB_USER' ) ?: 'root' );
-define( 'DB_PASSWORD', getenv( 'WP_TESTS_DB_PASSWORD' ) ?: 'root' );
-define( 'DB_HOST', getenv( 'WP_TESTS_DB_HOST' ) ?: 'localhost' );
+define( 'DB_NAME', getenv( 'WP_TESTS_DB_NAME' ) ? getenv( 'WP_TESTS_DB_NAME' ) : 'wordpress_test' );
+define( 'DB_USER', getenv( 'WP_TESTS_DB_USER' ) ? getenv( 'WP_TESTS_DB_USER' ) : 'root' );
+define( 'DB_PASSWORD', getenv( 'WP_TESTS_DB_PASSWORD' ) ? getenv( 'WP_TESTS_DB_PASSWORD' ) : 'root' );
+define( 'DB_HOST', getenv( 'WP_TESTS_DB_HOST' ) ? getenv( 'WP_TESTS_DB_HOST' ) : 'localhost' );
 define( 'DB_CHARSET', 'utf8' );
 define( 'DB_COLLATE', '' );
 
@@ -40,6 +40,7 @@ define( 'WP_PHP_BINARY', 'php' );
 define( 'WPLANG', '' );
 
 // Table prefix for test database.
+// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Required for WordPress test suite.
 $table_prefix = 'wptests_';
 
 // Debugging.

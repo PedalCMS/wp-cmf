@@ -25,7 +25,8 @@ use Pedalcms\WpCmf\Core\Manager;
  *
  * This example demonstrates:
  * 1. Creating a simple custom post type (Book) with basic fields
- * 2. Creating a simple settings page with common field types
+ * 2. Creating a simple taxonomy (Genre) with custom fields
+ * 3. Creating a simple settings page with common field types
  *
  * For advanced features (all field types, tabs, repeaters, groups, metaboxes,
  * adding to existing post types/settings), see the advanced examples.
@@ -77,21 +78,6 @@ function wp_cmf_simple_array_init() {
 						'type'  => 'date',
 						'label' => 'Publication Date',
 					],
-					// Select field - for Genre
-					[
-						'name'    => 'genre',
-						'type'    => 'select',
-						'label'   => 'Genre',
-						'options' => [
-							''           => '-- Select Genre --',
-							'fiction'    => 'Fiction',
-							'nonfiction' => 'Non-Fiction',
-							'mystery'    => 'Mystery',
-							'romance'    => 'Romance',
-							'scifi'      => 'Science Fiction',
-							'fantasy'    => 'Fantasy',
-						],
-					],
 					// Checkbox - for Availability
 					[
 						'name'        => 'in_stock',
@@ -106,6 +92,48 @@ function wp_cmf_simple_array_init() {
 						'label'       => 'Synopsis',
 						'description' => 'Brief description of the book',
 						'rows'        => 4,
+					],
+				],
+			],
+		],
+
+		// =====================================================================
+		// TAXONOMY: Genre
+		// =====================================================================
+		'taxonomies'     => [
+			[
+				'id'          => 'book_genre',
+				'object_type' => [ 'book' ],
+				'args'        => [
+					'label'             => 'Genres',
+					'hierarchical'      => true,
+					'public'            => true,
+					'show_in_rest'      => true,
+					'show_admin_column' => true,
+				],
+				'fields'      => [
+					// Color field - for genre badge color
+					[
+						'name'        => 'genre_color',
+						'type'        => 'color',
+						'label'       => 'Genre Color',
+						'description' => 'Color used for genre badges and labels',
+						'default'     => '#2271b1',
+					],
+					// Text field - for icon class
+					[
+						'name'        => 'genre_icon',
+						'type'        => 'text',
+						'label'       => 'Icon Class',
+						'description' => 'Dashicons class (e.g., dashicons-book)',
+						'placeholder' => 'dashicons-book',
+					],
+					// Checkbox - for featured genre
+					[
+						'name'        => 'is_featured',
+						'type'        => 'checkbox',
+						'label'       => 'Featured Genre',
+						'description' => 'Display this genre prominently on the site',
 					],
 				],
 			],
@@ -206,12 +234,23 @@ function get_book_field( $post_id, $field ) {
 /**
  * Get library setting
  *
- * @param string $field   Field name.
- * @param mixed  $default Default value.
+ * @param string $field         Field name.
+ * @param mixed  $default_value Default value.
  * @return mixed
  */
-function get_library_setting( $field, $default = '' ) {
-	return get_option( 'library-settings_' . $field, $default );
+function get_library_setting( $field, $default_value = '' ) {
+	return get_option( 'library-settings_' . $field, $default_value );
+}
+
+/**
+ * Get genre term meta value
+ *
+ * @param int    $term_id Term ID.
+ * @param string $field   Field name.
+ * @return mixed
+ */
+function get_genre_field( $term_id, $field ) {
+	return get_term_meta( $term_id, $field, true );
 }
 
 /**
@@ -228,7 +267,6 @@ add_filter(
 		$author  = get_book_field( $post_id, 'author_name' );
 		$isbn    = get_book_field( $post_id, 'isbn' );
 		$pages   = get_book_field( $post_id, 'page_count' );
-		$genre   = get_book_field( $post_id, 'genre' );
 
 		$details = '<div class="book-details">';
 		if ( $author ) {
@@ -240,9 +278,21 @@ add_filter(
 		if ( $pages ) {
 			$details .= '<p><strong>Pages:</strong> ' . esc_html( $pages ) . '</p>';
 		}
-		if ( $genre ) {
-			$details .= '<p><strong>Genre:</strong> ' . esc_html( ucfirst( $genre ) ) . '</p>';
+
+		// Get genres from taxonomy with their custom color
+		$genres = get_the_terms( $post_id, 'book_genre' );
+		if ( $genres && ! is_wp_error( $genres ) ) {
+			$details    .= '<p><strong>Genres:</strong> ';
+			$genre_links = [];
+			foreach ( $genres as $genre ) {
+				$color         = get_genre_field( $genre->term_id, 'genre_color' );
+				$style         = $color ? ' style="color: ' . esc_attr( $color ) . ';"' : '';
+				$genre_links[] = '<span' . $style . '>' . esc_html( $genre->name ) . '</span>';
+			}
+			$details .= implode( ', ', $genre_links );
+			$details .= '</p>';
 		}
+
 		$details .= '</div>';
 
 		return $details . $content;
