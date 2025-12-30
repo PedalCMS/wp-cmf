@@ -128,9 +128,13 @@ function get_property_field( $post_id, $field ) {
 
 /**
  * Get agency setting
+ *
+ * @param string $field         Field name.
+ * @param mixed  $default_value Default value.
+ * @return mixed
  */
-function get_agency_setting( $field, $default = '' ) {
-	return get_option( 'agency-settings_' . $field, $default );
+function get_agency_setting( $field, $default_value = '' ) {
+	return get_option( 'agency-settings_' . $field, $default_value );
 }
 
 /**

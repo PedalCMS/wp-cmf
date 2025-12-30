@@ -61,12 +61,12 @@ function get_event_field( $post_id, $field ) {
 /**
  * Get events setting
  *
- * @param string $field   Field name.
- * @param mixed  $default Default value.
+ * @param string $field         Field name.
+ * @param mixed  $default_value Default value.
  * @return mixed
  */
-function get_events_setting( $field, $default = '' ) {
-	return get_option( 'events-settings_' . $field, $default );
+function get_events_setting( $field, $default_value = '' ) {
+	return get_option( 'events-settings_' . $field, $default_value );
 }
 
 /**

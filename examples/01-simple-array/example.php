@@ -234,12 +234,12 @@ function get_book_field( $post_id, $field ) {
 /**
  * Get library setting
  *
- * @param string $field   Field name.
- * @param mixed  $default Default value.
+ * @param string $field         Field name.
+ * @param mixed  $default_value Default value.
  * @return mixed
  */
-function get_library_setting( $field, $default = '' ) {
-	return get_option( 'library-settings_' . $field, $default );
+function get_library_setting( $field, $default_value = '' ) {
+	return get_option( 'library-settings_' . $field, $default_value );
 }
 
 /**
@@ -282,11 +282,11 @@ add_filter(
 		// Get genres from taxonomy with their custom color
 		$genres = get_the_terms( $post_id, 'book_genre' );
 		if ( $genres && ! is_wp_error( $genres ) ) {
-			$details .= '<p><strong>Genres:</strong> ';
+			$details    .= '<p><strong>Genres:</strong> ';
 			$genre_links = [];
 			foreach ( $genres as $genre ) {
-				$color        = get_genre_field( $genre->term_id, 'genre_color' );
-				$style        = $color ? ' style="color: ' . esc_attr( $color ) . ';"' : '';
+				$color         = get_genre_field( $genre->term_id, 'genre_color' );
+				$style         = $color ? ' style="color: ' . esc_attr( $color ) . ';"' : '';
 				$genre_links[] = '<span' . $style . '>' . esc_html( $genre->name ) . '</span>';
 			}
 			$details .= implode( ', ', $genre_links );

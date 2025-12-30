@@ -701,13 +701,13 @@ function wp_cmf_advanced_array_init() {
 							'type'    => 'select',
 							'label'   => 'Country of Origin',
 							'options' => [
-								''    => '-- Select Country --',
-								'us'  => 'United States',
-								'uk'  => 'United Kingdom',
-								'de'  => 'Germany',
-								'jp'  => 'Japan',
-								'cn'  => 'China',
-								'kr'  => 'South Korea',
+								''   => '-- Select Country --',
+								'us' => 'United States',
+								'uk' => 'United Kingdom',
+								'de' => 'Germany',
+								'jp' => 'Japan',
+								'cn' => 'China',
+								'kr' => 'South Korea',
 							],
 						],
 						// Verified brand
@@ -983,9 +983,13 @@ function get_product_field( $post_id, $field ) {
 
 /**
  * Get store setting
+ *
+ * @param string $field         Field name.
+ * @param mixed  $default_value Default value.
+ * @return mixed
  */
-function get_store_setting( $field, $default = '' ) {
-	return get_option( 'store-settings_' . $field, $default );
+function get_store_setting( $field, $default_value = '' ) {
+	return get_option( 'store-settings_' . $field, $default_value );
 }
 
 /**
@@ -1004,9 +1008,13 @@ function get_page_setting( $post_id, $field ) {
 
 /**
  * Get general setting (added to WordPress General Settings)
+ *
+ * @param string $field         Field name.
+ * @param mixed  $default_value Default value.
+ * @return mixed
  */
-function get_general_option( $field, $default = '' ) {
-	return get_option( 'general_' . $field, $default );
+function get_general_option( $field, $default_value = '' ) {
+	return get_option( 'general_' . $field, $default_value );
 }
 
 /**

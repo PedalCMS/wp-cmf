@@ -178,7 +178,7 @@ class Test_Field_Sanitization extends WP_UnitTestCase {
 		$result = $field->sanitize( '' );
 
 		// Empty should return 0 or be numeric
-		$this->assertTrue( $result === 0 || $result === '' || $result === null );
+		$this->assertTrue( 0 === $result || '' === $result || null === $result );
 	}
 
 	// =========================================================================
