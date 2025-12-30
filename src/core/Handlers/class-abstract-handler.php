@@ -56,7 +56,8 @@ abstract class Abstract_Handler implements Handler_Interface {
 	 * @return string Assets URL with trailing slash.
 	 */
 	protected function get_assets_url(): string {
-		$dir        = dirname( __DIR__ );
+		// Go up two levels from Handlers to reach src directory, then add /assets/
+		$dir        = dirname( dirname( __DIR__ ) );
 		$assets_dir = $dir . '/assets/';
 
 		if ( defined( 'ABSPATH' ) && function_exists( 'site_url' ) ) {

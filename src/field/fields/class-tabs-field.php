@@ -266,8 +266,9 @@ class Tabs_Field extends Abstract_Field implements Container_Field_Interface {
 					// Render the field
 					$field_html = $field->render( $field_value );
 
-					// Remove label tags since we're rendering labels in the table <th> tag
-					$field_html = preg_replace( '/<label[^>]*>.*?<\/label>/s', '', $field_html );
+					// Remove only the first/top-level label, not labels inside nested fields (like groups)
+					// This preserves labels for checkbox/radio options and nested container fields
+					$field_html = preg_replace( '/<label[^>]*class="[^"]*wp-cmf-field-label[^"]*"[^>]*>.*?<\/label>/s', '', $field_html, 1 );
 
 					// For settings pages (when context is a string page_id), fix the name attribute
 					if ( is_string( $context ) && ! empty( $context ) ) {
@@ -372,42 +373,13 @@ class Tabs_Field extends Abstract_Field implements Container_Field_Interface {
 	/**
 	 * Enqueue tab switching scripts
 	 *
+	 * Scripts are handled by wp-cmf.js TabsField class
+	 *
 	 * @return void
 	 */
 	protected function enqueue_tab_scripts(): void {
-		static $scripts_enqueued = false;
-
-		if ( $scripts_enqueued ) {
-			return;
-		}
-
-		$scripts_enqueued = true;
-
-		// Add inline script directly to page footer
-		add_action(
-			'admin_footer',
-			function () {
-				?>
-				<script type="text/javascript">
-				jQuery(document).ready(function($) {
-					$(document).on('click', '.wp-cmf-tab-button', function(e) {
-						e.preventDefault();
-						var tabId = $(this).data('tab');
-						var container = $(this).closest('.wp-cmf-tabs');
-
-						// Update buttons
-						container.find('.wp-cmf-tab-button').removeClass('active');
-						$(this).addClass('active');
-
-						// Update panels
-						container.find('.wp-cmf-tab-panel').removeClass('active');
-						container.find('.wp-cmf-tab-panel[data-tab="' + tabId + '"]').addClass('active');
-					});
-				});
-				</script>
-				<?php
-			}
-		);
+		// JavaScript is handled by global wp-cmf.js
+		// No inline scripts needed
 	}
 
 	/**
@@ -416,129 +388,8 @@ class Tabs_Field extends Abstract_Field implements Container_Field_Interface {
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
-		if ( ! function_exists( 'wp_add_inline_style' ) ) {
-			return;
-		}
-
-		// Enqueue inline styles for tabs
-		wp_add_inline_style(
-			'wp-admin',
-			'
-			/* Horizontal Tabs */
-			.wp-cmf-tabs-horizontal {
-				margin: 10px 0;
-			}
-			.wp-cmf-tabs-horizontal .wp-cmf-tabs-nav {
-				display: flex;
-				gap: 0;
-				border-bottom: 2px solid #c3c4c7;
-				margin-bottom: 0;
-				background: #f0f0f1;
-				padding: 10px 10px 0;
-				border-radius: 4px 4px 0 0;
-			}
-			.wp-cmf-tabs-horizontal .wp-cmf-tab-button {
-				background: #fff;
-				border: 1px solid #c3c4c7;
-				border-bottom: none;
-				padding: 10px 20px;
-				cursor: pointer;
-				border-radius: 4px 4px 0 0;
-				font-size: 14px;
-				color: #2c3338;
-				transition: all 0.2s;
-				display: flex;
-				align-items: center;
-				gap: 8px;
-				position: relative;
-				margin-bottom: -2px;
-			}
-			.wp-cmf-tabs-horizontal .wp-cmf-tab-button:hover {
-				background: #f6f7f7;
-				border-color: #2271b1;
-			}
-			.wp-cmf-tabs-horizontal .wp-cmf-tab-button.active {
-				background: #fff;
-				color: #2271b1;
-				border-color: #c3c4c7;
-				border-bottom-color: #fff;
-				font-weight: 600;
-				z-index: 1;
-			}
-			.wp-cmf-tabs-horizontal .wp-cmf-tabs-content {
-				background: #fff;
-				padding: 20px;
-				border: 1px solid #c3c4c7;
-				border-top: none;
-				border-radius: 0 0 4px 4px;
-			}
-
-			/* Vertical Tabs */
-			.wp-cmf-tabs-vertical {
-				display: flex;
-				gap: 10px;
-				margin: 10px 0;
-			}
-			.wp-cmf-tabs-vertical .wp-cmf-tabs-nav {
-				display: flex;
-				flex-direction: column;
-				gap: 5px;
-				min-width: 200px;
-				background: #f0f0f1;
-				padding: 10px;
-				border-radius: 4px;
-			}
-			.wp-cmf-tabs-vertical .wp-cmf-tab-button {
-				background: #fff;
-				border: 1px solid #c3c4c7;
-				padding: 10px 15px;
-				text-align: left;
-				cursor: pointer;
-				border-radius: 4px;
-				font-size: 14px;
-				color: #2c3338;
-				transition: all 0.2s;
-				display: flex;
-				align-items: center;
-				gap: 8px;
-			}
-			.wp-cmf-tabs-vertical .wp-cmf-tab-button:hover {
-				background: #f6f7f7;
-				border-color: #2271b1;
-			}
-			.wp-cmf-tabs-vertical .wp-cmf-tab-button.active {
-				background: #2271b1;
-				color: #fff;
-				border-color: #2271b1;
-				font-weight: 600;
-			}
-			.wp-cmf-tabs-vertical .wp-cmf-tabs-content {
-				flex: 1;
-				background: #fff;
-				padding: 20px;
-				border: 1px solid #c3c4c7;
-				border-radius: 4px;
-			}
-
-			/* Common Styles */
-			.wp-cmf-tab-button .dashicons {
-				font-size: 18px;
-				width: 18px;
-				height: 18px;
-			}
-			.wp-cmf-tab-panel {
-				display: none;
-			}
-			.wp-cmf-tab-panel.active {
-				display: block;
-			}
-			.wp-cmf-tab-panel > .description {
-				margin-top: 0;
-				margin-bottom: 15px;
-				color: #646970;
-			}
-			'
-		);
+		// Styles are loaded from wp-cmf.scss
+		// No inline CSS needed
 	}
 
 	/**

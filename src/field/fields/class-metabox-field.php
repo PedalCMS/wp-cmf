@@ -146,6 +146,8 @@ class Metabox_Field extends Abstract_Field implements Container_Field_Interface 
 			$context = null;
 		}
 
+		// WordPress automatically applies .metabox-location-side class to sidebar metaboxes
+		// which we can target in CSS for responsive layout
 		$output  = '<div class="wp-cmf-metabox-fields">';
 		$output .= $this->render_metabox_fields( $fields, $context );
 		$output .= '</div>';
@@ -168,45 +170,115 @@ class Metabox_Field extends Abstract_Field implements Container_Field_Interface 
 			return '<p class="description">No fields configured for this metabox.</p>';
 		}
 
-		$output = '';
+		// Check if all fields are container fields (tabs, groups, repeaters)
+		$has_container_fields = false;
+		$has_regular_fields   = false;
 
 		foreach ( $fields as $field_config ) {
-			$field_name = $field_config['name'] ?? '';
-
 			if ( class_exists( '\Pedalcms\WpCmf\Field\Field_Factory' ) ) {
 				try {
 					$field = Field_Factory::create( $field_config );
-
-					// For container fields (tabs, etc), pass context directly
-					// For regular fields, load and pass the field value
 					if ( $field instanceof \Pedalcms\WpCmf\Field\Container_Field_Interface ) {
-						// Container fields need context to pass to nested fields
-						$field_html = $field->render( $context );
+						$has_container_fields = true;
 					} else {
+						$has_regular_fields = true;
+					}
+				} catch ( \Exception $e ) {
+					continue;
+				}
+			}
+		}
+
+		// If only container fields, render them directly
+		// If regular fields, wrap them in a form-table for proper formatting
+		$output = '';
+
+		if ( $has_regular_fields && ! $has_container_fields ) {
+			// Only regular fields - use form-table structure like tabs/groups
+			$output .= '<table class="form-table" role="presentation">';
+
+			foreach ( $fields as $field_config ) {
+				$field_name = $field_config['name'] ?? '';
+
+				if ( class_exists( '\Pedalcms\WpCmf\Field\Field_Factory' ) ) {
+					try {
+						$field = Field_Factory::create( $field_config );
+
 						// Regular fields: load value and render
 						$field_value = $this->load_field_value( $field_name, $context );
 						$field_html  = $field->render( $field_value );
-					}
 
-					// For settings pages (when context is a string page_id), fix the name attribute
-					if ( is_string( $context ) && ! empty( $context ) ) {
-						$option_name = $context . '_' . $field_name;
-						$field_html  = str_replace(
-							'name="' . $field_name . '"',
-							'name="' . $option_name . '"',
-							$field_html
-						);
-						// Also handle array fields like checkboxes: name="field_name[]"
-						$field_html = str_replace(
-							'name="' . $field_name . '[]"',
-							'name="' . $option_name . '[]"',
-							$field_html
-						);
-					}
+						// Remove only the first/top-level label, not labels inside nested fields (like groups)
+						// This preserves labels for checkbox/radio options and nested container fields
+						$field_html = preg_replace( '/<label[^>]*class="[^"]*wp-cmf-field-label[^"]*"[^>]*>.*?<\/label>/s', '', $field_html, 1 );
 
-					$output .= $field_html;
-				} catch ( \Exception $e ) {
-					$output .= '<div class="error"><p>Error rendering field: ' . $this->esc_html( $e->getMessage() ) . '</p></div>';
+						// For settings pages (when context is a string page_id), fix the name attribute
+						if ( is_string( $context ) && ! empty( $context ) ) {
+							$option_name = $context . '_' . $field_name;
+							$field_html  = str_replace(
+								'name="' . $field_name . '"',
+								'name="' . $option_name . '"',
+								$field_html
+							);
+							// Also handle array fields like checkboxes: name="field_name[]"
+							$field_html = str_replace(
+								'name="' . $field_name . '[]"',
+								'name="' . $option_name . '[]"',
+								$field_html
+							);
+						}
+
+						$output .= '<tr>';
+						$output .= '<th scope="row">' . $this->esc_html( $field->get_label() ) . '</th>';
+						$output .= '<td>' . $field_html . '</td>';
+						$output .= '</tr>';
+					} catch ( \Exception $e ) {
+						$output .= '<tr><td colspan="2"><div class="error"><p>Error rendering field: ' . $this->esc_html( $e->getMessage() ) . '</p></div></td></tr>';
+					}
+				}
+			}
+
+			$output .= '</table>';
+		} else {
+			// Mixed or only container fields - render directly
+			foreach ( $fields as $field_config ) {
+				$field_name = $field_config['name'] ?? '';
+
+				if ( class_exists( '\Pedalcms\WpCmf\Field\Field_Factory' ) ) {
+					try {
+						$field = Field_Factory::create( $field_config );
+
+						// For container fields (tabs, etc), pass context directly
+						// For regular fields, load and pass the field value
+						if ( $field instanceof \Pedalcms\WpCmf\Field\Container_Field_Interface ) {
+							// Container fields need context to pass to nested fields
+							$field_html = $field->render( $context );
+						} else {
+							// Regular fields: load value and render
+							$field_value = $this->load_field_value( $field_name, $context );
+							$field_html  = $field->render( $field_value );
+						}
+
+						// For settings pages (when context is a string page_id), fix the name attribute
+						if ( is_string( $context ) && ! empty( $context ) ) {
+							$option_name = $context . '_' . $field_name;
+							$field_html  = str_replace(
+								'name="' . $field_name . '"',
+								'name="' . $option_name . '"',
+								$field_html
+							);
+							// Also handle array fields like checkboxes: name="field_name[]"
+							$field_html = str_replace(
+								'name="' . $field_name . '[]"',
+								'name="' . $option_name . '[]"',
+								$field_html
+							);
+						}
+
+						$output .= $field_html;
+					} catch ( \Exception $e ) {
+						$output .= '<div class="error"><p>Error rendering field: ' . $this->esc_html( $e->getMessage() ) . '</p></div>';
+					}
 				}
 			}
 		}
@@ -280,25 +352,8 @@ class Metabox_Field extends Abstract_Field implements Container_Field_Interface 
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
-		if ( ! function_exists( 'wp_add_inline_style' ) ) {
-			return;
-		}
-
-		// Enqueue inline styles for metabox fields
-		wp_add_inline_style(
-			'wp-admin',
-			'
-			.wp-cmf-metabox-fields {
-				margin: 0;
-			}
-			.wp-cmf-metabox-fields .form-table {
-				margin-top: 0;
-			}
-			.wp-cmf-metabox-fields .form-table th {
-				padding-left: 0;
-			}
-			'
-		);
+		// Styles are loaded from wp-cmf.scss
+		// No inline CSS needed
 	}
 
 	/**

@@ -71,7 +71,7 @@ add_action( 'init', 'wp_cmf_advanced_json_init' );
 
 // Format phone number
 add_filter(
-	'wp_cmf_before_save_agent_phone',
+	'wp_cmf_before_save_field_agent_phone',
 	function ( $value ) {
 		// Remove non-numeric characters
 		$numbers = preg_replace( '/[^0-9]/', '', $value );
@@ -90,7 +90,7 @@ add_filter(
 
 // Ensure property price is rounded to 2 decimal places
 add_filter(
-	'wp_cmf_before_save_property_price',
+	'wp_cmf_before_save_field_property_price',
 	function ( $value ) {
 		return round( (float) $value, 2 );
 	}
@@ -98,7 +98,7 @@ add_filter(
 
 // Auto-generate listing ID if empty
 add_filter(
-	'wp_cmf_before_save_listing_id',
+	'wp_cmf_before_save_field_listing_id',
 	function ( $value, $post_id ) {
 		if ( empty( $value ) ) {
 			return 'PROP-' . str_pad( $post_id, 6, '0', STR_PAD_LEFT );

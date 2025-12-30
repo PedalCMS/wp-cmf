@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Container Fields Tests
  *
@@ -16,6 +17,7 @@ use Pedalcms\WpCmf\Field\Container_Field_Interface;
  * Tests for container field types.
  */
 class Test_Container_Fields extends WP_UnitTestCase {
+
 
 	/**
 	 * Reset Field_Factory between tests.

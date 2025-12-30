@@ -211,8 +211,9 @@ class Repeater_Field extends Abstract_Field {
 				// Render the sub-field
 				$sub_html = $sub_field->render( $sub_value );
 
-				// Remove label tags since we're rendering labels in the table <th> tag
-				$sub_html = preg_replace( '/<label[^>]*>.*?<\/label>/s', '', $sub_html );
+				// Remove only the first/top-level label, not labels inside nested fields (like groups)
+				// This preserves labels for checkbox/radio options and nested container fields
+				$sub_html = preg_replace( '/<label[^>]*class="[^"]*wp-cmf-field-label[^"]*"[^>]*>.*?<\/label>/s', '', $sub_html, 1 );
 				// To: name="repeater_name[row_index][sub_field_name]"
 				$original_name = $sub_field_name;
 				$new_name      = $field_name . '[' . $row_index . '][' . $original_name . ']';
@@ -373,177 +374,13 @@ class Repeater_Field extends Abstract_Field {
 	/**
 	 * Enqueue repeater JavaScript
 	 *
+	 * Scripts are handled by wp-cmf.js RepeaterField class
+	 *
 	 * @return void
 	 */
 	protected function enqueue_repeater_scripts(): void {
-		static $scripts_enqueued = false;
-
-		if ( $scripts_enqueued ) {
-			return;
-		}
-
-		$scripts_enqueued = true;
-
-		add_action(
-			'admin_footer',
-			function () {
-				?>
-				<script type="text/javascript">
-				jQuery(document).ready(function($) {
-					// Initialize sortable if enabled
-					$('.wp-cmf-repeater[data-sortable="true"] .wp-cmf-repeater-rows').sortable({
-						handle: '.wp-cmf-repeater-drag-handle',
-						axis: 'y',
-						update: function(event, ui) {
-							$(this).closest('.wp-cmf-repeater').trigger('wp-cmf-repeater-reindex');
-						}
-					});
-
-					// Add row
-					$(document).on('click', '.wp-cmf-repeater-add', function(e) {
-						e.preventDefault();
-						var $repeater = $(this).closest('.wp-cmf-repeater');
-						var $rows = $repeater.find('.wp-cmf-repeater-rows');
-						var template = $repeater.find('.wp-cmf-repeater-template').html();
-						var maxRows = parseInt($repeater.data('max-rows')) || 0;
-						var currentRows = $rows.find('.wp-cmf-repeater-row').length;
-						var newIndex = currentRows;
-
-						// Check max rows
-						if (maxRows > 0 && currentRows >= maxRows) {
-							return;
-						}
-
-						// Replace {{INDEX}} with actual index
-						var newRow = template.replace(/\{\{INDEX\}\}/g, newIndex);
-
-						// Update row label
-						newRow = newRow.replace(/Row \{\{index\}\}/g, 'Row ' + (newIndex + 1));
-
-						$rows.append(newRow);
-
-						// Reinitialize sortable
-						if ($repeater.data('sortable') === true || $repeater.data('sortable') === 'true') {
-							$rows.sortable('refresh');
-						}
-
-						// Check if max rows reached
-						if (maxRows > 0 && currentRows + 1 >= maxRows) {
-							$(this).prop('disabled', true);
-						}
-
-						// Check min rows for remove button
-						$repeater.trigger('wp-cmf-repeater-check-min');
-
-						// Trigger custom event
-						$repeater.trigger('wp-cmf-repeater-row-added', [newIndex]);
-					});
-
-					// Remove row
-					$(document).on('click', '.wp-cmf-repeater-remove', function(e) {
-						e.preventDefault();
-						var $row = $(this).closest('.wp-cmf-repeater-row');
-						var $repeater = $row.closest('.wp-cmf-repeater');
-						var $rows = $repeater.find('.wp-cmf-repeater-rows');
-						var minRows = parseInt($repeater.data('min-rows')) || 0;
-						var currentRows = $rows.find('.wp-cmf-repeater-row').length;
-
-						// Check min rows
-						if (minRows > 0 && currentRows <= minRows) {
-							alert('Minimum ' + minRows + ' row(s) required.');
-							return;
-						}
-
-						// Confirm removal
-						if (confirm('Are you sure you want to remove this row?')) {
-							$row.fadeOut(200, function() {
-								$(this).remove();
-								$repeater.trigger('wp-cmf-repeater-reindex');
-								$repeater.trigger('wp-cmf-repeater-check-min');
-
-								// Re-enable add button
-								var maxRows = parseInt($repeater.data('max-rows')) || 0;
-								if (maxRows === 0 || $rows.find('.wp-cmf-repeater-row').length < maxRows) {
-									$repeater.find('.wp-cmf-repeater-add').prop('disabled', false);
-								}
-							});
-						}
-					});
-
-					// Toggle row collapse
-					$(document).on('click', '.wp-cmf-repeater-toggle', function(e) {
-						e.preventDefault();
-						var $row = $(this).closest('.wp-cmf-repeater-row');
-						var $content = $row.find('.wp-cmf-repeater-row-content');
-						var $icon = $(this).find('.dashicons');
-
-						$row.toggleClass('collapsed');
-						$content.slideToggle(200);
-						$icon.toggleClass('dashicons-arrow-down dashicons-arrow-up');
-					});
-
-					// Reindex rows after sorting or removal
-					$(document).on('wp-cmf-repeater-reindex', '.wp-cmf-repeater', function() {
-						var $repeater = $(this);
-						var fieldName = $repeater.data('field-name');
-
-						$repeater.find('.wp-cmf-repeater-row').each(function(index) {
-							var $row = $(this);
-							var oldIndex = $row.data('row-index');
-
-							// Update data attribute
-							$row.attr('data-row-index', index);
-							$row.data('row-index', index);
-
-							// Update row label
-							var rowLabel = $row.find('.wp-cmf-repeater-row-label').text();
-							$row.find('.wp-cmf-repeater-row-label').text(rowLabel.replace(/\d+/, index + 1));
-
-							// Update input names
-							$row.find('input, select, textarea').each(function() {
-								var name = $(this).attr('name');
-								if (name) {
-									// Replace [oldIndex] with [newIndex]
-									name = name.replace(
-										new RegExp('\\[' + oldIndex + '\\]'),
-										'[' + index + ']'
-									);
-									$(this).attr('name', name);
-								}
-
-								// Update ID
-								var id = $(this).attr('id');
-								if (id) {
-									id = id.replace(
-										new RegExp('-' + oldIndex + '-'),
-										'-' + index + '-'
-									);
-									$(this).attr('id', id);
-								}
-							});
-						});
-					});
-
-					// Check minimum rows and disable/enable remove buttons
-					$(document).on('wp-cmf-repeater-check-min', '.wp-cmf-repeater', function() {
-						var $repeater = $(this);
-						var minRows = parseInt($repeater.data('min-rows')) || 0;
-						var currentRows = $repeater.find('.wp-cmf-repeater-row').length;
-
-						if (minRows > 0 && currentRows <= minRows) {
-							$repeater.find('.wp-cmf-repeater-remove').prop('disabled', true);
-						} else {
-							$repeater.find('.wp-cmf-repeater-remove').prop('disabled', false);
-						}
-					});
-
-					// Initial check
-					$('.wp-cmf-repeater').trigger('wp-cmf-repeater-check-min');
-				});
-				</script>
-				<?php
-			}
-		);
+		// JavaScript is handled by global wp-cmf.js
+		// No inline scripts needed
 	}
 
 	/**
@@ -552,120 +389,13 @@ class Repeater_Field extends Abstract_Field {
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
-		if ( ! function_exists( 'wp_add_inline_style' ) ) {
-			return;
-		}
-
 		// Make sure jQuery UI Sortable is available
 		if ( function_exists( 'wp_enqueue_script' ) ) {
 			wp_enqueue_script( 'jquery-ui-sortable' );
 		}
 
-		wp_add_inline_style(
-			'wp-admin',
-			'
-			.wp-cmf-repeater {
-				margin: 10px 0;
-				border: 1px solid #c3c4c7;
-				border-radius: 4px;
-				background: #fff;
-			}
-			.wp-cmf-repeater-rows {
-				padding: 0;
-			}
-			.wp-cmf-repeater-row {
-				border-bottom: 1px solid #c3c4c7;
-				background: #fff;
-			}
-			.wp-cmf-repeater-row:last-child {
-				border-bottom: none;
-			}
-			.wp-cmf-repeater-row.ui-sortable-helper {
-				box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-			}
-			.wp-cmf-repeater-row.ui-sortable-placeholder {
-				visibility: visible !important;
-				background: #f0f0f1;
-				border: 2px dashed #c3c4c7;
-			}
-			.wp-cmf-repeater-row-header {
-				display: flex;
-				align-items: center;
-				padding: 10px 15px;
-				background: #f6f7f7;
-				cursor: default;
-				gap: 10px;
-			}
-			.wp-cmf-repeater-drag-handle {
-				cursor: move;
-				color: #787c82;
-				font-size: 20px;
-			}
-			.wp-cmf-repeater-drag-handle:hover {
-				color: #2271b1;
-			}
-			.wp-cmf-repeater-row-label {
-				flex: 1;
-				font-weight: 600;
-				color: #1d2327;
-			}
-			.wp-cmf-repeater-row-actions {
-				display: flex;
-				gap: 5px;
-			}
-			.wp-cmf-repeater-row-actions button {
-				background: none;
-				border: none;
-				padding: 5px;
-				cursor: pointer;
-				color: #787c82;
-				border-radius: 3px;
-			}
-			.wp-cmf-repeater-row-actions button:hover {
-				background: #dcdcde;
-				color: #1d2327;
-			}
-			.wp-cmf-repeater-remove:hover {
-				color: #d63638 !important;
-				background: #fcecec !important;
-			}
-			.wp-cmf-repeater-row-actions button:disabled {
-				opacity: 0.5;
-				cursor: not-allowed;
-			}
-			.wp-cmf-repeater-row-content {
-				padding: 15px;
-			}
-			.wp-cmf-repeater-row.collapsed .wp-cmf-repeater-toggle .dashicons {
-				transform: rotate(-90deg);
-			}
-			.wp-cmf-repeater-fields {
-				margin: 0;
-			}
-			.wp-cmf-repeater-fields th {
-				padding-left: 0;
-				width: 150px;
-			}
-			.wp-cmf-repeater-actions {
-				padding: 15px;
-				background: #f6f7f7;
-				border-top: 1px solid #c3c4c7;
-			}
-			.wp-cmf-repeater-add {
-				display: inline-flex;
-				align-items: center;
-				gap: 5px;
-			}
-			.wp-cmf-repeater-add .dashicons {
-				font-size: 16px;
-				width: 16px;
-				height: 16px;
-			}
-			.wp-cmf-repeater-template {
-				display: none !important;
-			}
-			'
-		);
+		// Styles are loaded from wp-cmf.scss
+		// No inline CSS needed
 	}
 
 	/**

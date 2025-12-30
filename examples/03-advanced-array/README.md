@@ -80,12 +80,12 @@ A comprehensive settings page demonstrating proper container field usage:
 
 ```php
 // Ensure SKU is uppercase
-add_filter( 'wp_cmf_before_save_sku', function( $value ) {
+add_filter( 'wp_cmf_before_save_field_sku', function( $value ) {
     return strtoupper( $value );
 });
 
 // Auto-calculate reading time
-add_filter( 'wp_cmf_before_save_read_time', function( $value, $post_id ) {
+add_filter( 'wp_cmf_before_save_field_read_time', function( $value, $post_id ) {
     if ( empty( $value ) ) {
         $content = get_post_field( 'post_content', $post_id );
         $word_count = str_word_count( strip_tags( $content ) );
@@ -180,7 +180,7 @@ $brand_color = get_option( 'general_site_logo_color', '#0073aa' );
 2. **Existing post type extension** - Use built-in IDs like `post`, `page`
 3. **Existing settings extension** - Use `parent` for submenu placement
 4. **Container nesting** - Metabox → Tabs → Group → Fields
-5. **Before-save filters** - `wp_cmf_before_save_{field_name}`
+5. **Before-save filters** - `wp_cmf_before_save_field_{field_name}`
 6. **Repeater data** - Returns array of arrays
 
 ## File Structure

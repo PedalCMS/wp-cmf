@@ -546,6 +546,54 @@ function wp_cmf_advanced_array_init() {
 								],
 							],
 						],
+
+						// ---------------------------------------------------------
+						// METABOX 2: Quick Settings (No Tabs - Direct Fields)
+						// ---------------------------------------------------------
+						[
+							'name'     => 'quick_settings',
+							'type'     => 'metabox',
+							'label'    => 'Quick Settings',
+							'context'  => 'normal',
+							'priority' => 'default',
+							'fields'   => [
+								[
+									'name'        => 'maintenance_mode',
+									'type'        => 'checkbox',
+									'label'       => 'Maintenance Mode',
+									'description' => 'Temporarily disable the store for maintenance',
+								],
+								[
+									'name'        => 'store_phone',
+									'type'        => 'text',
+									'label'       => 'Store Phone Number',
+									'placeholder' => '(555) 123-4567',
+								],
+								[
+									'name'        => 'support_email',
+									'type'        => 'email',
+									'label'       => 'Support Email',
+									'description' => 'Customer support contact email',
+								],
+								[
+									'name'        => 'max_order_quantity',
+									'type'        => 'number',
+									'label'       => 'Max Order Quantity',
+									'description' => 'Maximum items per order',
+									'min'         => 1,
+									'default'     => 99,
+								],
+								[
+									'name'          => 'announcement_text',
+									'type'          => 'textarea',
+									'label'         => 'Announcement Banner',
+									'description'   => 'Show announcement at top of store',
+									'rows'          => 2,
+									'placeholder'   => 'Free shipping on orders over $50!',
+									'textarea_rows' => 20,
+								],
+							],
+						],
 					],
 				],
 			],
@@ -740,7 +788,7 @@ add_action( 'init', 'wp_cmf_advanced_array_init' );
 
 // Ensure SKU is uppercase
 add_filter(
-	'wp_cmf_before_save_sku',
+	'wp_cmf_before_save_field_sku',
 	function ( $value ) {
 		return strtoupper( $value );
 	}
@@ -748,7 +796,7 @@ add_filter(
 
 // Auto-calculate reading time based on content length.
 add_filter(
-	'wp_cmf_before_save_read_time',
+	'wp_cmf_before_save_field_read_time',
 	function ( $value, $post_id ) {
 		if ( empty( $value ) ) {
 			$content    = get_post_field( 'post_content', $post_id );

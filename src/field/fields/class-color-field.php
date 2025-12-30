@@ -50,13 +50,7 @@ class Color_Field extends Abstract_Field {
 			wp_enqueue_style( 'wp-color-picker' );
 			wp_enqueue_script( 'wp-color-picker' );
 
-			// Enqueue our initialization script
-			wp_add_inline_script(
-				'wp-color-picker',
-				'jQuery(document).ready(function($) {
-					$(".wp-cmf-color-picker").wpColorPicker();
-				});'
-			);
+			// Initialization is handled by wp-cmf.js
 		}
 	}
 

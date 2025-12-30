@@ -133,10 +133,6 @@ class Checkbox_Field extends Abstract_Field {
 			$output .= '<input' . $this->build_attributes( $attributes ) . ' />';
 			$output .= ' ' . $this->esc_html( $opt_label );
 			$output .= '</label>';
-
-			if ( ! $this->config['inline'] ) {
-				$output .= '<br />';
-			}
 		}
 
 		$output .= '</div>';

@@ -176,8 +176,9 @@ class New_Post_Type_Handler extends Abstract_Handler {
 
 		// Register default meta box for regular fields
 		if ( ! empty( $regular_fields ) ) {
-			$cpt   = $this->post_types[ $post_type ] ?? null;
-			$label = $cpt ? $cpt->get_singular_label() : ucfirst( $post_type );
+			$cpt    = $this->post_types[ $post_type ] ?? null;
+			$labels = $cpt ? $cpt->get_labels() : [];
+			$label  = $labels['singular_name'] ?? ucfirst( $post_type );
 
 			add_meta_box(
 				$post_type . '_cmf_fields',

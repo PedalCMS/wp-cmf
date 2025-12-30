@@ -237,33 +237,8 @@ class Group_Field extends Abstract_Field implements Container_Field_Interface {
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
-		if ( ! function_exists( 'wp_add_inline_style' ) ) {
-			return;
-		}
-
-		// Enqueue inline styles for group fields
-		wp_add_inline_style(
-			'wp-admin',
-			'
-			.wp-cmf-group-fields {
-				margin: 15px 0;
-			}
-			.wp-cmf-field-group > .wp-cmf-field-label {
-				font-size: 14px;
-				font-weight: 600;
-				margin-bottom: 10px;
-				display: block;
-			}
-			.wp-cmf-field-group > .wp-cmf-field-description {
-				color: #646970;
-				font-style: italic;
-				margin-bottom: 15px;
-			}
-			.wp-cmf-group-fields > .wp-cmf-field {
-				margin-bottom: 15px;
-			}
-			'
-		);
+		// Styles are loaded from wp-cmf.scss
+		// No inline CSS needed
 	}
 
 	/**

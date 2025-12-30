@@ -38,8 +38,9 @@ trait Field_Rendering_Trait {
 		$value      = function_exists( 'get_option' ) ? get_option( $option_name, '' ) : '';
 		$field_html = $field->render( $value );
 
-		// Remove label (WordPress Settings API handles labels)
-		$field_html = preg_replace( '/<label[^>]*>.*?<\/label>/s', '', $field_html );
+		// Remove only the first/top-level label, not labels inside nested fields (like groups)
+		// This preserves labels for checkbox/radio options and nested container fields
+		$field_html = preg_replace( '/<label[^>]*class="[^"]*wp-cmf-field-label[^"]*"[^>]*>.*?<\/label>/s', '', $field_html, 1 );
 
 		// Replace field name with option name
 		$field_html = $this->replace_field_name( $field_html, $field->get_name(), $option_name );

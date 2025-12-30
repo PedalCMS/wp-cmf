@@ -127,7 +127,7 @@ JSON cannot define callbacks, so use PHP filters for preprocessing:
 
 ```php
 // Format phone numbers
-add_filter( 'wp_cmf_before_save_agent_phone', function( $value ) {
+add_filter( 'wp_cmf_before_save_field_agent_phone', function( $value ) {
     $numbers = preg_replace( '/[^0-9]/', '', $value );
     if ( strlen( $numbers ) === 10 ) {
         return sprintf( '(%s) %s-%s',
@@ -140,7 +140,7 @@ add_filter( 'wp_cmf_before_save_agent_phone', function( $value ) {
 });
 
 // Auto-generate listing ID
-add_filter( 'wp_cmf_before_save_listing_id', function( $value, $post_id ) {
+add_filter( 'wp_cmf_before_save_field_listing_id', function( $value, $post_id ) {
     if ( empty( $value ) ) {
         return 'PROP-' . str_pad( $post_id, 6, '0', STR_PAD_LEFT );
     }
