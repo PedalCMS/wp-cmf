@@ -1,0 +1,51 @@
+{
+  "taxonomies": [
+    {
+      "id": "category",
+      "fields": [
+        {
+          "name": "category_subtitle",
+          "type": "text",
+          "label": "Category Subtitle",
+          "description": "A short subtitle for the category"
+        },
+        {
+          "name": "category_color",
+          "type": "color",
+          "label": "Category Color",
+          "default": "#333333"
+        },
+        {
+          "name": "category_icon",
+          "type": "text",
+          "label": "Icon Class",
+          "placeholder": "dashicons-category"
+        },
+        {
+          "name": "is_featured",
+          "type": "checkbox",
+          "label": "Featured Category",
+          "description": "Display prominently on the site"
+        }
+      ]
+    },
+    {
+      "id": "post_tag",
+      "fields": [
+        {
+          "name": "tag_color",
+          "type": "color",
+          "label": "Tag Color",
+          "description": "Color for tag badges",
+          "default": "#0073aa"
+        },
+        {
+          "name": "is_trending",
+          "type": "checkbox",
+          "label": "Trending Tag",
+          "description": "Mark as a trending topic"
+        }
+      ]
+    }
+  ]
+}

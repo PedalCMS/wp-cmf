@@ -32,19 +32,6 @@
           "max": 100000
         },
         {
-          "name": "event_type",
-          "type": "select",
-          "label": "Event Type",
-          "options": {
-            "": "-- Select Type --",
-            "conference": "Conference",
-            "workshop": "Workshop",
-            "webinar": "Webinar",
-            "meetup": "Meetup",
-            "concert": "Concert"
-          }
-        },
-        {
           "name": "is_free",
           "type": "checkbox",
           "label": "Free Event",
@@ -74,6 +61,77 @@
           "type": "textarea",
           "label": "Short Description",
           "rows": 3
+        }
+      ]
+    }
+  ],
+  "taxonomies": [
+    {
+      "id": "event_type",
+      "object_type": ["event"],
+      "args": {
+        "label": "Event Types",
+        "hierarchical": true,
+        "public": true,
+        "show_in_rest": true,
+        "show_admin_column": true
+      },
+      "fields": [
+        {
+          "name": "type_color",
+          "type": "color",
+          "label": "Type Color",
+          "description": "Color used for event type badges",
+          "default": "#0073aa"
+        },
+        {
+          "name": "type_icon",
+          "type": "text",
+          "label": "Icon Class",
+          "description": "Dashicons class for this event type",
+          "placeholder": "dashicons-calendar-alt"
+        },
+        {
+          "name": "default_capacity",
+          "type": "number",
+          "label": "Default Capacity",
+          "description": "Default capacity for events of this type",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "event_venue",
+      "object_type": ["event"],
+      "args": {
+        "label": "Venues",
+        "hierarchical": false,
+        "public": true,
+        "show_in_rest": true,
+        "show_admin_column": true
+      },
+      "fields": [
+        {
+          "name": "venue_address",
+          "type": "textarea",
+          "label": "Full Address",
+          "rows": 3
+        },
+        {
+          "name": "venue_capacity",
+          "type": "number",
+          "label": "Venue Capacity",
+          "min": 1
+        },
+        {
+          "name": "venue_website",
+          "type": "url",
+          "label": "Venue Website"
+        },
+        {
+          "name": "venue_phone",
+          "type": "text",
+          "label": "Contact Phone"
         }
       ]
     }
