@@ -1,0 +1,134 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+          tools: composer
+
+      - name: Get version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Validate version format
+        run: |
+          if ! [[ "${{ steps.version.outputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version format. Expected: X.Y.Z"
+            exit 1
+          fi
+
+      - name: Install dependencies (production only)
+        run: composer install --prefer-dist --no-dev --no-progress --optimize-autoloader
+
+      - name: Create distribution package
+        run: |
+          mkdir -p dist/wp-cmf
+
+          # Copy only production files
+          cp -r src dist/wp-cmf/
+          cp composer.json dist/wp-cmf/
+          cp README.md dist/wp-cmf/
+          cp LICENSE dist/wp-cmf/
+          cp CHANGELOG.md dist/wp-cmf/ 2>/dev/null || echo "No CHANGELOG.md found"
+
+          # Copy vendor (production only - already installed with --no-dev)
+          cp -r vendor dist/wp-cmf/
+
+          # Remove unnecessary files from dist
+          cd dist/wp-cmf
+
+          # Remove dev/test files that might have been copied
+          rm -rf tests/
+          rm -rf bin/
+          rm -rf docs/
+          rm -rf examples/
+          rm -rf .github/
+          rm -rf .git/
+          rm -rf .cache/
+          rm -f .gitignore
+          rm -f .gitattributes
+          rm -f .editorconfig
+          rm -f phpunit.xml.dist
+          rm -f phpcs.xml.dist
+          rm -f phpstan.neon.dist
+          rm -f composer.lock
+          rm -f .phpcs.xml
+          rm -f .phpstan.neon
+
+          cd ..
+
+          # Create zip archive
+          zip -r ../wp-cmf-${{ steps.version.outputs.version }}.zip wp-cmf
+
+          # Create tarball
+          tar -czf ../wp-cmf-${{ steps.version.outputs.version }}.tar.gz wp-cmf
+
+          cd ..
+
+          # Show what's included
+          echo "Package contents:"
+          unzip -l wp-cmf-${{ steps.version.outputs.version }}.zip | head -50
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          # Extract notes from CHANGELOG.md if it exists
+          if [ -f CHANGELOG.md ]; then
+            # Extract section for current version
+            NOTES=$(awk '/^## \[?${{ steps.version.outputs.version }}\]?/{flag=1; next} /^## \[?[0-9]+\.[0-9]+\.[0-9]+\]?/{flag=0} flag' CHANGELOG.md)
+            if [ -n "$NOTES" ]; then
+              echo "notes<<EOF" >> $GITHUB_OUTPUT
+              echo "$NOTES" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            else
+              echo "notes=Release ${{ steps.version.outputs.tag }}" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "notes=Release ${{ steps.version.outputs.tag }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: WP-CMF ${{ steps.version.outputs.tag }}
+          body: ${{ steps.release_notes.outputs.notes }}
+          draft: false
+          prerelease: ${{ contains(github.ref, '-alpha') || contains(github.ref, '-beta') || contains(github.ref, '-rc') }}
+          files: |
+            wp-cmf-${{ steps.version.outputs.version }}.zip
+            wp-cmf-${{ steps.version.outputs.version }}.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "## Release Created Successfully! :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.version.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Assets:**" >> $GITHUB_STEP_SUMMARY
+          echo "- wp-cmf-${{ steps.version.outputs.version }}.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- wp-cmf-${{ steps.version.outputs.version }}.tar.gz" >> $GITHUB_STEP_SUMMARY

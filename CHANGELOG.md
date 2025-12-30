@@ -1,0 +1,40 @@
+# Changelog
+
+All notable changes to WP-CMF will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- Nothing yet
+
+### Changed
+- Nothing yet
+
+### Fixed
+- Nothing yet
+
+## [0.1.0] - 2025-01-01
+
+### Added
+- Initial release
+- Custom Post Type registration with fields
+- Custom Taxonomy registration with term meta fields
+- Settings Pages (top-level and submenu)
+- 16 field types: text, textarea, number, email, url, password, date, color, select, checkbox, radio, wysiwyg, tabs, metabox, group, repeater
+- Container fields: tabs, metabox, group, repeater
+- Extend existing post types, taxonomies, and settings pages
+- Array-based configuration
+- JSON file configuration with schema validation
+- Before-save filters for field values
+- Built-in validation and sanitization
+- Context-aware asset management
+- Full internationalization (i18n) support
+- PHPStan static analysis (level 5)
+- WordPress Coding Standards compliance
+- Comprehensive test suite
+
+[Unreleased]: https://github.com/PedalCMS/wp-cmf/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/PedalCMS/wp-cmf/releases/tag/v0.1.0
