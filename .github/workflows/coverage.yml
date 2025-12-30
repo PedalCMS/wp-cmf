@@ -65,7 +65,22 @@ jobs:
       - name: Extract coverage percentage
         id: coverage
         run: |
-          COVERAGE=$(grep -Po 'Lines:\s+\K[\d.]+(?=%)' coverage-summary.txt | head -1)
+          # Debug: show the coverage output
+          cat coverage-summary.txt
+
+          # Extract coverage - try multiple patterns
+          COVERAGE=$(grep -E "^\s*Lines:" coverage-summary.txt | grep -oP '[\d.]+(?=%)' | head -1)
+
+          # Fallback: try different format
+          if [ -z "$COVERAGE" ]; then
+            COVERAGE=$(grep -oP 'Lines:\s+[\d.]+%\s+\(\s*\d+/\s*\d+\)' coverage-summary.txt | grep -oP '[\d.]+(?=%)' | head -1)
+          fi
+
+          # Default to 0 if still empty
+          if [ -z "$COVERAGE" ]; then
+            COVERAGE="0"
+          fi
+
           echo "percentage=$COVERAGE" >> $GITHUB_OUTPUT
           echo "Coverage: $COVERAGE%"
 
