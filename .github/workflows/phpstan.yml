@@ -1,4 +1,4 @@
-name: Coding Standards
+name: PHPStan
 
 on:
   push:
@@ -9,8 +9,8 @@ on:
       - main
 
 jobs:
-  phpcs:
-    name: PHP Coding Standards
+  phpstan:
+    name: Static Analysis
     runs-on: ubuntu-latest
 
     steps:
@@ -22,7 +22,7 @@ jobs:
         with:
           php-version: '8.2'
           coverage: none
-          tools: composer, cs2pr
+          tools: composer
 
       - name: Get Composer cache directory
         id: composer-cache
@@ -39,14 +39,5 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-scripts
 
-      - name: Create cache directory
-        run: mkdir -p .cache
-
-      - name: Run PHPCS on src
-        run: composer run cs
-
-      - name: Run PHPCS on examples
-        run: composer run cs:examples
-
-      - name: Run PHPCS on tests
-        run: composer run cs:tests
+      - name: Run PHPStan
+        run: composer run analyse

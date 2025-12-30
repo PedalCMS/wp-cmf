@@ -9,12 +9,14 @@
 		"wp-coding-standards/wpcs": "^3.2",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.1",
 		"phpstan/phpstan": "^2.1",
+		"phpstan/extension-installer": "^1.4",
 		"szepeviktor/phpstan-wordpress": "^2.0",
+		"php-stubs/wordpress-stubs": "^6.7",
 		"yoast/phpunit-polyfills": "3.0",
 		"wp-cli/wp-cli-bundle": "^2.12"
 	},
 	"require": {
-		"php": ">=8.1"
+		"php": ">=8.2"
 	},
 	"license": "GPL-2.0-or-later",
 	"autoload": {
@@ -35,7 +37,8 @@
 	"minimum-stability": "beta",
 	"config": {
 		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true
+			"dealerdirect/phpcodesniffer-composer-installer": true,
+			"phpstan/extension-installer": true
 		}
 	},
 	"scripts": {
@@ -57,7 +60,7 @@
 			"@cs:fix:examples",
 			"@cs:fix:tests"
 		],
-		"analyse": "phpstan analyse src/ --level=5",
+		"analyse": "phpstan analyse --memory-limit=2048M",
 		"ci": [
 			"@cs:all",
 			"@analyse",

@@ -14,8 +14,8 @@ use Pedalcms\WpCmf\Settings\Settings_Page;
 use Pedalcms\WpCmf\Field\Field_Interface;
 use Pedalcms\WpCmf\Field\Container_Field_Interface;
 use Pedalcms\WpCmf\Field\Field_Factory;
-use Pedalcms\WpCmf\Field\fields\Group_Field;
-use Pedalcms\WpCmf\Field\fields\Metabox_Field;
+use Pedalcms\WpCmf\Field\Fields\Group_Field;
+use Pedalcms\WpCmf\Field\Fields\Metabox_Field;
 
 /**
  * Class New_Settings_Page_Handler
@@ -387,8 +387,8 @@ class New_Settings_Page_Handler extends Abstract_Handler {
 	/**
 	 * Render a metabox
 	 *
-	 * @param mixed $object Context object.
-	 * @param array $args   Metabox arguments.
+	 * @param mixed $context Context object.
+	 * @param array $args    Metabox arguments.
 	 * @return void
 	 */
 	public function render_metabox( $context, array $args ): void {

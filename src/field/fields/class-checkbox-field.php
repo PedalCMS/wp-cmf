@@ -67,7 +67,10 @@ class Checkbox_Field extends Abstract_Field {
 	 * @return string HTML output.
 	 */
 	protected function render_single_checkbox( $value ): string {
-		$checked = ! empty( $value ) || '1' === $value || 1 === $value || true === $value;
+		// Check if value is truthy (handles '1', 1, true, 'yes', 'on', etc.)
+		// Cast to string first to handle '0' properly
+		$string_value = (string) $value;
+		$checked      = ! empty( $value ) && '0' !== $string_value;
 
 		$attributes = [
 			'type'  => 'checkbox',

@@ -12,7 +12,7 @@ namespace Pedalcms\WpCmf\Core\Handlers;
 
 use Pedalcms\WpCmf\Field\Field_Interface;
 use Pedalcms\WpCmf\Field\Container_Field_Interface;
-use Pedalcms\WpCmf\Field\fields\Metabox_Field;
+use Pedalcms\WpCmf\Field\Fields\Metabox_Field;
 
 /**
  * Class Existing_Post_Type_Handler

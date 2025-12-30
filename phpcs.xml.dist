@@ -58,4 +58,14 @@
 
 	<!-- Enforce short syntax arrays. -->
 	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+
+	<!-- Exclude file naming rules for test files (PHPUnit convention uses Test_*.php). -->
+	<rule ref="WordPress.Files.FileName">
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
+
+	<!-- Exclude useless method override warnings for test base classes. -->
+	<rule ref="Generic.CodeAnalysis.UselessOverridingMethod">
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
 </ruleset>
