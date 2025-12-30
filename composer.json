@@ -16,7 +16,7 @@
 		"wp-cli/wp-cli-bundle": "^2.12"
 	},
 	"require": {
-		"php": ">=8.1"
+		"php": ">=8.2"
 	},
 	"license": "GPL-2.0-or-later",
 	"autoload": {
