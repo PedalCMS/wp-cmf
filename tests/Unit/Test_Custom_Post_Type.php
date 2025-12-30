@@ -10,12 +10,14 @@
 use Pedalcms\WpCmf\Core\Manager;
 use Pedalcms\WpCmf\CPT\Custom_Post_Type;
 
+require_once __DIR__ . '/WP_CMF_UnitTestCase.php';
+
 /**
  * Class Test_Custom_Post_Type
  *
  * Tests for CPT registration.
  */
-class Test_Custom_Post_Type extends WP_UnitTestCase {
+class Test_Custom_Post_Type extends WP_CMF_UnitTestCase {
 
 	/**
 	 * Reset Manager between tests.
@@ -44,8 +46,6 @@ class Test_Custom_Post_Type extends WP_UnitTestCase {
 	/**
 	 * Test registering a CPT via Manager.
 	 *
-	 * @expectedIncorrectUsage WP_Block_Type_Registry::register
-	 * @expectedIncorrectUsage WP_Block_Bindings_Registry::register
 	 */
 	public function test_register_cpt_via_manager(): void {
 		$manager = Manager::init();
@@ -82,8 +82,6 @@ class Test_Custom_Post_Type extends WP_UnitTestCase {
 	/**
 	 * Test CPT is public.
 	 *
-	 * @expectedIncorrectUsage WP_Block_Type_Registry::register
-	 * @expectedIncorrectUsage WP_Block_Bindings_Registry::register
 	 */
 	public function test_cpt_is_public(): void {
 		$manager = Manager::init();
@@ -110,8 +108,6 @@ class Test_Custom_Post_Type extends WP_UnitTestCase {
 	/**
 	 * Test creating a post of the CPT.
 	 *
-	 * @expectedIncorrectUsage WP_Block_Type_Registry::register
-	 * @expectedIncorrectUsage WP_Block_Bindings_Registry::register
 	 */
 	public function test_can_create_cpt_post(): void {
 		$manager = Manager::init();
@@ -144,8 +140,6 @@ class Test_Custom_Post_Type extends WP_UnitTestCase {
 	/**
 	 * Test CPT with custom supports.
 	 *
-	 * @expectedIncorrectUsage WP_Block_Type_Registry::register
-	 * @expectedIncorrectUsage WP_Block_Bindings_Registry::register
 	 */
 	public function test_cpt_with_custom_supports(): void {
 		$manager = Manager::init();
@@ -172,8 +166,6 @@ class Test_Custom_Post_Type extends WP_UnitTestCase {
 	/**
 	 * Test CPT registration from array config.
 	 *
-	 * @expectedIncorrectUsage WP_Block_Type_Registry::register
-	 * @expectedIncorrectUsage WP_Block_Bindings_Registry::register
 	 */
 	public function test_register_cpt_from_array(): void {
 		$manager = Manager::init();
@@ -302,8 +294,6 @@ class Test_Custom_Post_Type extends WP_UnitTestCase {
 	/**
 	 * Test multiple CPTs from array.
 	 *
-	 * @expectedIncorrectUsage WP_Block_Type_Registry::register
-	 * @expectedIncorrectUsage WP_Block_Bindings_Registry::register
 	 */
 	public function test_multiple_cpts_from_array(): void {
 		$manager = Manager::init();

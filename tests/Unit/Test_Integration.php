@@ -10,12 +10,14 @@
 use Pedalcms\WpCmf\Core\Manager;
 use Pedalcms\WpCmf\Field\Field_Factory;
 
+require_once __DIR__ . '/WP_CMF_UnitTestCase.php';
+
 /**
  * Class Test_Integration
  *
  * Tests for end-to-end workflows.
  */
-class Test_Integration extends WP_UnitTestCase {
+class Test_Integration extends WP_CMF_UnitTestCase {
 
 	/**
 	 * Reset Manager between tests.
@@ -48,8 +50,6 @@ class Test_Integration extends WP_UnitTestCase {
 	/**
 	 * Test complete CPT with fields registration.
 	 *
-	 * @expectedIncorrectUsage WP_Block_Type_Registry::register
-	 * @expectedIncorrectUsage WP_Block_Bindings_Registry::register
 	 */
 	public function test_complete_cpt_with_fields(): void {
 		$manager = Manager::init();
@@ -166,8 +166,6 @@ class Test_Integration extends WP_UnitTestCase {
 	/**
 	 * Test mixed CPTs and settings pages.
 	 *
-	 * @expectedIncorrectUsage WP_Block_Type_Registry::register
-	 * @expectedIncorrectUsage WP_Block_Bindings_Registry::register
 	 */
 	public function test_mixed_cpts_and_settings(): void {
 		$manager = Manager::init();
@@ -206,8 +204,6 @@ class Test_Integration extends WP_UnitTestCase {
 	/**
 	 * Test saving and retrieving post meta.
 	 *
-	 * @expectedIncorrectUsage WP_Block_Type_Registry::register
-	 * @expectedIncorrectUsage WP_Block_Bindings_Registry::register
 	 */
 	public function test_save_and_retrieve_post_meta(): void {
 		$manager = Manager::init();
