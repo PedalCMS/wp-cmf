@@ -3,9 +3,13 @@
 A powerful, flexible Composer library for building WordPress plugins with custom post types, taxonomies, settings pages, and dynamic form fields.
 
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/PedalCMS/wp-cmf)
-[![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)](https://php.net)
+[![PHP](https://img.shields.io/badge/PHP-8.2%2B-purple.svg)](https://php.net)
 [![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-blue.svg)](https://wordpress.org)
 [![License](https://img.shields.io/badge/license-GPL--2.0--or--later-green.svg)](LICENSE)
+![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/namithj/e9d56e393be0b5f10774a3432beaf815/raw/wp-cmf-coverage.json)
+[![PHPUnit Tests](https://github.com/PedalCMS/wp-cmf/actions/workflows/phpunit.yml/badge.svg)](https://github.com/PedalCMS/wp-cmf/actions/workflows/phpunit.yml)
+[![Coding Standards](https://github.com/PedalCMS/wp-cmf/actions/workflows/coding-standards.yml/badge.svg)](https://github.com/PedalCMS/wp-cmf/actions/workflows/coding-standards.yml)
+[![PHPStan](https://github.com/PedalCMS/wp-cmf/actions/workflows/phpstan.yml/badge.svg)](https://github.com/PedalCMS/wp-cmf/actions/workflows/phpstan.yml)
 
 ## Features
 
@@ -24,7 +28,7 @@ A powerful, flexible Composer library for building WordPress plugins with custom
 
 ## Requirements
 
-- **PHP**: 8.1 or higher
+- **PHP**: 8.2 or higher
 - **WordPress**: 6.0 or higher
 - **Composer**: For autoloading
 
