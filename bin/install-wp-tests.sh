@@ -169,7 +169,12 @@ install_db() {
 	if [ $(mysql --user="$DB_USER" --password="$DB_PASS"$EXTRA --execute='show databases;' | grep ^$DB_NAME$) ]
 	then
 		echo "Reinstalling will delete the existing test database ($DB_NAME)"
-		read -p 'Are you sure you want to proceed? [y/N]: ' DELETE_EXISTING_DB
+		# Auto-confirm in CI environment (non-interactive)
+		if [ ! -t 0 ]; then
+			DELETE_EXISTING_DB="y"
+		else
+			read -p 'Are you sure you want to proceed? [y/N]: ' DELETE_EXISTING_DB
+		fi
 		recreate_db $DELETE_EXISTING_DB
 	else
 		create_db
