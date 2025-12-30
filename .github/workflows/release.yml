@@ -116,11 +116,11 @@ jobs:
 
       - name: Delete existing release if present
         run: |
-          # Check if release exists and delete it
-          RELEASE_ID=$(gh release view ${{ steps.version.outputs.tag }} --json id --jq '.id' 2>/dev/null || echo "")
-          if [ -n "$RELEASE_ID" ]; then
+          # Check if release exists and delete it (handles immutable releases)
+          if gh release view ${{ steps.version.outputs.tag }} &>/dev/null; then
             echo "Deleting existing release..."
-            gh release delete ${{ steps.version.outputs.tag }} --yes
+            gh release delete ${{ steps.version.outputs.tag }} --yes --cleanup-tag=false
+            sleep 5  # Wait for GitHub API to propagate deletion
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
