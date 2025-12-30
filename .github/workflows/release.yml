@@ -114,6 +114,17 @@ jobs:
             echo "notes=Release ${{ steps.version.outputs.tag }}" >> $GITHUB_OUTPUT
           fi
 
+      - name: Delete existing release if present
+        run: |
+          # Check if release exists and delete it (handles immutable releases)
+          if gh release view ${{ steps.version.outputs.tag }} &>/dev/null; then
+            echo "Deleting existing release..."
+            gh release delete ${{ steps.version.outputs.tag }} --yes --cleanup-tag=false
+            sleep 5  # Wait for GitHub API to propagate deletion
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
