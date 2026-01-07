@@ -12,7 +12,11 @@ define( 'TESTS_PLUGIN_DIR', dirname( __DIR__ ) );
 define( 'UNIT_TESTS_DATA_PLUGIN_DIR', TESTS_PLUGIN_DIR . '/tests/Data/' );
 
 // Define path to wp-tests-config.php for wp-phpunit package.
-define( 'WP_TESTS_CONFIG_FILE_PATH', __DIR__ . '/wp-tests-config.php' );
+// Only set this if WP_TESTS_DIR is not set (i.e., using Composer wp-phpunit package).
+// In CI, WP_TESTS_DIR is set and has its own config file.
+if ( ! getenv( 'WP_TESTS_DIR' ) ) {
+	define( 'WP_TESTS_CONFIG_FILE_PATH', __DIR__ . '/wp-tests-config.php' );
+}
 
 // Define test mode flag.
 if ( ! defined( 'WP_CMF_TESTING' ) ) {
