@@ -335,6 +335,12 @@ function wp_cmf_advanced_array_init() {
 											'label'  => 'General',
 											'icon'   => 'dashicons-admin-settings',
 											'fields' => [
+												// Custom HTML - welcome message
+												[
+													'name' => 'welcome_message',
+													'type' => 'custom_html',
+													'content' => '<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;"><h3 style="margin: 0 0 10px 0; color: white;">🌟 Welcome to Store Settings</h3><p style="margin: 0;">Configure your store\'s general information, pricing, shipping, and appearance settings using the tabs on the left.</p></div>',
+												],
 												[
 													'name' => 'store_name',
 													'type' => 'text',

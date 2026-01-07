@@ -25,7 +25,7 @@ The WP-CMF Field API provides a flexible, extensible system for creating form fi
 - **FieldInterface**: Contract that all fields must implement
 - **AbstractField**: Base class providing common functionality
 - **FieldFactory**: Factory for creating fields from configuration
-- **11 Core Field Types**: Ready-to-use field implementations
+- **12 Core Field Types**: Ready-to-use field implementations
 
 ### Architecture
 
@@ -510,6 +510,56 @@ Color picker with WordPress integration.
 - Integrates with WordPress color picker
 - Validates hex color format
 - Automatically enqueues `wp-color-picker` assets
+
+---
+
+### Custom_HTML_Field
+
+Display custom HTML content (display-only, no stored value).
+
+**Configuration:**
+```php
+[
+    'name'        => 'info_banner',
+    'type'        => 'custom_html',
+    'label'       => 'Important Notice',
+    'content'     => '<div class="notice notice-info"><p>This is an informational message.</p></div>',
+    'description' => 'This is a display-only field.',
+]
+```
+
+**Special Options:**
+- `content` - The HTML content to display (required)
+- `allowed_tags` - Custom array of allowed HTML tags for wp_kses sanitization
+- `raw_html` - If true, outputs HTML without sanitization (use with caution, default: false)
+
+**Features:**
+- Display-only field (does not store any value)
+- Sanitizes HTML by default using `wp_kses` with post-safe tags
+- Supports SVG and iframe tags by default
+- Use `raw_html => true` for unsanitized output (only for trusted content)
+
+**Example with custom allowed tags:**
+```php
+[
+    'name'         => 'custom_block',
+    'type'         => 'custom_html',
+    'content'      => '<custom-element>Content</custom-element>',
+    'allowed_tags' => [
+        'custom-element' => [
+            'class' => true,
+            'id'    => true,
+        ],
+    ],
+]
+```
+
+**Use Cases:**
+- Displaying informational messages or notices
+- Adding custom UI elements between form fields
+- Embedding videos or iframes
+- Adding decorative content or branding
+- Displaying instructions or help content
 
 ---
 

@@ -49,6 +49,12 @@ function wp_cmf_simple_array_init() {
 					'menu_icon'    => 'dashicons-book',
 				],
 				'fields' => [
+					// Custom HTML - informational banner
+					[
+						'name'    => 'book_info_banner',
+						'type'    => 'custom_html',
+						'content' => '<div style="background: #f0f6fc; border-left: 4px solid #0073aa; padding: 12px 15px; margin-bottom: 15px;"><strong>📚 Book Information</strong><br>Fill in the details below to complete your book listing.</div>',
+					],
 					// Text field - for ISBN
 					[
 						'name'        => 'isbn',

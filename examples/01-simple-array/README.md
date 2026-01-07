@@ -6,6 +6,7 @@ This is a minimal example demonstrating WP-CMF basics using PHP array configurat
 
 ### Custom Post Type: Book
 A simple "Books" post type with the following fields:
+- **Book Info Banner** (custom_html) - Informational display banner
 - **ISBN** (text) - Book identifier
 - **Author** (text, required) - Author name
 - **Page Count** (number) - Number of pages
@@ -56,7 +57,7 @@ $accent_color = get_option( 'library-settings_accent_color', '#2271b1' );
 1. **CPT Registration** - Simple post type with labels, icons, supports
 2. **Taxonomy Registration** - Hierarchical taxonomy with custom fields
 3. **Settings Page** - Top-level menu with icon and position
-4. **Common Field Types** - text, textarea, number, date, select, checkbox, radio, email, url, color
+4. **Common Field Types** - text, textarea, number, date, select, checkbox, radio, email, url, color, custom_html
 5. **Field Options** - required, placeholder, default, min/max, description
 6. **Data Retrieval** - `get_post_meta()`, `get_term_meta()`, and `get_option()` patterns
 

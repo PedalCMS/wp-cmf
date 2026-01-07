@@ -371,6 +371,18 @@
           "then": {
             "required": ["fields"]
           }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "custom_html"
+              }
+            }
+          },
+          "then": {
+            "required": ["content"]
+          }
         }
       ]
     },
@@ -388,7 +400,7 @@
         "type": {
           "type": "string",
           "description": "Field type",
-          "enum": ["text", "textarea", "select", "checkbox", "radio", "number", "email", "url", "date", "password", "color", "wysiwyg", "tabs", "metabox", "group", "repeater"]
+          "enum": ["text", "textarea", "select", "checkbox", "radio", "number", "email", "url", "date", "password", "color", "wysiwyg", "tabs", "metabox", "group", "repeater", "custom_html"]
         },
         "label": {
           "type": "string",
@@ -571,6 +583,25 @@
           "type": "integer",
           "description": "Maximum number of rows in repeater",
           "minimum": 1
+        },
+        "content": {
+          "type": "string",
+          "description": "HTML content to display (for custom_html field type)"
+        },
+        "allowed_tags": {
+          "type": "object",
+          "description": "Allowed HTML tags for wp_kses sanitization (for custom_html field type)",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            }
+          }
+        },
+        "raw_html": {
+          "type": "boolean",
+          "description": "Output HTML without sanitization (for custom_html field type, use with caution)",
+          "default": false
         }
       }
     },

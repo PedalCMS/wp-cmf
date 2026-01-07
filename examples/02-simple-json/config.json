@@ -12,6 +12,11 @@
       },
       "fields": [
         {
+          "name": "event_notice",
+          "type": "custom_html",
+          "content": "<div style='background: #fff8e5; border-left: 4px solid #ffb900; padding: 12px 15px; margin-bottom: 15px;'><strong>📅 Event Details</strong><br>Complete all required fields to publish your event.</div>"
+        },
+        {
           "name": "event_date",
           "type": "date",
           "label": "Event Date",

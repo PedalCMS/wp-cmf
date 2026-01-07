@@ -7,6 +7,7 @@ It provides the same capabilities as `01-simple-array` but with external JSON co
 
 ### Custom Post Type: Event
 An "Events" post type with:
+- **Event Notice** (custom_html) - Informational display banner
 - **Event Date** (date, required) - When the event occurs
 - **Location** (text) - Venue name/address
 - **Capacity** (number) - Max attendees
