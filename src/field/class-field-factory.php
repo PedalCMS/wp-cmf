@@ -27,6 +27,7 @@ use Pedalcms\WpCmf\Field\Fields\Metabox_Field;
 use Pedalcms\WpCmf\Field\Fields\Repeater_Field;
 use Pedalcms\WpCmf\Field\Fields\Wysiwyg_Field;
 use Pedalcms\WpCmf\Field\Fields\Group_Field;
+use Pedalcms\WpCmf\Field\Fields\Custom_HTML_Field;
 
 /**
  * Field_Factory class
@@ -97,22 +98,23 @@ class Field_Factory {
 		$custom_types = self::$field_types;
 
 		self::$field_types = [
-			'text'     => Text_Field::class,
-			'textarea' => Textarea_Field::class,
-			'select'   => Select_Field::class,
-			'checkbox' => Checkbox_Field::class,
-			'radio'    => Radio_Field::class,
-			'number'   => Number_Field::class,
-			'email'    => Email_Field::class,
-			'url'      => URL_Field::class,
-			'date'     => Date_Field::class,
-			'password' => Password_Field::class,
-			'color'    => Color_Field::class,
-			'tabs'     => Tabs_Field::class,
-			'metabox'  => Metabox_Field::class,
-			'repeater' => Repeater_Field::class,
-			'wysiwyg'  => Wysiwyg_Field::class,
-			'group'    => Group_Field::class,
+			'text'        => Text_Field::class,
+			'textarea'    => Textarea_Field::class,
+			'select'      => Select_Field::class,
+			'checkbox'    => Checkbox_Field::class,
+			'radio'       => Radio_Field::class,
+			'number'      => Number_Field::class,
+			'email'       => Email_Field::class,
+			'url'         => URL_Field::class,
+			'date'        => Date_Field::class,
+			'password'    => Password_Field::class,
+			'color'       => Color_Field::class,
+			'tabs'        => Tabs_Field::class,
+			'metabox'     => Metabox_Field::class,
+			'repeater'    => Repeater_Field::class,
+			'wysiwyg'     => Wysiwyg_Field::class,
+			'group'       => Group_Field::class,
+			'custom_html' => Custom_HTML_Field::class,
 		];
 
 		// Merge back any custom types

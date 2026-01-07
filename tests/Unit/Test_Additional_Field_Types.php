@@ -612,4 +612,175 @@ class Test_Additional_Field_Types extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( 'My Field Label', $html );
 	}
+
+	// =========================================================================
+	// Custom_HTML_Field Tests
+	// =========================================================================
+
+	/**
+	 * Test Custom_HTML_Field renders basic HTML content.
+	 */
+	public function test_custom_html_field_renders_content(): void {
+		$field = Field_Factory::create(
+			[
+				'name'    => 'test_custom_html',
+				'type'    => 'custom_html',
+				'label'   => 'Custom Content',
+				'content' => '<p>This is custom HTML content.</p>',
+			]
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'wp-cmf-custom-html-content', $html );
+		$this->assertStringContainsString( 'This is custom HTML content', $html );
+		$this->assertStringContainsString( 'Custom Content', $html );
+	}
+
+	/**
+	 * Test Custom_HTML_Field with complex HTML.
+	 */
+	public function test_custom_html_field_complex_html(): void {
+		$field = Field_Factory::create(
+			[
+				'name'    => 'test_custom_html',
+				'type'    => 'custom_html',
+				'content' => '<div class="notice"><strong>Important:</strong> Please review the settings.</div>',
+			]
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'Important', $html );
+		$this->assertStringContainsString( 'Please review the settings', $html );
+	}
+
+	/**
+	 * Test Custom_HTML_Field with raw_html enabled.
+	 */
+	public function test_custom_html_field_raw_html(): void {
+		$field = Field_Factory::create(
+			[
+				'name'     => 'test_custom_html',
+				'type'     => 'custom_html',
+				'content'  => '<script>alert("test")</script>',
+				'raw_html' => true,
+			]
+		);
+
+		$html = $field->render();
+
+		// With raw_html enabled, script tags should be present
+		$this->assertStringContainsString( '<script>', $html );
+	}
+
+	/**
+	 * Test Custom_HTML_Field sanitization removes dangerous content by default.
+	 */
+	public function test_custom_html_field_sanitizes_by_default(): void {
+		$field = Field_Factory::create(
+			[
+				'name'    => 'test_custom_html',
+				'type'    => 'custom_html',
+				'content' => '<p>Safe content</p><script>alert("xss")</script>',
+			]
+		);
+
+		$html = $field->render();
+
+		// Script should be stripped when raw_html is not enabled
+		$this->assertStringContainsString( 'Safe content', $html );
+		$this->assertStringNotContainsString( '<script>', $html );
+	}
+
+	/**
+	 * Test Custom_HTML_Field with description.
+	 */
+	public function test_custom_html_field_with_description(): void {
+		$field = Field_Factory::create(
+			[
+				'name'        => 'test_custom_html',
+				'type'        => 'custom_html',
+				'content'     => '<p>Info block</p>',
+				'description' => 'This displays custom HTML.',
+			]
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'This displays custom HTML', $html );
+	}
+
+	/**
+	 * Test Custom_HTML_Field with empty content.
+	 */
+	public function test_custom_html_field_empty_content(): void {
+		$field = Field_Factory::create(
+			[
+				'name'    => 'test_custom_html',
+				'type'    => 'custom_html',
+				'content' => '',
+			]
+		);
+
+		$html = $field->render();
+
+		// Should still render wrapper but no content div
+		$this->assertStringContainsString( 'wp-cmf-field', $html );
+		$this->assertStringNotContainsString( 'wp-cmf-custom-html-content', $html );
+	}
+
+	/**
+	 * Test Custom_HTML_Field sanitize returns null (doesn't store values).
+	 */
+	public function test_custom_html_field_sanitize_returns_null(): void {
+		$field = Field_Factory::create(
+			[
+				'name'    => 'test_custom_html',
+				'type'    => 'custom_html',
+				'content' => '<p>Content</p>',
+			]
+		);
+
+		$result = $field->sanitize( 'any value' );
+
+		$this->assertNull( $result );
+	}
+
+	/**
+	 * Test Custom_HTML_Field validate always returns valid.
+	 */
+	public function test_custom_html_field_validate_always_valid(): void {
+		$field = Field_Factory::create(
+			[
+				'name'    => 'test_custom_html',
+				'type'    => 'custom_html',
+				'content' => '<p>Content</p>',
+			]
+		);
+
+		$result = $field->validate( 'any value' );
+
+		$this->assertTrue( $result['valid'] );
+		$this->assertEmpty( $result['errors'] );
+	}
+
+	/**
+	 * Test Custom_HTML_Field wrapper has correct data attributes.
+	 */
+	public function test_custom_html_field_wrapper_attributes(): void {
+		$field = Field_Factory::create(
+			[
+				'name'    => 'test_custom_html',
+				'type'    => 'custom_html',
+				'content' => '<p>Content</p>',
+			]
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'data-field-name="test_custom_html"', $html );
+		$this->assertStringContainsString( 'data-field-type="custom_html"', $html );
+		$this->assertStringContainsString( 'wp-cmf-field-custom_html', $html );
+	}
 }

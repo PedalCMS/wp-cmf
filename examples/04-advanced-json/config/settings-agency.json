@@ -26,6 +26,11 @@
               "icon": "dashicons-building",
               "fields": [
                 {
+                  "name": "agency_welcome",
+                  "type": "custom_html",
+                  "content": "<div style='background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 16px; margin-bottom: 16px;'><h4 style='margin: 0 0 8px 0; color: #495057;'>🏢 Agency Profile</h4><p style='margin: 0; color: #6c757d;'>Enter your agency's contact information and branding details. This information will be displayed on property listings and contact forms.</p></div>"
+                },
+                {
                   "name": "agency_name",
                   "type": "text",
                   "label": "Agency Name",
