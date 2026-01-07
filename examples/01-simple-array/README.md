@@ -13,6 +13,7 @@ A simple "Books" post type with the following fields:
 - **Publication Date** (date) - When published
 - **In Stock** (checkbox) - Availability status
 - **Synopsis** (textarea) - Book description
+- **Book Cover** (upload) - Cover image upload
 
 ### Taxonomy: Book Genre
 A hierarchical taxonomy for categorizing books with custom fields:
@@ -57,14 +58,14 @@ $accent_color = get_option( 'library-settings_accent_color', '#2271b1' );
 1. **CPT Registration** - Simple post type with labels, icons, supports
 2. **Taxonomy Registration** - Hierarchical taxonomy with custom fields
 3. **Settings Page** - Top-level menu with icon and position
-4. **Common Field Types** - text, textarea, number, date, select, checkbox, radio, email, url, color, custom_html
+4. **Common Field Types** - text, textarea, number, date, select, checkbox, radio, email, url, color, custom_html, upload
 5. **Field Options** - required, placeholder, default, min/max, description
 6. **Data Retrieval** - `get_post_meta()`, `get_term_meta()`, and `get_option()` patterns
 
 ## For Advanced Features
 
 See `advanced-array` or `advanced-json` examples for:
-- All 16 field types
+- All 18 field types
 - Tabs, Metaboxes, Groups, Repeaters
 - Adding fields to existing post types (posts, pages)
 - Adding fields to existing taxonomies (categories, tags)

@@ -66,6 +66,13 @@
           "type": "textarea",
           "label": "Short Description",
           "rows": 3
+        },
+        {
+          "name": "event_flyer",
+          "type": "upload",
+          "label": "Event Flyer",
+          "description": "Upload an image or PDF flyer for this event",
+          "button_text": "Select Flyer"
         }
       ]
     }

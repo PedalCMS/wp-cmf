@@ -55,7 +55,7 @@ A comprehensive settings page demonstrating proper container field usage:
 - Social Media Links (group): Facebook, Twitter, Instagram, LinkedIn URLs
 - Brand Color (color picker)
 
-## All 16 Field Types Demonstrated
+## All 18 Field Types Demonstrated
 
 | Field Type | Used In |
 |------------|---------|

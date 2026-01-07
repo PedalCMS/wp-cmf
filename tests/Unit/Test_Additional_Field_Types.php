@@ -783,4 +783,238 @@ class Test_Additional_Field_Types extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'data-field-type="custom_html"', $html );
 		$this->assertStringContainsString( 'wp-cmf-field-custom_html', $html );
 	}
+
+	// =========================================================================
+	// Upload_Field Tests
+	// =========================================================================
+
+	/**
+	 * Test Upload_Field renders basic structure.
+	 */
+	public function test_upload_field_renders_basic_structure(): void {
+		$field = Field_Factory::create(
+			[
+				'name'  => 'test_upload',
+				'type'  => 'upload',
+				'label' => 'Featured Image',
+			]
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'wp-cmf-upload-container', $html );
+		$this->assertStringContainsString( 'wp-cmf-upload-value', $html );
+		$this->assertStringContainsString( 'wp-cmf-upload-button', $html );
+		$this->assertStringContainsString( 'Featured Image', $html );
+	}
+
+	/**
+	 * Test Upload_Field with custom button text.
+	 */
+	public function test_upload_field_custom_button_text(): void {
+		$field = Field_Factory::create(
+			[
+				'name'        => 'test_upload',
+				'type'        => 'upload',
+				'button_text' => 'Choose Image',
+				'remove_text' => 'Clear',
+			]
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'Choose Image', $html );
+		$this->assertStringContainsString( 'Clear', $html );
+	}
+
+	/**
+	 * Test Upload_Field with library type filter.
+	 */
+	public function test_upload_field_library_type(): void {
+		$field = Field_Factory::create(
+			[
+				'name'         => 'test_upload',
+				'type'         => 'upload',
+				'library_type' => 'image',
+			]
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'data-library-type="image"', $html );
+	}
+
+	/**
+	 * Test Upload_Field with multiple selection.
+	 */
+	public function test_upload_field_multiple(): void {
+		$field = Field_Factory::create(
+			[
+				'name'     => 'test_upload',
+				'type'     => 'upload',
+				'multiple' => true,
+			]
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'data-multiple="true"', $html );
+	}
+
+	/**
+	 * Test Upload_Field renders with existing value.
+	 */
+	public function test_upload_field_with_value(): void {
+		$field = Field_Factory::create(
+			[
+				'name' => 'test_upload',
+				'type' => 'upload',
+			]
+		);
+
+		$html = $field->render( 123 );
+
+		$this->assertStringContainsString( 'value="123"', $html );
+	}
+
+	/**
+	 * Test Upload_Field sanitize with numeric ID.
+	 */
+	public function test_upload_field_sanitize_numeric(): void {
+		$field = Field_Factory::create(
+			[
+				'name' => 'test_upload',
+				'type' => 'upload',
+			]
+		);
+
+		$result = $field->sanitize( '456' );
+
+		$this->assertSame( 456, $result );
+	}
+
+	/**
+	 * Test Upload_Field sanitize with URL.
+	 */
+	public function test_upload_field_sanitize_url(): void {
+		$field = Field_Factory::create(
+			[
+				'name' => 'test_upload',
+				'type' => 'upload',
+			]
+		);
+
+		$result = $field->sanitize( 'https://example.com/image.jpg' );
+
+		$this->assertSame( 'https://example.com/image.jpg', $result );
+	}
+
+	/**
+	 * Test Upload_Field sanitize with empty value.
+	 */
+	public function test_upload_field_sanitize_empty(): void {
+		$field = Field_Factory::create(
+			[
+				'name' => 'test_upload',
+				'type' => 'upload',
+			]
+		);
+
+		$result = $field->sanitize( '' );
+
+		$this->assertSame( '', $result );
+	}
+
+	/**
+	 * Test Upload_Field sanitize with invalid value.
+	 */
+	public function test_upload_field_sanitize_invalid(): void {
+		$field = Field_Factory::create(
+			[
+				'name' => 'test_upload',
+				'type' => 'upload',
+			]
+		);
+
+		$result = $field->sanitize( 'not-a-url-or-id' );
+
+		$this->assertSame( '', $result );
+	}
+
+	/**
+	 * Test Upload_Field validate passes for valid input.
+	 */
+	public function test_upload_field_validate_valid(): void {
+		$field = Field_Factory::create(
+			[
+				'name' => 'test_upload',
+				'type' => 'upload',
+			]
+		);
+
+		$result = $field->validate( 123 );
+
+		$this->assertTrue( $result['valid'] );
+		$this->assertEmpty( $result['errors'] );
+	}
+
+	/**
+	 * Test Upload_Field with description.
+	 */
+	public function test_upload_field_with_description(): void {
+		$field = Field_Factory::create(
+			[
+				'name'        => 'test_upload',
+				'type'        => 'upload',
+				'description' => 'Upload a featured image for this post.',
+			]
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'Upload a featured image for this post.', $html );
+	}
+
+	/**
+	 * Test Upload_Field wrapper has correct data attributes.
+	 */
+	public function test_upload_field_wrapper_attributes(): void {
+		$field = Field_Factory::create(
+			[
+				'name' => 'test_upload',
+				'type' => 'upload',
+			]
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'data-field-name="test_upload"', $html );
+		$this->assertStringContainsString( 'data-field-type="upload"', $html );
+		$this->assertStringContainsString( 'wp-cmf-field-upload', $html );
+	}
+
+	/**
+	 * Test Upload_Field includes necessary attributes for JS functionality.
+	 *
+	 * Note: The inline script is only rendered once per page (static variable),
+	 * so we test that the HTML has proper structure for the JS to work.
+	 */
+	public function test_upload_field_includes_script(): void {
+		$field = Field_Factory::create(
+			[
+				'name' => 'test_upload_script',
+				'type' => 'upload',
+			]
+		);
+
+		$html = $field->render();
+
+		// Verify the field has proper structure for JS functionality.
+		$this->assertStringContainsString( 'wp-cmf-upload-button', $html );
+		$this->assertStringContainsString( 'data-field-id="wp-cmf-field-test_upload_script"', $html );
+		$this->assertStringContainsString( 'wp-cmf-upload-remove', $html );
+		$this->assertStringContainsString( 'wp-cmf-upload-value', $html );
+		$this->assertStringContainsString( 'wp-cmf-upload-preview', $html );
+		$this->assertStringContainsString( 'wp-cmf-upload-container', $html );
+	}
 }

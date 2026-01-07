@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom Post Type registration with fields
 - Custom Taxonomy registration with term meta fields
 - Settings Pages (top-level and submenu)
-- 16 field types: text, textarea, number, email, url, password, date, color, select, checkbox, radio, wysiwyg, tabs, metabox, group, repeater
+- 18 field types: text, textarea, number, email, url, password, date, color, select, checkbox, radio, wysiwyg, tabs, metabox, group, repeater, custom_html, upload
 - Container fields: tabs, metabox, group, repeater
 - Extend existing post types, taxonomies, and settings pages
 - Array-based configuration

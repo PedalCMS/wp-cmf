@@ -16,7 +16,7 @@ A powerful, flexible Composer library for building WordPress plugins with custom
 - **Custom Post Types** - Register CPTs with fields using array or JSON configuration
 - **Custom Taxonomies** - Create taxonomies with custom term meta fields
 - **Settings Pages** - Top-level and submenu pages with automatic form handling
-- **17 Field Types** - Text, textarea, number, email, url, password, date, color, select, checkbox, radio, wysiwyg, custom_html, tabs, metabox, group, repeater
+- **18 Field Types** - Text, textarea, number, email, url, password, date, color, select, checkbox, radio, wysiwyg, upload, custom_html, tabs, metabox, group, repeater
 - **Container Fields** - Organize fields with tabs, metaboxes, groups, and repeaters
 - **Extend Existing** - Add fields to existing post types, taxonomies, and settings pages
 - **Array Configuration** - Register everything from a single PHP array
@@ -248,6 +248,7 @@ Manager::init()->register_from_json( __DIR__ . '/config.json' );
 | Type          | Description              | Key Options                       |
 |---------------|--------------------------|-----------------------------------|
 | `wysiwyg`     | Visual editor            | TinyMCE with media buttons        |
+| `upload`      | Media uploader           | button_text, library_type, preview |
 | `custom_html` | Display custom HTML      | content, allowed_tags, raw_html   |
 
 ### Container Fields

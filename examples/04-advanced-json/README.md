@@ -81,7 +81,7 @@ A comprehensive agency settings page demonstrating proper container field usage:
     └── extend-settings.json       # Extensions for general/reading settings
 ```
 
-## All 16 Field Types Demonstrated
+## All 18 Field Types Demonstrated
 
 | Field Type | Location in Example |
 |------------|---------------------|
