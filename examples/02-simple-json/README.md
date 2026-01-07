@@ -8,6 +8,7 @@ It provides the same capabilities as `01-simple-array` but with external JSON co
 ### Custom Post Type: Event
 An "Events" post type with:
 - **Event Notice** (custom_html) - Informational display banner
+- **Event Flyer** (upload) - Promotional image upload
 - **Event Date** (date, required) - When the event occurs
 - **Location** (text) - Venue name/address
 - **Capacity** (number) - Max attendees
@@ -107,7 +108,7 @@ Manager::init()->register_from_json( $path, false );
 ## For Advanced Features
 
 See `advanced-json` example for:
-- All 16 field types
+- All 18 field types
 - Tabs, Metaboxes, Groups, Repeaters
 - Adding to existing post types
 - Adding to existing taxonomies

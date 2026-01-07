@@ -110,6 +110,14 @@ function wp_cmf_advanced_array_init() {
 									'label' => 'Quantity in Stock',
 									'min'   => 0,
 								],
+								[
+									'name'         => 'product_image',
+									'type'         => 'upload',
+									'label'        => 'Product Image',
+									'description'  => 'Main product image',
+									'library_type' => 'image',
+									'button_text'  => 'Select Image',
+								],
 							],
 						],
 

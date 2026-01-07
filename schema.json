@@ -400,7 +400,7 @@
         "type": {
           "type": "string",
           "description": "Field type",
-          "enum": ["text", "textarea", "select", "checkbox", "radio", "number", "email", "url", "date", "password", "color", "wysiwyg", "tabs", "metabox", "group", "repeater", "custom_html"]
+          "enum": ["text", "textarea", "select", "checkbox", "radio", "number", "email", "url", "date", "password", "color", "wysiwyg", "tabs", "metabox", "group", "repeater", "custom_html", "upload"]
         },
         "label": {
           "type": "string",
@@ -602,6 +602,26 @@
           "type": "boolean",
           "description": "Output HTML without sanitization (for custom_html field type, use with caution)",
           "default": false
+        },
+        "button_text": {
+          "type": "string",
+          "description": "Text for the upload button (for upload field type)",
+          "default": "Select File"
+        },
+        "remove_text": {
+          "type": "string",
+          "description": "Text for the remove button (for upload field type)",
+          "default": "Remove"
+        },
+        "library_type": {
+          "type": "string",
+          "description": "Filter media library by type (for upload field type)",
+          "enum": ["", "image", "video", "audio", "application"]
+        },
+        "preview": {
+          "type": "boolean",
+          "description": "Show preview for images (for upload field type)",
+          "default": true
         }
       }
     },

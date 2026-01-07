@@ -99,6 +99,15 @@ function wp_cmf_simple_array_init() {
 						'description' => 'Brief description of the book',
 						'rows'        => 4,
 					],
+					// Upload field - for Book Cover
+					[
+						'name'         => 'book_cover',
+						'type'         => 'upload',
+						'label'        => 'Book Cover',
+						'description'  => 'Upload a cover image for this book',
+						'button_text'  => 'Select Cover Image',
+						'library_type' => 'image',
+					],
 				],
 			],
 		],

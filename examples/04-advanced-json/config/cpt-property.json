@@ -59,6 +59,14 @@
               "default": "active"
             },
             {
+              "name": "property_image",
+              "type": "upload",
+              "label": "Featured Image",
+              "description": "Main property photo",
+              "library_type": "image",
+              "button_text": "Select Photo"
+            },
+            {
               "name": "property_type",
               "type": "select",
               "label": "Property Type",

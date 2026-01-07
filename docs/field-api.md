@@ -25,7 +25,7 @@ The WP-CMF Field API provides a flexible, extensible system for creating form fi
 - **FieldInterface**: Contract that all fields must implement
 - **AbstractField**: Base class providing common functionality
 - **FieldFactory**: Factory for creating fields from configuration
-- **12 Core Field Types**: Ready-to-use field implementations
+- **13 Core Field Types**: Ready-to-use field implementations
 
 ### Architecture
 
@@ -560,6 +560,65 @@ Display custom HTML content (display-only, no stored value).
 - Embedding videos or iframes
 - Adding decorative content or branding
 - Displaying instructions or help content
+
+---
+
+### Upload_Field
+
+Media upload field using WordPress media library.
+
+**Configuration:**
+```php
+[
+    'name'         => 'featured_image',
+    'type'         => 'upload',
+    'label'        => 'Featured Image',
+    'description'  => 'Select or upload an image',
+    'button_text'  => 'Select Image',
+    'remove_text'  => 'Remove',
+    'library_type' => 'image',
+    'preview'      => true,
+]
+```
+
+**Special Options:**
+- `button_text` - Text for the upload button (default: 'Select File')
+- `remove_text` - Text for the remove button (default: 'Remove')
+- `library_type` - Filter media library by type: 'image', 'video', 'audio', 'application'
+- `multiple` - Allow multiple file selection (default: false)
+- `preview` - Show preview for images (default: true)
+- `allowed_types` - Array of allowed mime types for validation
+
+**Features:**
+- Integrates with WordPress media library
+- Image preview for image uploads
+- File name display for non-image files
+- Stores attachment ID for easy retrieval
+- Automatic media script enqueuing
+
+**Example with video upload:**
+```php
+[
+    'name'         => 'video_file',
+    'type'         => 'upload',
+    'label'        => 'Video File',
+    'button_text'  => 'Select Video',
+    'library_type' => 'video',
+    'preview'      => false,
+]
+```
+
+**Retrieving uploaded files:**
+```php
+// Get attachment ID
+$attachment_id = get_post_meta( $post_id, 'featured_image', true );
+
+// Get attachment URL
+$image_url = wp_get_attachment_url( $attachment_id );
+
+// Get image with specific size
+$image = wp_get_attachment_image( $attachment_id, 'medium' );
+```
 
 ---
 

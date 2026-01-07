@@ -28,6 +28,7 @@ use Pedalcms\WpCmf\Field\Fields\Repeater_Field;
 use Pedalcms\WpCmf\Field\Fields\Wysiwyg_Field;
 use Pedalcms\WpCmf\Field\Fields\Group_Field;
 use Pedalcms\WpCmf\Field\Fields\Custom_HTML_Field;
+use Pedalcms\WpCmf\Field\Fields\Upload_Field;
 
 /**
  * Field_Factory class
@@ -115,6 +116,7 @@ class Field_Factory {
 			'wysiwyg'     => Wysiwyg_Field::class,
 			'group'       => Group_Field::class,
 			'custom_html' => Custom_HTML_Field::class,
+			'upload'      => Upload_Field::class,
 		];
 
 		// Merge back any custom types
