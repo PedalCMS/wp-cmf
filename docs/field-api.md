@@ -610,8 +610,10 @@ Media upload field using WordPress media library.
 
 **Retrieving uploaded files:**
 ```php
-// Get attachment ID
-$attachment_id = get_post_meta( $post_id, 'featured_image', true );
+use Pedalcms\WpCmf\Wpcmf;
+
+// Get attachment ID using WP-CMF
+$attachment_id = Wpcmf::get_field( 'featured_image', $post_id );
 
 // Get attachment URL
 $image_url = wp_get_attachment_url( $attachment_id );
@@ -812,10 +814,10 @@ Assets are automatically loaded only on relevant admin screens. The Registrar ma
 
 ### Common Assets
 
-Use the `wp_cmf_enqueue_common_assets` action for assets used by multiple fields:
+Use the `Wpcmf_enqueue_common_assets` action for assets used by multiple fields:
 
 ```php
-add_action('wp_cmf_enqueue_common_assets', function() {
+add_action('Wpcmf_enqueue_common_assets', function() {
     wp_enqueue_style(
         'my-common-field-styles',
         plugin_dir_url(__FILE__) . 'assets/common.css',

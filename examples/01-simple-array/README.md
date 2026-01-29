@@ -33,25 +33,43 @@ A top-level settings page with:
 
 ## Usage
 
+WP-CMF provides a universal static method to retrieve field values:
+
 ```php
-// Get book meta
-$author = get_post_meta( $post_id, 'author_name', true );
-$isbn   = get_post_meta( $post_id, 'isbn', true );
+use Pedalcms\WpCmf\Wpcmf;
+
+// Get book meta (post fields)
+$author = Wpcmf::get_field( 'author_name', $post_id );
+$isbn   = Wpcmf::get_field( 'isbn', $post_id );
+$pages  = Wpcmf::get_field( 'page_count', $post_id, 'post', 0 ); // With default
 
 // Get taxonomy term meta
-$genre_color = get_term_meta( $term_id, 'genre_color', true );
-$is_featured = get_term_meta( $term_id, 'is_featured', true );
+$genre_color = Wpcmf::get_field( 'genre_color', $term_id, 'term' );
+$is_featured = Wpcmf::get_field( 'is_featured', $term_id, 'term' );
 
 // Get genres for a book with their custom colors
 $genres = get_the_terms( $post_id, 'book_genre' );
 foreach ( $genres as $genre ) {
-    $color = get_term_meta( $genre->term_id, 'genre_color', true );
+    $color = Wpcmf::get_field( 'genre_color', $genre->term_id, 'term', '#000000' );
 }
 
 // Get settings
-$library_name = get_option( 'library-settings_library_name' );
-$accent_color = get_option( 'library-settings_accent_color', '#2271b1' );
+$library_name = Wpcmf::get_field( 'library_name', 'library-settings', 'settings' );
+$accent_color = Wpcmf::get_field( 'accent_color', 'library-settings', 'settings', '#2271b1' );
 ```
+
+### Method Signature
+
+```php
+Wpcmf::get_field( $field_name, $context, $context_type = 'post', $default = '' )
+```
+
+| Parameter | Description |
+|-----------|-------------|
+| `$field_name` | The field name as defined in your config |
+| `$context` | Post ID, term ID, or settings page ID |
+| `$context_type` | `'post'` (default), `'term'`, or `'settings'` |
+| `$default` | Default value if field is empty |
 
 ## Key Concepts Demonstrated
 
@@ -60,7 +78,7 @@ $accent_color = get_option( 'library-settings_accent_color', '#2271b1' );
 3. **Settings Page** - Top-level menu with icon and position
 4. **Common Field Types** - text, textarea, number, date, select, checkbox, radio, email, url, color, custom_html, upload
 5. **Field Options** - required, placeholder, default, min/max, description
-6. **Data Retrieval** - `get_post_meta()`, `get_term_meta()`, and `get_option()` patterns
+6. **Data Retrieval** - `Wpcmf::get_field()` for all field types
 
 ## For Advanced Features
 

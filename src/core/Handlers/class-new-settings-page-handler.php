@@ -414,7 +414,7 @@ class New_Settings_Page_Handler extends Abstract_Handler {
 	 */
 	private function handle_save(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified below after identifying the correct form.
-		if ( empty( $_POST['action'] ) || 'wp_cmf_save_settings' !== $_POST['action'] ) {
+		if ( empty( $_POST['action'] ) || 'Wpcmf_save_settings' !== $_POST['action'] ) {
 			return;
 		}
 
@@ -427,12 +427,12 @@ class New_Settings_Page_Handler extends Abstract_Handler {
 
 		// Verify nonce.
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce is being verified on the next line.
-		$nonce = isset( $_POST['wp_cmf_settings_nonce'] )
-			? sanitize_text_field( wp_unslash( $_POST['wp_cmf_settings_nonce'] ) )
+		$nonce = isset( $_POST['Wpcmf_settings_nonce'] )
+			? sanitize_text_field( wp_unslash( $_POST['Wpcmf_settings_nonce'] ) )
 			: '';
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
-		if ( ! $this->verify_nonce( $nonce, 'wp_cmf_save_settings_' . $page_id ) ) {
+		if ( ! $this->verify_nonce( $nonce, 'Wpcmf_save_settings_' . $page_id ) ) {
 			wp_die( esc_html__( 'Security check failed', 'wp-cmf' ) );
 		}
 
@@ -577,7 +577,7 @@ class New_Settings_Page_Handler extends Abstract_Handler {
 		wp_enqueue_script( 'wp-cmf', $url . 'js/wp-cmf.js', [ 'jquery', 'wp-color-picker' ], $version, true );
 		wp_enqueue_style( 'wp-color-picker' );
 
-		do_action( 'wp_cmf_enqueue_common_assets' );
+		do_action( 'wpcmf_enqueue_common_assets' );
 	}
 
 	/**

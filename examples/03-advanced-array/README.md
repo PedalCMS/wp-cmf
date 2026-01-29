@@ -80,12 +80,12 @@ A comprehensive settings page demonstrating proper container field usage:
 
 ```php
 // Ensure SKU is uppercase
-add_filter( 'wp_cmf_before_save_field_sku', function( $value ) {
+add_filter( 'Wpcmf_before_save_field_sku', function( $value ) {
     return strtoupper( $value );
 });
 
 // Auto-calculate reading time
-add_filter( 'wp_cmf_before_save_field_read_time', function( $value, $post_id ) {
+add_filter( 'Wpcmf_before_save_field_read_time', function( $value, $post_id ) {
     if ( empty( $value ) ) {
         $content = get_post_field( 'post_content', $post_id );
         $word_count = str_word_count( strip_tags( $content ) );
@@ -97,26 +97,30 @@ add_filter( 'wp_cmf_before_save_field_read_time', function( $value, $post_id ) {
 
 ## Retrieving Values
 
+WP-CMF provides a universal static method to retrieve field values:
+
 ```php
+use Pedalcms\WpCmf\Wpcmf;
+
 // Product CPT meta
-$sku = get_post_meta( $product_id, 'sku', true );
-$price = get_post_meta( $product_id, 'price', true );
-$variations = get_post_meta( $product_id, 'variations', true ); // array
+$sku        = Wpcmf::get_field( 'sku', $product_id );
+$price      = Wpcmf::get_field( 'price', $product_id, 'post', 0 );
+$variations = Wpcmf::get_field( 'variations', $product_id ); // returns array
 
 // Store settings
-$currency = get_option( 'store-settings_currency', 'USD' );
-$tax_rate = get_option( 'store-settings_tax_rate', 0 );
+$currency = Wpcmf::get_field( 'currency', 'store-settings', 'settings', 'USD' );
+$tax_rate = Wpcmf::get_field( 'tax_rate', 'store-settings', 'settings', 0 );
 
 // Fields added to built-in posts
-$sponsored = get_post_meta( $post_id, 'sponsored', true );
-$read_time = get_post_meta( $post_id, 'read_time', true );
+$sponsored = Wpcmf::get_field( 'sponsored', $post_id );
+$read_time = Wpcmf::get_field( 'read_time', $post_id );
 
 // Fields added to built-in pages
-$layout = get_post_meta( $page_id, 'page_layout', true );
+$layout = Wpcmf::get_field( 'page_layout', $page_id );
 
 // Fields added to General Settings
-$facebook = get_option( 'general_facebook_url' );
-$brand_color = get_option( 'general_site_logo_color', '#0073aa' );
+$facebook    = Wpcmf::get_field( 'facebook_url', 'general', 'settings' );
+$brand_color = Wpcmf::get_field( 'site_logo_color', 'general', 'settings', '#0073aa' );
 ```
 
 ## Container Field Patterns
@@ -180,7 +184,7 @@ $brand_color = get_option( 'general_site_logo_color', '#0073aa' );
 2. **Existing post type extension** - Use built-in IDs like `post`, `page`
 3. **Existing settings extension** - Use `parent` for submenu placement
 4. **Container nesting** - Metabox → Tabs → Group → Fields
-5. **Before-save filters** - `wp_cmf_before_save_field_{field_name}`
+5. **Before-save filters** - `Wpcmf_before_save_field_{field_name}`
 6. **Repeater data** - Returns array of arrays
 
 ## File Structure

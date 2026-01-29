@@ -8,12 +8,12 @@
  */
 
 /**
- * Class WP_CMF_UnitTestCase
+ * Class Wpcmf_UnitTestCase
  *
  * Base test case that handles WordPress block registry notices which may occur
  * during WordPress init in certain versions.
  */
-abstract class WP_CMF_UnitTestCase extends WP_UnitTestCase {
+abstract class Wpcmf_UnitTestCase extends WP_UnitTestCase {
 
 	/**
 	 * Set up test fixtures.

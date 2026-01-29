@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once dirname( __DIR__, 2 ) . '/vendor/autoload.php';
 
-use Pedalcms\WpCmf\Core\Manager;
+use Pedalcms\WpCmf\Wpcmf;
 
 /**
  * =============================================================================
@@ -41,13 +41,13 @@ use Pedalcms\WpCmf\Core\Manager;
  * 9. Field validation and sanitization
  * =============================================================================
  */
-function wp_cmf_advanced_array_init() {
-	$manager = Manager::init();
+function wpcmf_advanced_array_init() {
+	$cmf = Wpcmf::init();
 
 	// =========================================================================
 	// PART 1: NEW CUSTOM POST TYPE - Product
 	// =========================================================================
-	$manager->register_from_array(
+	$cmf->register_from_array(
 		[
 			'cpts' => [
 				[
@@ -313,7 +313,7 @@ function wp_cmf_advanced_array_init() {
 	// =========================================================================
 	// PART 2: NEW SETTINGS PAGE - Store Settings (as submenu under Products)
 	// =========================================================================
-	$manager->register_from_array(
+	$cmf->register_from_array(
 		[
 			'settings_pages' => [
 				[
@@ -619,7 +619,7 @@ function wp_cmf_advanced_array_init() {
 	// =========================================================================
 	// PART 3: NEW TAXONOMY - Product Category
 	// =========================================================================
-	$manager->register_from_array(
+	$cmf->register_from_array(
 		[
 			'taxonomies' => [
 				[
@@ -740,7 +740,7 @@ function wp_cmf_advanced_array_init() {
 	// =========================================================================
 	// PART 4: ADD FIELDS TO EXISTING TAXONOMY (category)
 	// =========================================================================
-	$manager->register_from_array(
+	$cmf->register_from_array(
 		[
 			'taxonomies' => [
 				[
@@ -776,7 +776,7 @@ function wp_cmf_advanced_array_init() {
 	// =========================================================================
 	// PART 5: ADD FIELDS TO EXISTING POST TYPE (post)
 	// =========================================================================
-	$manager->register_from_array(
+	$cmf->register_from_array(
 		[
 			'cpts' => [
 				[
@@ -842,7 +842,7 @@ function wp_cmf_advanced_array_init() {
 	// =========================================================================
 	// PART 6: ADD FIELDS TO EXISTING POST TYPE (page)
 	// =========================================================================
-	$manager->register_from_array(
+	$cmf->register_from_array(
 		[
 			'cpts' => [
 				[
@@ -899,7 +899,7 @@ function wp_cmf_advanced_array_init() {
 	// =========================================================================
 	// PART 7: ADD FIELDS TO EXISTING SETTINGS PAGE (general)
 	// =========================================================================
-	$manager->register_from_array(
+	$cmf->register_from_array(
 		[
 			'settings_pages' => [
 				[
@@ -950,7 +950,7 @@ function wp_cmf_advanced_array_init() {
 		]
 	);
 }
-add_action( 'init', 'wp_cmf_advanced_array_init' );
+add_action( 'init', 'wpcmf_advanced_array_init' );
 
 /**
  * =============================================================================
@@ -961,7 +961,7 @@ add_action( 'init', 'wp_cmf_advanced_array_init' );
 
 // Ensure SKU is uppercase
 add_filter(
-	'wp_cmf_before_save_field_sku',
+	'Wpcmf_before_save_field_sku',
 	function ( $value ) {
 		return strtoupper( $value );
 	}
@@ -969,7 +969,7 @@ add_filter(
 
 // Auto-calculate reading time based on content length.
 add_filter(
-	'wp_cmf_before_save_field_read_time',
+	'Wpcmf_before_save_field_read_time',
 	function ( $value, $post_id ) {
 		if ( empty( $value ) ) {
 			$content    = get_post_field( 'post_content', $post_id );
@@ -986,13 +986,32 @@ add_filter(
  * =============================================================================
  * RETRIEVING SAVED VALUES
  * =============================================================================
+ *
+ * WP-CMF provides a universal static method to retrieve field values:
+ *
+ * Wpcmf::get_field( $field_name, $context, $context_type, $default )
+ *
+ * - $field_name:   The field name as defined in your config
+ * - $context:      Post ID, term ID, or settings page ID
+ * - $context_type: 'post' (default), 'term', or 'settings'
+ * - $default:      Default value if field is empty
+ *
+ * You can also use the specific helper methods:
+ *   Wpcmf::get_post_field( 'field_name', $post_id )
+ *   Wpcmf::get_term_field( 'field_name', $term_id )
+ *   Wpcmf::get_settings_field( 'field_name', 'page-id' )
  */
 
 /**
  * Get product field value
+ *
+ * @param int    $post_id       Post ID.
+ * @param string $field         Field name.
+ * @param mixed  $default_value Default value.
+ * @return mixed
  */
-function get_product_field( $post_id, $field ) {
-	return get_post_meta( $post_id, $field, true );
+function get_product_field( $post_id, $field, $default_value = '' ) {
+	return Wpcmf::get_field( $field, $post_id, 'post', $default_value );
 }
 
 /**
@@ -1003,21 +1022,31 @@ function get_product_field( $post_id, $field ) {
  * @return mixed
  */
 function get_store_setting( $field, $default_value = '' ) {
-	return get_option( 'store-settings_' . $field, $default_value );
+	return Wpcmf::get_field( $field, 'store-settings', 'settings', $default_value );
 }
 
 /**
  * Get post option (added to built-in posts)
+ *
+ * @param int    $post_id       Post ID.
+ * @param string $field         Field name.
+ * @param mixed  $default_value Default value.
+ * @return mixed
  */
-function get_post_option( $post_id, $field ) {
-	return get_post_meta( $post_id, $field, true );
+function get_post_option( $post_id, $field, $default_value = '' ) {
+	return Wpcmf::get_field( $field, $post_id, 'post', $default_value );
 }
 
 /**
  * Get page setting (added to built-in pages)
+ *
+ * @param int    $post_id       Post ID.
+ * @param string $field         Field name.
+ * @param mixed  $default_value Default value.
+ * @return mixed
  */
-function get_page_setting( $post_id, $field ) {
-	return get_post_meta( $post_id, $field, true );
+function get_page_setting( $post_id, $field, $default_value = '' ) {
+	return Wpcmf::get_field( $field, $post_id, 'post', $default_value );
 }
 
 /**
@@ -1028,7 +1057,7 @@ function get_page_setting( $post_id, $field ) {
  * @return mixed
  */
 function get_general_option( $field, $default_value = '' ) {
-	return get_option( 'general_' . $field, $default_value );
+	return Wpcmf::get_field( $field, 'general', 'settings', $default_value );
 }
 
 /**

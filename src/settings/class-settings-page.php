@@ -310,8 +310,8 @@ class Settings_Page {
 					// Output security fields
 					if ( $has_metaboxes ) {
 						// Nonce for metabox-based settings page
-						wp_nonce_field( 'wp_cmf_save_settings_' . $this->page_id, 'wp_cmf_settings_nonce' );
-						echo '<input type="hidden" name="action" value="wp_cmf_save_settings" />';
+						wp_nonce_field( 'Wpcmf_save_settings_' . $this->page_id, 'Wpcmf_settings_nonce' );
+						echo '<input type="hidden" name="action" value="Wpcmf_save_settings" />';
 						echo '<input type="hidden" name="page_id" value="' . esc_attr( $this->page_id ) . '" />';
 					} elseif ( function_exists( 'settings_fields' ) && $has_sections ) {
 						// Standard WordPress settings fields

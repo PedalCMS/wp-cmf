@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once dirname( __DIR__, 2 ) . '/vendor/autoload.php';
 
-use Pedalcms\WpCmf\Core\Manager;
+use Pedalcms\WpCmf\Wpcmf;
 
 /**
  * =============================================================================
@@ -44,8 +44,8 @@ use Pedalcms\WpCmf\Core\Manager;
  * - Easy to share/export
  * =============================================================================
  */
-function wp_cmf_advanced_json_init() {
-	$manager = Manager::init();
+function wpcmf_advanced_json_init() {
+	$cmf = Wpcmf::init();
 
 	// Load all JSON configurations
 	$config_files = [
@@ -59,11 +59,11 @@ function wp_cmf_advanced_json_init() {
 
 	foreach ( $config_files as $file ) {
 		if ( file_exists( $file ) ) {
-			$manager->register_from_json( $file );
+			$cmf->register_from_json( $file );
 		}
 	}
 }
-add_action( 'init', 'wp_cmf_advanced_json_init' );
+add_action( 'init', 'wpcmf_advanced_json_init' );
 
 /**
  * =============================================================================
@@ -75,7 +75,7 @@ add_action( 'init', 'wp_cmf_advanced_json_init' );
 
 // Format phone number
 add_filter(
-	'wp_cmf_before_save_field_agent_phone',
+	'Wpcmf_before_save_field_agent_phone',
 	function ( $value ) {
 		// Remove non-numeric characters
 		$numbers = preg_replace( '/[^0-9]/', '', $value );
@@ -94,7 +94,7 @@ add_filter(
 
 // Ensure property price is rounded to 2 decimal places
 add_filter(
-	'wp_cmf_before_save_field_property_price',
+	'Wpcmf_before_save_field_property_price',
 	function ( $value ) {
 		return round( (float) $value, 2 );
 	}
@@ -102,7 +102,7 @@ add_filter(
 
 // Auto-generate listing ID if empty
 add_filter(
-	'wp_cmf_before_save_field_listing_id',
+	'Wpcmf_before_save_field_listing_id',
 	function ( $value, $post_id ) {
 		if ( empty( $value ) ) {
 			return 'PROP-' . str_pad( $post_id, 6, '0', STR_PAD_LEFT );
@@ -117,13 +117,27 @@ add_filter(
  * =============================================================================
  * RETRIEVING SAVED VALUES
  * =============================================================================
+ *
+ * WP-CMF provides a universal static method to retrieve field values:
+ *
+ * Wpcmf::get_field( $field_name, $context, $context_type, $default )
+ *
+ * - $field_name:   The field name as defined in your config
+ * - $context:      Post ID, term ID, or settings page ID
+ * - $context_type: 'post' (default), 'term', or 'settings'
+ * - $default:      Default value if field is empty
  */
 
 /**
  * Get property field value
+ *
+ * @param int    $post_id Post ID.
+ * @param string $field   Field name.
+ * @param mixed  $default Default value.
+ * @return mixed
  */
-function get_property_field( $post_id, $field ) {
-	return get_post_meta( $post_id, $field, true );
+function get_property_field( $post_id, $field, $default_value = '' ) {
+	return Wpcmf::get_field( $field, $post_id, 'post', $default_value );
 }
 
 /**
@@ -134,14 +148,19 @@ function get_property_field( $post_id, $field ) {
  * @return mixed
  */
 function get_agency_setting( $field, $default_value = '' ) {
-	return get_option( 'agency-settings_' . $field, $default_value );
+	return Wpcmf::get_field( $field, 'agency-settings', 'settings', $default_value );
 }
 
 /**
  * Get extended post option
+ *
+ * @param int    $post_id Post ID.
+ * @param string $field   Field name.
+ * @param mixed  $default Default value.
+ * @return mixed
  */
-function get_extended_post_field( $post_id, $field ) {
-	return get_post_meta( $post_id, $field, true );
+function get_extended_post_field( $post_id, $field, $default_value = '' ) {
+	return Wpcmf::get_field( $field, $post_id, 'post', $default_value );
 }
 
 /**

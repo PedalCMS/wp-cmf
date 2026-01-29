@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once dirname( __DIR__, 2 ) . '/vendor/autoload.php';
 
-use Pedalcms\WpCmf\Core\Manager;
+use Pedalcms\WpCmf\Wpcmf;
 
 /**
  * =============================================================================
@@ -32,7 +32,7 @@ use Pedalcms\WpCmf\Core\Manager;
  * adding to existing post types/settings), see the advanced examples.
  * =============================================================================
  */
-function wp_cmf_simple_array_init() {
+function wpcmf_simple_array_init() {
 	$config = [
 		// =====================================================================
 		// CUSTOM POST TYPE: Book
@@ -225,14 +225,28 @@ function wp_cmf_simple_array_init() {
 		],
 	];
 
-	Manager::init()->register_from_array( $config );
+	Wpcmf::register_from_array( $config );
 }
-add_action( 'init', 'wp_cmf_simple_array_init' );
+add_action( 'init', 'wpcmf_simple_array_init' );
 
 /**
  * =============================================================================
  * RETRIEVING SAVED VALUES
  * =============================================================================
+ *
+ * WP-CMF provides a universal static method to retrieve field values:
+ *
+ * Wpcmf::get_field( $field_name, $context, $context_type, $default )
+ *
+ * - $field_name:   The field name as defined in your config
+ * - $context:      Post ID, term ID, or settings page ID
+ * - $context_type: 'post' (default), 'term', or 'settings'
+ * - $default:      Default value if field is empty
+ *
+ * Examples:
+ *   Wpcmf::get_field( 'author_name', $post_id )             // Post meta (default context)
+ *   Wpcmf::get_field( 'genre_color', $term_id, 'term' )     // Term meta
+ *   Wpcmf::get_field( 'library_name', 'library-settings', 'settings' )  // Settings option
  */
 
 /**
@@ -240,10 +254,11 @@ add_action( 'init', 'wp_cmf_simple_array_init' );
  *
  * @param int    $post_id Post ID.
  * @param string $field   Field name.
+ * @param mixed  $default Default value.
  * @return mixed
  */
-function get_book_field( $post_id, $field ) {
-	return get_post_meta( $post_id, $field, true );
+function get_book_field( $post_id, $field, $default_value = '' ) {
+	return Wpcmf::get_field( $field, $post_id, 'post', $default_value );
 }
 
 /**
@@ -254,7 +269,7 @@ function get_book_field( $post_id, $field ) {
  * @return mixed
  */
 function get_library_setting( $field, $default_value = '' ) {
-	return get_option( 'library-settings_' . $field, $default_value );
+	return Wpcmf::get_field( $field, 'library-settings', 'settings', $default_value );
 }
 
 /**
@@ -262,10 +277,11 @@ function get_library_setting( $field, $default_value = '' ) {
  *
  * @param int    $term_id Term ID.
  * @param string $field   Field name.
+ * @param mixed  $default Default value.
  * @return mixed
  */
-function get_genre_field( $term_id, $field ) {
-	return get_term_meta( $term_id, $field, true );
+function get_genre_field( $term_id, $field, $default_value = '' ) {
+	return Wpcmf::get_field( $field, $term_id, 'term', $default_value );
 }
 
 /**

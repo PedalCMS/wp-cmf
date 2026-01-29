@@ -19,8 +19,8 @@ if ( ! getenv( 'WP_TESTS_DIR' ) ) {
 }
 
 // Define test mode flag.
-if ( ! defined( 'WP_CMF_TESTING' ) ) {
-	define( 'WP_CMF_TESTING', true );
+if ( ! defined( 'WPCMF_TESTING' ) ) {
+	define( 'WPCMF_TESTING', true );
 }
 
 // Load Composer autoloader.

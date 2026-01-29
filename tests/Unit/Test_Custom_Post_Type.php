@@ -10,14 +10,14 @@
 use Pedalcms\WpCmf\Core\Manager;
 use Pedalcms\WpCmf\CPT\Custom_Post_Type;
 
-require_once __DIR__ . '/WP_CMF_UnitTestCase.php';
+require_once __DIR__ . '/Wpcmf_UnitTestCase.php';
 
 /**
  * Class Test_Custom_Post_Type
  *
  * Tests for CPT registration.
  */
-class Test_Custom_Post_Type extends WP_CMF_UnitTestCase {
+class Test_Custom_Post_Type extends Wpcmf_UnitTestCase {
 
 	/**
 	 * Reset Manager between tests.
