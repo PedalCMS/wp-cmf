@@ -127,7 +127,7 @@ JSON cannot define callbacks, so use PHP filters for preprocessing:
 
 ```php
 // Format phone numbers
-add_filter( 'wp_cmf_before_save_field_agent_phone', function( $value ) {
+add_filter( 'Wpcmf_before_save_field_agent_phone', function( $value ) {
     $numbers = preg_replace( '/[^0-9]/', '', $value );
     if ( strlen( $numbers ) === 10 ) {
         return sprintf( '(%s) %s-%s',
@@ -140,7 +140,7 @@ add_filter( 'wp_cmf_before_save_field_agent_phone', function( $value ) {
 });
 
 // Auto-generate listing ID
-add_filter( 'wp_cmf_before_save_field_listing_id', function( $value, $post_id ) {
+add_filter( 'Wpcmf_before_save_field_listing_id', function( $value, $post_id ) {
     if ( empty( $value ) ) {
         return 'PROP-' . str_pad( $post_id, 6, '0', STR_PAD_LEFT );
     }
@@ -150,30 +150,34 @@ add_filter( 'wp_cmf_before_save_field_listing_id', function( $value, $post_id ) 
 
 ## Retrieving Values
 
+WP-CMF provides a universal static method to retrieve field values:
+
 ```php
+use Pedalcms\WpCmf\Wpcmf;
+
 // Property CPT fields
-$price = get_post_meta( $property_id, 'property_price', true );
-$amenities = get_post_meta( $property_id, 'amenities', true ); // array
-$open_houses = get_post_meta( $property_id, 'open_house_schedule', true ); // array
+$price       = Wpcmf::get_field( 'property_price', $property_id, 'post', 0 );
+$amenities   = Wpcmf::get_field( 'amenities', $property_id ); // returns array
+$open_houses = Wpcmf::get_field( 'open_house_schedule', $property_id ); // returns array
 
 // Agency settings
-$api_key = get_option( 'agency-settings_map_api_key' );
-$primary_color = get_option( 'agency-settings_primary_color', '#2c3e50' );
+$api_key       = Wpcmf::get_field( 'map_api_key', 'agency-settings', 'settings' );
+$primary_color = Wpcmf::get_field( 'primary_color', 'agency-settings', 'settings', '#2c3e50' );
 
 // Extended post fields
-$is_featured = get_post_meta( $post_id, 'is_featured', true );
-$meta_title = get_post_meta( $post_id, 'meta_title', true );
+$is_featured = Wpcmf::get_field( 'is_featured', $post_id );
+$meta_title  = Wpcmf::get_field( 'meta_title', $post_id );
 
 // Extended page fields
-$page_layout = get_post_meta( $page_id, 'page_layout', true );
-$cta_enabled = get_post_meta( $page_id, 'cta_enabled', true );
+$page_layout = Wpcmf::get_field( 'page_layout', $page_id );
+$cta_enabled = Wpcmf::get_field( 'cta_enabled', $page_id );
 
 // Extended general settings
-$facebook = get_option( 'general_social_facebook' );
-$analytics = get_option( 'general_analytics_id' );
+$facebook  = Wpcmf::get_field( 'social_facebook', 'general', 'settings' );
+$analytics = Wpcmf::get_field( 'analytics_id', 'general', 'settings' );
 
 // Extended reading settings
-$excerpt_length = get_option( 'reading_excerpt_length', 55 );
+$excerpt_length = Wpcmf::get_field( 'excerpt_length', 'reading', 'settings', 55 );
 ```
 
 ## JSON vs Array Comparison

@@ -10,14 +10,14 @@
 use Pedalcms\WpCmf\Core\Manager;
 use Pedalcms\WpCmf\Field\Field_Factory;
 
-require_once __DIR__ . '/WP_CMF_UnitTestCase.php';
+require_once __DIR__ . '/Wpcmf_UnitTestCase.php';
 
 /**
  * Class Test_Integration
  *
  * Tests for end-to-end workflows.
  */
-class Test_Integration extends WP_CMF_UnitTestCase {
+class Test_Integration extends Wpcmf_UnitTestCase {
 
 	/**
 	 * Reset Manager between tests.

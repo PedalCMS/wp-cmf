@@ -35,14 +35,14 @@ trait Field_Saving_Trait {
 		}
 
 		// Apply global filter
-		$value = apply_filters( 'wp_cmf_before_save_field', $value, $field_name, $context );
+		$value = apply_filters( 'wpcmf_before_save_field', $value, $field_name, $context );
 
 		if ( null === $value ) {
 			return null;
 		}
 
 		// Apply field-specific filter
-		return apply_filters( 'wp_cmf_before_save_field_' . $field_name, $value );
+		return apply_filters( 'wpcmf_before_save_field_' . $field_name, $value );
 	}
 
 	/**

@@ -68,18 +68,22 @@ Manager::init()->register_from_json( $json );
 
 ### Retrieving Values
 
+WP-CMF provides a universal static method to retrieve field values:
+
 ```php
-// Get event meta
-$date     = get_post_meta( $post_id, 'event_date', true );
-$location = get_post_meta( $post_id, 'location', true );
+use Pedalcms\WpCmf\Wpcmf;
+
+// Get event meta (post fields)
+$date     = Wpcmf::get_field( 'event_date', $post_id );
+$location = Wpcmf::get_field( 'location', $post_id );
 
 // Get taxonomy term meta
-$type_color = get_term_meta( $term_id, 'type_color', true );
-$venue_capacity = get_term_meta( $term_id, 'venue_capacity', true );
+$type_color     = Wpcmf::get_field( 'type_color', $term_id, 'term' );
+$venue_capacity = Wpcmf::get_field( 'venue_capacity', $term_id, 'term', 100 );
 
-// Get settings (pattern: {page_id}_{field_name})
-$currency = get_option( 'events-settings_currency_symbol', '$' );
-$color    = get_option( 'events-settings_primary_color', '#0073aa' );
+// Get settings
+$currency = Wpcmf::get_field( 'currency_symbol', 'events-settings', 'settings', '$' );
+$color    = Wpcmf::get_field( 'primary_color', 'events-settings', 'settings', '#0073aa' );
 ```
 
 ## JSON vs Array Configuration

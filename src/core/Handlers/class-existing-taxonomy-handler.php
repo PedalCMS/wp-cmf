@@ -423,6 +423,6 @@ class Existing_Taxonomy_Handler extends Abstract_Handler {
 		wp_enqueue_script( 'wp-cmf', $url . 'js/wp-cmf.js', [ 'jquery', 'wp-color-picker' ], $version, true );
 		wp_enqueue_style( 'wp-color-picker' );
 
-		do_action( 'wp_cmf_enqueue_common_assets' );
+		do_action( 'wpcmf_enqueue_common_assets' );
 	}
 }

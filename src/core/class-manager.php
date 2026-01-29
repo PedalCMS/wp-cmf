@@ -506,6 +506,101 @@ class Manager {
 	}
 
 	/**
+	 * Retrieve a WP-CMF field value
+	 *
+	 * This is a universal method to get field values regardless of their storage location.
+	 * It automatically handles post meta, term meta, and settings options.
+	 *
+	 * @param string     $field_name    The field name as defined in the WP-CMF config.
+	 * @param int|string $context       The context: post ID (int), term ID (int), or settings page ID (string).
+	 * @param string     $context_type  The type of context: 'post', 'term', or 'settings'. Default 'post'.
+	 * @param mixed      $default_value Default value if field value is empty. Default empty string.
+	 * @return mixed The field value.
+	 */
+	public function get_field( string $field_name, $context, string $context_type = 'post', $default_value = '' ) {
+		$value = null;
+
+		switch ( $context_type ) {
+			case 'post':
+				$value = $this->get_post_field( $field_name, (int) $context );
+				break;
+
+			case 'term':
+				$value = $this->get_term_field( $field_name, (int) $context );
+				break;
+
+			case 'settings':
+				$value = $this->get_settings_field( $field_name, (string) $context );
+				break;
+
+			default:
+				return $default_value;
+		}
+
+		// Return default if value is empty
+		if ( null === $value || '' === $value ) {
+			return $default_value;
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Retrieve a post meta field value
+	 *
+	 * @param string $field_name    The field name.
+	 * @param int    $post_id       The post ID.
+	 * @param mixed  $default_value Default value if field is empty.
+	 * @return mixed The field value.
+	 */
+	public function get_post_field( string $field_name, int $post_id, $default_value = '' ) {
+		if ( '' === $field_name || ! function_exists( 'get_post_meta' ) ) {
+			return $default_value;
+		}
+
+		$value = get_post_meta( $post_id, $field_name, true );
+
+		return ( '' === $value || null === $value ) ? $default_value : $value;
+	}
+
+	/**
+	 * Retrieve a term meta field value
+	 *
+	 * @param string $field_name    The field name.
+	 * @param int    $term_id       The term ID.
+	 * @param mixed  $default_value Default value if field is empty.
+	 * @return mixed The field value.
+	 */
+	public function get_term_field( string $field_name, int $term_id, $default_value = '' ) {
+		if ( '' === $field_name || ! function_exists( 'get_term_meta' ) ) {
+			return $default_value;
+		}
+
+		$value = get_term_meta( $term_id, $field_name, true );
+
+		return ( '' === $value || null === $value ) ? $default_value : $value;
+	}
+
+	/**
+	 * Retrieve a settings field value
+	 *
+	 * @param string $field_name    The field name.
+	 * @param string $page_id       The settings page ID.
+	 * @param mixed  $default_value Default value if field is empty.
+	 * @return mixed The field value.
+	 */
+	public function get_settings_field( string $field_name, string $page_id, $default_value = '' ) {
+		if ( '' === $field_name || ! function_exists( 'get_option' ) ) {
+			return $default_value;
+		}
+
+		// Settings fields are stored as {page_id}_{field_name}
+		$option_name = $page_id . '_' . $field_name;
+
+		return get_option( $option_name, $default_value );
+	}
+
+	/**
 	 * Prevent cloning
 	 */
 	private function __clone() {

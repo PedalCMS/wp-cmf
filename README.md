@@ -262,6 +262,50 @@ Manager::init()->register_from_json( __DIR__ . '/config.json' );
 
 ## Retrieving Values
 
+WP-CMF provides a universal static method to retrieve field values regardless of their storage location:
+
+```php
+use Pedalcms\WpCmf\Wpcmf;
+
+// Post meta (CPT fields)
+$price = Wpcmf::get_field( 'price', $post_id );
+$price = Wpcmf::get_field( 'price', $post_id, 'post', 0 );  // With default
+
+// Term meta (taxonomy fields)
+$color = Wpcmf::get_field( 'category_color', $term_id, 'term' );
+$color = Wpcmf::get_field( 'category_color', $term_id, 'term', '#000000' );
+
+// Settings (uses settings page ID as context)
+$store_name = Wpcmf::get_field( 'store_name', 'store-settings', 'settings' );
+$currency = Wpcmf::get_field( 'currency', 'store-settings', 'settings', 'USD' );
+```
+
+### Method Signature
+
+```php
+Wpcmf::get_field( string $field_name, int|string $context, string $context_type = 'post', mixed $default = '' )
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$field_name` | string | The field name as defined in your config |
+| `$context` | int\|string | Post ID, term ID, or settings page ID |
+| `$context_type` | string | `'post'` (default), `'term'`, or `'settings'` |
+| `$default` | mixed | Default value if field is empty |
+
+### Context-Specific Helper Methods
+
+```php
+use Pedalcms\WpCmf\Wpcmf;
+
+// Context-specific methods for convenience
+$value = Wpcmf::get_post_field( 'field_name', $post_id );
+$value = Wpcmf::get_term_field( 'field_name', $term_id );
+$value = Wpcmf::get_settings_field( 'field_name', 'page-id' );
+```
+
+### Legacy Approach (Still Works)
+
 ```php
 // Post meta (CPT fields)
 $price = get_post_meta( $post_id, 'price', true );
@@ -279,13 +323,13 @@ Modify or validate field values before saving:
 
 ```php
 // Global filter for all fields
-add_filter( 'wp_cmf_before_save_field', function( $value, $field_name, $context ) {
+add_filter( 'Wpcmf_before_save_field', function( $value, $field_name, $context ) {
     // Return modified value, or null to skip saving
     return $value;
 }, 10, 3 );
 
 // Field-specific filter
-add_filter( 'wp_cmf_before_save_field_price', function( $value ) {
+add_filter( 'Wpcmf_before_save_field_price', function( $value ) {
     return abs( floatval( $value ) );  // Ensure positive number
 } );
 ```

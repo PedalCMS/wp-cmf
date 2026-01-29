@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once dirname( __DIR__, 2 ) . '/vendor/autoload.php';
 
-use Pedalcms\WpCmf\Core\Manager;
+use Pedalcms\WpCmf\Wpcmf;
 
 /**
  * =============================================================================
@@ -34,17 +34,26 @@ use Pedalcms\WpCmf\Core\Manager;
  * - Multi-environment configuration
  * =============================================================================
  */
-function wp_cmf_simple_json_init() {
+function wpcmf_simple_json_init() {
 	$config_file = __DIR__ . '/config.json';
 
-	Manager::init()->register_from_json( $config_file );
+	Wpcmf::register_from_json( $config_file );
 }
-add_action( 'init', 'wp_cmf_simple_json_init' );
+add_action( 'init', 'wpcmf_simple_json_init' );
 
 /**
  * =============================================================================
  * RETRIEVING SAVED VALUES
  * =============================================================================
+ *
+ * WP-CMF provides a universal static method to retrieve field values:
+ *
+ * Wpcmf::get_field( $field_name, $context, $context_type, $default )
+ *
+ * - $field_name:   The field name as defined in your config
+ * - $context:      Post ID, term ID, or settings page ID
+ * - $context_type: 'post' (default), 'term', or 'settings'
+ * - $default:      Default value if field is empty
  */
 
 /**
@@ -52,10 +61,11 @@ add_action( 'init', 'wp_cmf_simple_json_init' );
  *
  * @param int    $post_id Post ID.
  * @param string $field   Field name.
+ * @param mixed  $default Default value.
  * @return mixed
  */
-function get_event_field( $post_id, $field ) {
-	return get_post_meta( $post_id, $field, true );
+function get_event_field( $post_id, $field, $default_value = '' ) {
+	return Wpcmf::get_field( $field, $post_id, 'post', $default_value );
 }
 
 /**
@@ -66,7 +76,7 @@ function get_event_field( $post_id, $field ) {
  * @return mixed
  */
 function get_events_setting( $field, $default_value = '' ) {
-	return get_option( 'events-settings_' . $field, $default_value );
+	return Wpcmf::get_field( $field, 'events-settings', 'settings', $default_value );
 }
 
 /**
